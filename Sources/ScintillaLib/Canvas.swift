@@ -12,7 +12,7 @@ public struct Canvas {
     let height: Int
     var pixels: [Color]
 
-    init(_ width: Int, _ height: Int) {
+    public init(_ width: Int, _ height: Int) {
         self.width = width
         self.height = height
         self.pixels = Array(repeating: Color(0.0, 0.0, 0.0), count: width*height)

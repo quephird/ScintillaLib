@@ -11,12 +11,12 @@ public struct Light {
     var position: Tuple4
     var intensity: Color
 
-    init(_ position: Tuple4) {
+    public init(_ position: Tuple4) {
         self.position = position
         self.intensity = .white
     }
 
-    init(_ position: Tuple4, _ intensity: Color) {
+    public init(_ position: Tuple4, _ intensity: Color) {
         self.position = position
         self.intensity = intensity
     }

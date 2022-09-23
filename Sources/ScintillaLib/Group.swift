@@ -10,7 +10,7 @@ import Foundation
 public class Group: Shape {
     var children: [Shape] = []
 
-    init(@ShapeBuilder builder: () -> [Shape]) {
+    public init(@ShapeBuilder builder: () -> [Shape]) {
         self.children = builder()
         super.init(.basicMaterial())
         for child in children {

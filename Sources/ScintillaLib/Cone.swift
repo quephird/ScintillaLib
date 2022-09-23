@@ -12,21 +12,21 @@ public class Cone: Shape {
     var maximum: Double
     var isCapped: Bool
 
-    override init( _ material: Material) {
+    public override init( _ material: Material) {
         self.minimum = -.infinity
         self.maximum = .infinity
         self.isCapped = false
         super.init(material)
     }
 
-    init(_ material: Material, _ minimum: Double, _ maximum: Double) {
+    public init(_ material: Material, _ minimum: Double, _ maximum: Double) {
         self.minimum = minimum
         self.maximum = maximum
         self.isCapped = false
         super.init(material)
     }
 
-    init(_ material: Material, _ minimum: Double, _ maximum: Double, _ isCapped: Bool) {
+    public init(_ material: Material, _ minimum: Double, _ maximum: Double, _ isCapped: Bool) {
         self.minimum = minimum
         self.maximum = maximum
         self.isCapped = isCapped

@@ -25,7 +25,7 @@ public class Material {
     let defaultTransparency = 0.0
     let defaultRefractive = 1.0
 
-    init(_ colorStrategy: ColorStrategy, _ ambient: Double, _ diffuse: Double, _ specular: Double, _ shininess: Double, _ reflective: Double, _ transparency: Double, _ refractive: Double) {
+    public init(_ colorStrategy: ColorStrategy, _ ambient: Double, _ diffuse: Double, _ specular: Double, _ shininess: Double, _ reflective: Double, _ transparency: Double, _ refractive: Double) {
         self.colorStrategy = colorStrategy
         self.ambient = ambient
         self.diffuse = diffuse
@@ -36,7 +36,7 @@ public class Material {
         self.refractive = refractive
     }
 
-    init(_ colorStrategy: ColorStrategy) {
+    public init(_ colorStrategy: ColorStrategy) {
         self.colorStrategy = colorStrategy
         self.ambient = defaultAmbient
         self.diffuse = defaultDiffuse
@@ -47,55 +47,55 @@ public class Material {
         self.refractive = defaultRefractive
     }
 
-    static func basicMaterial() -> Material {
+    public static func basicMaterial() -> Material {
         return Material(ColorStrategy.solidColor(Color(1, 1, 1)), 0.1, 0.9, 0.9, 200.0, 0.0, 0.0, 1.0)
     }
 
-    static func solidColor(_ color: Color) -> Material {
+    public static func solidColor(_ color: Color) -> Material {
         return Material(.solidColor(color))
     }
 
-    static func pattern(_ pattern: Pattern) -> Material {
+    public static func pattern(_ pattern: Pattern) -> Material {
         return Material(.pattern(pattern))
     }
 
-    func ambient(_ ambient: Double) -> Self {
+    public func ambient(_ ambient: Double) -> Self {
         self.ambient = ambient
 
         return self
     }
 
-    func diffuse(_ diffuse: Double) -> Self {
+    public func diffuse(_ diffuse: Double) -> Self {
         self.diffuse = diffuse
 
         return self
     }
 
-    func specular(_ specular: Double) -> Self {
+    public func specular(_ specular: Double) -> Self {
         self.specular = specular
 
         return self
     }
 
-    func shininess(_ shininess: Double) -> Self {
+    public func shininess(_ shininess: Double) -> Self {
         self.shininess = shininess
 
         return self
     }
 
-    func reflective(_ reflective: Double) -> Self {
+    public func reflective(_ reflective: Double) -> Self {
         self.reflective = reflective
 
         return self
     }
 
-    func transparency(_ transparency: Double) -> Self {
+    public func transparency(_ transparency: Double) -> Self {
         self.transparency = transparency
 
         return self
     }
 
-    func refractive(_ refractive: Double) -> Self {
+    public func refractive(_ refractive: Double) -> Self {
         self.refractive = refractive
 
         return self

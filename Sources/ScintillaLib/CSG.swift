@@ -12,7 +12,7 @@ public class CSG: Shape {
     var left: Shape
     var right: Shape
 
-    init(_ operation: Operation, _ left: Shape, _ right: Shape) {
+    public init(_ operation: Operation, _ left: Shape, _ right: Shape) {
         self.operation = operation
         self.left = left
         self.right = right

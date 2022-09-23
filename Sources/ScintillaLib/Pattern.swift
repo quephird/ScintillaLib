@@ -11,7 +11,7 @@ public class Pattern {
     var transform: Matrix4
     var inverseTransform: Matrix4
 
-    init(_ transform: Matrix4) {
+    public init(_ transform: Matrix4) {
         self.transform = transform
         self.inverseTransform = transform.inverse()
     }
@@ -27,11 +27,11 @@ public class Pattern {
     }
 }
 
-class Striped: Pattern {
+public class Striped: Pattern {
     var firstColor: Color
     var secondColor: Color
 
-    init(_ firstColor: Color, _ secondColor: Color, _ transform: Matrix4) {
+    public init(_ firstColor: Color, _ secondColor: Color, _ transform: Matrix4) {
         self.firstColor = firstColor
         self.secondColor = secondColor
         super.init(transform)
@@ -46,11 +46,11 @@ class Striped: Pattern {
     }
 }
 
-class Checkered2D: Pattern {
+public class Checkered2D: Pattern {
     var firstColor: Color
     var secondColor: Color
 
-    init(_ firstColor: Color, _ secondColor: Color, _ transform: Matrix4) {
+    public init(_ firstColor: Color, _ secondColor: Color, _ transform: Matrix4) {
         self.firstColor = firstColor
         self.secondColor = secondColor
         super.init(transform)
@@ -65,11 +65,11 @@ class Checkered2D: Pattern {
     }
 }
 
-class Checkered3D: Pattern {
+public class Checkered3D: Pattern {
     var firstColor: Color
     var secondColor: Color
 
-    init(_ firstColor: Color, _ secondColor: Color, _ transform: Matrix4) {
+    public init(_ firstColor: Color, _ secondColor: Color, _ transform: Matrix4) {
         self.firstColor = firstColor
         self.secondColor = secondColor
         super.init(transform)
@@ -84,11 +84,11 @@ class Checkered3D: Pattern {
     }
 }
 
-class Gradient: Pattern {
+public class Gradient: Pattern {
     var firstColor: Color
     var secondColor: Color
 
-    init(_ firstColor: Color, _ secondColor: Color, _ transform: Matrix4) {
+    public init(_ firstColor: Color, _ secondColor: Color, _ transform: Matrix4) {
         self.firstColor = firstColor
         self.secondColor = secondColor
         super.init(transform)

@@ -10,7 +10,7 @@ import Foundation
 public struct Tuple4 {
     var data: (Double, Double, Double, Double)
 
-    init(_ x: Double, _ y: Double, _ z: Double, _ w: Double) {
+    public init(_ x: Double, _ y: Double, _ z: Double, _ w: Double) {
         self.data = (x, y, z, w)
     }
 
@@ -113,10 +113,10 @@ public struct Tuple4 {
     }
 }
 
-func point(_ x: Double, _ y: Double, _ z: Double) -> Tuple4 {
+public func point(_ x: Double, _ y: Double, _ z: Double) -> Tuple4 {
     Tuple4(x, y, z, 1.0)
 }
 
-func vector(_ x: Double, _ y: Double, _ z: Double) -> Tuple4 {
+public func vector(_ x: Double, _ y: Double, _ z: Double) -> Tuple4 {
     Tuple4(x, y, z, 0.0)
 }

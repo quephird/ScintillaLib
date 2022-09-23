@@ -21,7 +21,7 @@ public class Shape {
     var inverseTransposeTransform: Matrix4
     var parent: Container?
 
-    init(_ material: Material) {
+    public init(_ material: Material) {
         self.id = Self.latestId
         self.transform = .identity
         self.material = material
@@ -30,54 +30,54 @@ public class Shape {
         Self.latestId += 1
     }
 
-    func union(@ShapeBuilder _ otherShapesBuilder: () -> [Shape]) -> Shape {
+    public func union(@ShapeBuilder _ otherShapesBuilder: () -> [Shape]) -> Shape {
         return CSG.makeCSG(.union, self, otherShapesBuilder)
     }
 
-    func difference(@ShapeBuilder _ otherShapesBuilder: () -> [Shape]) -> Shape {
+    public func difference(@ShapeBuilder _ otherShapesBuilder: () -> [Shape]) -> Shape {
         return CSG.makeCSG(.difference, self, otherShapesBuilder)
     }
 
-    func intersection(@ShapeBuilder _ otherShapesBuilder: () -> [Shape]) -> Shape {
+    public func intersection(@ShapeBuilder _ otherShapesBuilder: () -> [Shape]) -> Shape {
         return CSG.makeCSG(.intersection, self, otherShapesBuilder)
     }
 
-    func translate(_ x: Double, _ y: Double, _ z: Double) -> Self {
+    public func translate(_ x: Double, _ y: Double, _ z: Double) -> Self {
         self.transform = .translation(x, y, z)
             .multiplyMatrix(self.transform)
 
         return self
     }
 
-    func scale(_ x: Double, _ y: Double, _ z: Double) -> Self {
+    public func scale(_ x: Double, _ y: Double, _ z: Double) -> Self {
         self.transform = .scaling(x, y, z)
             .multiplyMatrix(self.transform)
 
         return self
     }
 
-    func rotateX(_ t: Double) -> Self {
+    public func rotateX(_ t: Double) -> Self {
         self.transform = .rotationX(t)
             .multiplyMatrix(self.transform)
 
         return self
     }
 
-    func rotateY(_ t: Double) -> Self {
+    public func rotateY(_ t: Double) -> Self {
         self.transform = .rotationY(t)
             .multiplyMatrix(self.transform)
 
         return self
     }
 
-    func rotateZ(_ t: Double) -> Self {
+    public func rotateZ(_ t: Double) -> Self {
         self.transform = .rotationZ(t)
             .multiplyMatrix(self.transform)
 
         return self
     }
 
-    func shear(_ xy: Double, _ xz: Double, _ yx: Double, _ yz: Double, _ zx: Double, _ zy: Double) -> Self {
+    public func shear(_ xy: Double, _ xz: Double, _ yx: Double, _ yz: Double, _ zx: Double, _ zy: Double) -> Self {
         self.transform = .shearing(xy, xz, yx, yz, zx, zy)
             .multiplyMatrix(self.transform)
 

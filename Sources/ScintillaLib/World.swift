@@ -14,20 +14,20 @@ public struct World {
     var camera: Camera
     var objects: [Shape]
 
-    init(@WorldBuilder builder: () -> (Light, Camera, [Shape])) {
+    public init(@WorldBuilder builder: () -> (Light, Camera, [Shape])) {
         let (light, camera, shapes) = builder()
         self.light = light
         self.camera = camera
         self.objects = shapes
     }
 
-    init(_ light: Light, _ camera: Camera, @ShapeBuilder builder: () -> [Shape]) {
+    public init(_ light: Light, _ camera: Camera, @ShapeBuilder builder: () -> [Shape]) {
         self.light = light
         self.camera = camera
         self.objects = builder()
     }
 
-    init(_ light: Light, _ camera: Camera, _ objects: [Shape]) {
+    public init(_ light: Light, _ camera: Camera, _ objects: [Shape]) {
         self.light = light
         self.camera = camera
         self.objects = objects

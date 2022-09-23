@@ -9,15 +9,15 @@ import Foundation
 
 @resultBuilder
 public enum ShapeBuilder {
-    static func buildBlock(_ components: [Shape]...) -> [Shape] {
+    public static func buildBlock(_ components: [Shape]...) -> [Shape] {
         return Array(components.joined())
     }
 
-    static func buildExpression(_ expression: Shape) -> [Shape] {
+    public static func buildExpression(_ expression: Shape) -> [Shape] {
         return [expression]
     }
 
-    static func buildArray(_ components: [[Shape]]) -> [Shape] {
+    public static func buildArray(_ components: [[Shape]]) -> [Shape] {
         return Array(components.joined())
     }
 }

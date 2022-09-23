@@ -17,7 +17,7 @@ public struct Camera {
     var halfHeight: Double
     var pixelSize: Double
 
-    init(_ horizontalSize: Int, _ verticalSize: Int, _ fieldOfView: Double, _ viewTransform: Matrix4) {
+    public init(_ horizontalSize: Int, _ verticalSize: Int, _ fieldOfView: Double, _ viewTransform: Matrix4) {
         self.horizontalSize = horizontalSize
         self.verticalSize = verticalSize
         self.fieldOfView = fieldOfView
