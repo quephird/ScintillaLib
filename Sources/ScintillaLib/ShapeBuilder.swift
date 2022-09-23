@@ -8,7 +8,7 @@
 import Foundation
 
 @resultBuilder
-enum ShapeBuilder {
+public enum ShapeBuilder {
     static func buildBlock(_ components: [Shape]...) -> [Shape] {
         return Array(components.joined())
     }

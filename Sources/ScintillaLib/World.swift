@@ -9,7 +9,7 @@ import Foundation
 
 let MAX_RECURSIVE_CALLS = 5
 
-struct World {
+public struct World {
     var light: Light
     var camera: Camera
     var objects: [Shape]

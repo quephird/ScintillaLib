@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Material {
+public class Material {
     var colorStrategy: ColorStrategy
     var ambient: Double
     var diffuse: Double

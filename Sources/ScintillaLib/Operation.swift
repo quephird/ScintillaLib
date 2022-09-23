@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Operation {
+public enum Operation {
     case union
     case intersection
     case difference

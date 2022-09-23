@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Light {
+public struct Light {
     var position: Tuple4
     var intensity: Color
 

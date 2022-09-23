@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Cylinder: Shape {
+public class Cylinder: Shape {
     var minimum: Double
     var maximum: Double
     var isCapped: Bool

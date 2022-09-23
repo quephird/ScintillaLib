@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum ColorStrategy {
+public enum ColorStrategy {
     case solidColor(Color)
     case pattern(Pattern)
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Container {
+public enum Container {
     case group(Group)
     case csg(CSG)
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Cube: Shape {
+public class Cube: Shape {
     func checkAxis(_ originComponent: Double, _ directionComponent: Double) -> (Double, Double) {
         let tMinNumerator = (-1 - originComponent)
         let tMaxNumerator = (1 - originComponent)

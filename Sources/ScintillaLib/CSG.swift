@@ -7,7 +7,7 @@
 
 import Foundation
 
-class CSG: Shape {
+public class CSG: Shape {
     var operation: Operation
     var left: Shape
     var right: Shape

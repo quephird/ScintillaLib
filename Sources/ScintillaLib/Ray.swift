@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Ray {
+public struct Ray {
     var origin: Tuple4
     var direction: Tuple4
 

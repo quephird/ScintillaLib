@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Shape {
+public class Shape {
     static var latestId: Int = 0
     var id: Int
     var transform: Matrix4 {

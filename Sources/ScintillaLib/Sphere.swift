@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Sphere: Shape {
+public class Sphere: Shape {
     override func localIntersect(_ localRay: Ray) -> [Intersection] {
         // The vector from the sphere's center, to the ray origin
         // remember: the sphere is centered at the world origin

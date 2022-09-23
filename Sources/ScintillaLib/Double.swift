@@ -7,11 +7,11 @@
 
 import Foundation
 
-let EPSILON = 0.00001
+public let EPSILON = 0.00001
 
-let PI = 3.1415926536
+public let PI = 3.1415926536
 
-extension Double {
+public extension Double {
     func isAlmostEqual(_ to: Double) -> Bool {
         return abs(self - to) < EPSILON
     }

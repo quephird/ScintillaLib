@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Canvas {
+public struct Canvas {
     let width: Int
     let height: Int
     var pixels: [Color]

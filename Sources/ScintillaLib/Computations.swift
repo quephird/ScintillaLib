@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Computations {
+public struct Computations {
     var t: Double
     var object: Shape
     var point: Tuple4

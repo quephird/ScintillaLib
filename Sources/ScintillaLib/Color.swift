@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Color {
+public struct Color {
     var r: Double
     var g: Double
     var b: Double

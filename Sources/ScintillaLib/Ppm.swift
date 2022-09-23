@@ -9,7 +9,7 @@ import Foundation
 
 let MAX_PPM_LINE_WIDTH = 70
 
-extension Canvas {
+public extension Canvas {
     func ppmHeader() -> String {
         "P3\n\(width) \(height)\n255"
     }

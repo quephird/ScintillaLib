@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Pattern {
+public class Pattern {
     var transform: Matrix4
     var inverseTransform: Matrix4
 

@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Group: Shape {
+public class Group: Shape {
     var children: [Shape] = []
 
     init(@ShapeBuilder builder: () -> [Shape]) {

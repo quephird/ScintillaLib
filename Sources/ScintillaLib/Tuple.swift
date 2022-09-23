@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Tuple4 {
+public struct Tuple4 {
     var data: (Double, Double, Double, Double)
 
     init(_ x: Double, _ y: Double, _ z: Double, _ w: Double) {

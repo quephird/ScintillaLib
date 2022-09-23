@@ -5,7 +5,7 @@
 //  Created by Danielle Kefford on 9/8/22.
 //
 
-class Torus: Shape {
+public class Torus: Shape {
     var majorRadius: Double
     var minorRadius: Double
 

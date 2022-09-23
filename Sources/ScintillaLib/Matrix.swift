@@ -4,7 +4,7 @@
 
 import Foundation
 
-struct Matrix2 {
+public struct Matrix2 {
     var data: (
         Double, Double,
         Double, Double
@@ -55,7 +55,7 @@ struct Matrix2 {
     }
 }
 
-struct Matrix3 {
+public struct Matrix3 {
     var data: (
         Double, Double, Double,
         Double, Double, Double,
@@ -159,7 +159,7 @@ struct Matrix3 {
     }
 }
 
-struct Matrix4 {
+public struct Matrix4 {
     var data: (
         Double, Double, Double, Double,
         Double, Double, Double, Double,

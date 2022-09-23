@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Intersection {
+public struct Intersection {
     var t: Double
     var shape: Shape
 

@@ -6,7 +6,7 @@
 //
 
 @resultBuilder
-enum WorldBuilder {
+public enum WorldBuilder {
     static func buildBlock(_ light: Light, _ camera: Camera, _ shapes: [Shape]...) -> (Light, Camera, [Shape]) {
         return (light, camera, Array(shapes.joined()))
     }

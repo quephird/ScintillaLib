@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Cone: Shape {
+public class Cone: Shape {
     var minimum: Double
     var maximum: Double
     var isCapped: Bool

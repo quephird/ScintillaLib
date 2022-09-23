@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Plane: Shape {
+public class Plane: Shape {
     override func localIntersect(_ localRay: Ray) -> [Intersection] {
         if abs(localRay.direction[1]) < EPSILON {
             return []
