@@ -191,7 +191,7 @@ public struct World {
         return Ray(origin, direction)
     }
 
-    func render() -> Canvas {
+    public func render() -> Canvas {
         var canvas = Canvas(self.camera.horizontalSize, self.camera.verticalSize)
         for y in 0...self.camera.verticalSize-1 {
             for x in 0...self.camera.horizontalSize-1 {

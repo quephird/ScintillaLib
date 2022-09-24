@@ -76,7 +76,7 @@ public extension Canvas {
         return ppm
     }
 
-    func save(to fileName: String) {
+    public func save(to fileName: String) {
         let filePath = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first!.appendingPathComponent(fileName)
         do {
             try self.toPPM().write(to: filePath, atomically: true, encoding: .utf8)
