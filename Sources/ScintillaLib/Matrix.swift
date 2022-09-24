@@ -187,7 +187,7 @@ public struct Matrix4 {
         )
     }
 
-    static func translation(_ x: Double, _ y: Double, _ z: Double) -> Self {
+    public static func translation(_ x: Double, _ y: Double, _ z: Double) -> Self {
         return Matrix4(
             1, 0, 0, x,
             0, 1, 0, y,
@@ -196,7 +196,7 @@ public struct Matrix4 {
         )
     }
 
-    static func scaling(_ x: Double, _ y: Double, _ z: Double) -> Self {
+    public static func scaling(_ x: Double, _ y: Double, _ z: Double) -> Self {
         return Matrix4(
             x, 0, 0, 0,
             0, y, 0, 0,
@@ -205,7 +205,7 @@ public struct Matrix4 {
         )
     }
 
-    static func rotationX(_ t: Double) -> Self {
+    public static func rotationX(_ t: Double) -> Self {
         return Matrix4(
             1, 0,      0,       0,
             0, cos(t), -sin(t), 0,
@@ -214,7 +214,7 @@ public struct Matrix4 {
         )
     }
 
-    static func rotationY(_ t: Double) -> Self {
+    public static func rotationY(_ t: Double) -> Self {
         return Matrix4(
             cos(t),  0, sin(t), 0,
             0,       1, 0,      0,
@@ -223,7 +223,7 @@ public struct Matrix4 {
         )
     }
 
-    static func rotationZ(_ t: Double) -> Self {
+    public static func rotationZ(_ t: Double) -> Self {
         return Matrix4(
             cos(t), -sin(t), 0, 0,
             sin(t), cos(t),  0, 0,
@@ -232,7 +232,7 @@ public struct Matrix4 {
         )
     }
 
-    static func shearing(_ xy: Double, _ xz: Double, _ yx: Double, _ yz: Double, _ zx: Double, _ zy: Double) -> Self {
+    public static func shearing(_ xy: Double, _ xz: Double, _ yx: Double, _ yz: Double, _ zx: Double, _ zy: Double) -> Self {
         return Matrix4(
             1,  xy, xz, 0,
             yx, 1,  yz, 0,
@@ -241,7 +241,7 @@ public struct Matrix4 {
         )
     }
 
-    static func view(_ from: Tuple4, _ to: Tuple4, _ up: Tuple4) -> Matrix4 {
+    public static func view(_ from: Tuple4, _ to: Tuple4, _ up: Tuple4) -> Matrix4 {
         let forward = to.subtract(from).normalize()
         let upNormalized = up.normalize()
         let left = forward.cross(upNormalized)
