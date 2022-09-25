@@ -8,8 +8,7 @@
 import Foundation
 
 public protocol ScintillaApp {
-    var filename: String { get set }
-    @WorldBuilder var body: (Light, Camera, [Shape]) { get }
+    @WorldBuilder var body: World { get }
 
     init()
 }
@@ -17,7 +16,10 @@ public protocol ScintillaApp {
 extension ScintillaApp {
     public static func main() {
         let instance = Self()
-        let canvas = World { return instance.body }.render()
-        canvas.save(to: instance.filename)
+        let instanceBody = instance.body
+        let canvas = instanceBody.render()
+
+        let outputFilename = String(describing: self) + ".ppm"
+        canvas.save(to: outputFilename)
     }
 }
