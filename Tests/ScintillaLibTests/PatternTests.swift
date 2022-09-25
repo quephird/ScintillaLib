@@ -6,6 +6,7 @@
 //
 
 import XCTest
+@testable import ScintillaLib
 
 class PatternTests: XCTestCase {
     func testStripePatternIsConstantInY() throws {

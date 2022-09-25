@@ -6,6 +6,7 @@
 //
 
 import XCTest
+@testable import ScintillaLib
 
 class MaterialTests: XCTestCase {
     func testLightingEyeBetweenLightAndSurface() throws {

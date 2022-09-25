@@ -6,6 +6,7 @@
 //
 
 import XCTest
+@testable import ScintillaLib
 
 class GroupTests: XCTestCase {
     func testLocalIntersectWithEmptyGroup() throws {

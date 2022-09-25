@@ -167,7 +167,7 @@ public struct Matrix4 {
         Double, Double, Double, Double
         )
 
-    static let identity = Matrix4(
+    public static let identity = Matrix4(
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,

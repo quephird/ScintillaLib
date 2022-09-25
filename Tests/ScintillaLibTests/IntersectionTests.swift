@@ -6,6 +6,7 @@
 //
 
 import XCTest
+@testable import ScintillaLib
 
 class IntersectionTests: XCTestCase {
     func testHitIntersectionsWithAllPositiveTs() throws {

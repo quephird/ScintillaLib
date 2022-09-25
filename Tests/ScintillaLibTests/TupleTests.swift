@@ -6,6 +6,7 @@
 //
 
 import XCTest
+@testable import ScintillaLib
 
 class Tuple4Tests: XCTestCase {
     func testAdd() throws {

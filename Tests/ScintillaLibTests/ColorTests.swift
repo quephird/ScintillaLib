@@ -6,6 +6,7 @@
 //
 
 import XCTest
+@testable import ScintillaLib
 
 class ColorTests: XCTestCase {
     func testAdd() throws {

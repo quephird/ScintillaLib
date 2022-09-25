@@ -6,6 +6,7 @@
 //
 
 import XCTest
+@testable import ScintillaLib
 
 class SphereTests: XCTestCase {
     func testIntersectTangent() throws {

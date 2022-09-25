@@ -3,6 +3,7 @@
 //
 
 import XCTest
+@testable import ScintillaLib
 
 class Matrix2Tests: XCTestCase {
     func testDeterminant() throws {

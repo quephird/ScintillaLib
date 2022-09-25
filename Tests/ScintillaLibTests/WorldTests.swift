@@ -6,6 +6,7 @@
 //
 
 import XCTest
+@testable import ScintillaLib
 
 let testCamera = Camera(800, 600, PI/3, .view(
     point(0, 1, -1),
@@ -252,7 +253,7 @@ class WorldTests: XCTestCase {
     }
 
     func testRefractedColorWithRefractedRay() throws {
-        class Test: Pattern {
+        class Test: ScintillaLib.Pattern {
             override init(_ transform: Matrix4) {
                 super.init(transform)
             }
