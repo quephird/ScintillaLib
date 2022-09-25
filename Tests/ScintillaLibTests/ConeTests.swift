@@ -6,6 +6,7 @@
 //
 
 import XCTest
+@testable import ScintillaLib
 
 class ConeTests: XCTestCase {
     func testLocalIntersectWithRayThatHitsWalls() throws {

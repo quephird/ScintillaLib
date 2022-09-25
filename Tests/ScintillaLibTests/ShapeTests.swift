@@ -6,6 +6,7 @@
 //
 
 import XCTest
+@testable import ScintillaLib
 
 class ShapeTests: XCTestCase {
     func testWorldToObjectForNestedObject() throws {

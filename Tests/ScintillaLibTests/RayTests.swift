@@ -6,6 +6,7 @@
 //
 
 import XCTest
+@testable import ScintillaLib
 
 class RayTests: XCTestCase {
     func testPosition() throws {

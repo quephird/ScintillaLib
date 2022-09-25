@@ -6,6 +6,7 @@
 //
 
 import XCTest
+@testable import ScintillaLib
 
 class CSGTests: XCTestCase {
     func testFilterIntersections() throws {
@@ -18,7 +19,7 @@ class CSGTests: XCTestCase {
             Intersection(4, s2),
         ]
 
-        let testCases: [(Operation, Int, Int)] = [
+        let testCases: [(ScintillaLib.Operation, Int, Int)] = [
             (.union, 0, 3),
             (.intersection, 1, 2),
             (.difference, 0, 1),

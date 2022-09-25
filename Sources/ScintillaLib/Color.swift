@@ -12,8 +12,8 @@ public struct Color {
     var g: Double
     var b: Double
 
-    static let white = Color(1.0, 1.0, 1.0)
-    static let black = Color(0.0, 0.0, 0.0)
+    public static let white = Color(1.0, 1.0, 1.0)
+    public static let black = Color(0.0, 0.0, 0.0)
 
     public init(_ r: Double, _ g: Double, _ b: Double) {
         self.r = r

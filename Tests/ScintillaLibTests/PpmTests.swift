@@ -6,6 +6,7 @@
 //
 
 import XCTest
+@testable import ScintillaLib
 
 class PpmTests: XCTestCase {
     func testPpmHeader() throws {

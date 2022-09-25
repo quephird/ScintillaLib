@@ -6,6 +6,7 @@
 //
 
 import XCTest
+@testable import ScintillaLib
 
 class CameraTests: XCTestCase {
     func testPixelSizeForHorizontalCanvas() throws {

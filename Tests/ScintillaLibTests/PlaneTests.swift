@@ -6,6 +6,7 @@
 //
 
 import XCTest
+@testable import ScintillaLib
 
 class PlaneTests: XCTestCase {
     func testLocalNormal() throws {

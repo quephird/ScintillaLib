@@ -10,11 +10,11 @@ import Foundation
 let MAX_PPM_LINE_WIDTH = 70
 
 public extension Canvas {
-    func ppmHeader() -> String {
+    internal func ppmHeader() -> String {
         "P3\n\(width) \(height)\n255"
     }
 
-    func line(_ y: Int) -> String {
+    internal func line(_ y: Int) -> String {
         var characterCount = 0
         var line = ""
         for x in 0...self.width-1 {
@@ -59,7 +59,7 @@ public extension Canvas {
         return line
     }
 
-    func body() -> String {
+    internal func body() -> String {
         var body = ""
         for y in 0...self.height-1 {
             body.append(self.line(y))
@@ -68,7 +68,7 @@ public extension Canvas {
         return body
     }
 
-    func toPPM() -> String {
+    internal func toPPM() -> String {
         var ppm = ""
         ppm.append(self.ppmHeader())
         ppm.append("\n")
@@ -76,7 +76,7 @@ public extension Canvas {
         return ppm
     }
 
-    public func save(to fileName: String) {
+    func save(to fileName: String) {
         let filePath = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first!.appendingPathComponent(fileName)
         do {
             try self.toPPM().write(to: filePath, atomically: true, encoding: .utf8)
