@@ -4,6 +4,8 @@ This is a library that is intended to be used to generate ray traced scenes. I h
 
 # Features
 
+This ray tracer allows you to describe and render scenes using a light source, a camera, and a collection of shapes, each shape having an associated material. Shapes can then be combined with each other using constructive solid geometry.
+
 ## Shapes
 
 The following shapes are available:
@@ -30,7 +32,7 @@ All shapes also have the following property modifiers for setting/updating the u
 
 This means that you can chain operations together in a logical manner and not have to explicitly `let` out a transformation matrix and then pass it in to the shape's constructor, like this:
 
-```
+```swift
 Cube(.basicMaterial())
     .shear(1, 1, 0, 1, 0, 0)
     .scale(1, 2, 3)
@@ -44,7 +46,30 @@ The implementation applies the underlying transformation matrices in reverse ord
 
 ## Materials
 
-Currently materials of shapes are either a solid color or a pattern. There are static methods on `Material` that make the instantiation of either slightly easier.
+Currently materials employ either a solid color or a pattern, as well as have the following other attributes:
+
+| Property | Range of values |
+| --- | --- | --- |
+| ambient reflectance | 0.0 - 1.0 |
+| diffuse reflectance | 0.0 - 1.0 |
+| specular reflectance | 0.0 - 1.0 |
+| shininess | 0.0 - ∞ |
+| reflective index | 0.0 - 1.0 |
+| transparency | 0.0 - 1.0 |
+| refractive index | 1.0 - 2.5|
+
+There is a default material, `Material.basicMaterial()`, that can be used as a convenience, with default values for all of the other attributes, or you can instantiate a `Material` with either another solid color or a pattern, namely `.solidColor()` and `.pattern()`, respectively.
+
+
+Like `Shape`, `Material` has property modifers which can be used to specify values for the other attributes without having to pass non-default values for them all at once:
+
+* `.ambient(_ n: Double)`
+* `.diffuse(_ n: Double)`
+* `.specular(_ n: Double)`
+* `.shininess(_ n: Double)`
+* `.reflective(_ n: Double)`
+* `.transparency(_ n: Double)`
+* `.refractive(_ n: Double)`
 
 The following patterns are available:
 
@@ -78,7 +103,7 @@ There are three supported operations for combining various shapes:
 
 The implementation for CSG takes advantage of so-called result builders, a feature of Swift that allows the programmer to list parameters to a function with minimal punctuation. Furthermore, Scintilla is responsible for nesting pairs of CSG operations so you don't have to, and so you can express the subtraction of three cylinders from a sphere like this:
 
-```
+```swift
 Sphere(.solidColor(Color(0, 0, 1)))
     .difference {
         Cylinder(.solidColor(Color(0, 1, 0)))
@@ -92,9 +117,26 @@ Sphere(.solidColor(Color(0, 0, 1)))
     }
 ```
 
-You can even use `for` loops in the middle of an expression:
+... instead of having to do this:
 
+```swift
+CSG(.difference,
+    CSG(.difference,
+        CSG(.difference,
+            Sphere(.solidColor(Color(0, 0, 1))),
+            Cylinder(.solidColor(Color(0, 1, 0)))
+                .scale(0.5, 0.5, 0.5)),
+        Cylinder(.solidColor(Color(0, 1, 0)))
+            .scale(0.5, 0.5, 0.5)
+            .rotateZ(PI/2)),
+    Cylinder(.solidColor(Color(0, 1, 0)))
+        .scale(0.5, 0.5, 0.5)
+        .rotateX(PI/2))
 ```
+
+You can even use `for` loops in the middle of an expression to accomplish the same:
+
+```swift
 Sphere(.solidColor(Color(0, 0, 1)))
     .difference {
         for (thetaX, thetaZ) in [(0, 0), (0, PI/2), (PI/2, 0)] {
@@ -106,9 +148,23 @@ Sphere(.solidColor(Color(0, 0, 1)))
     }
 ```
 
-Both of the above result in the following rendering:
+You can also chain calls to `.union()`, `.intersection()`, and `.difference()` to create complex shapes:
 
-![](./images/csg.png)
+```swift
+Sphere(.solidColor(Color(0, 0, 1)))
+    .intersection {
+        Cube(.solidColor(Color(1, 0, 0)))
+            .scale(0.8, 0.8, 0.8)
+    }
+    .difference {
+        for (thetaX, thetaZ) in [(0, 0), (0, PI/2), (PI/2, 0)] {
+            Cylinder(.solidColor(Color(0, 1, 0)))
+                .scale(0.5, 0.5, 0.5)
+                .rotateX(thetaX)
+                .rotateZ(thetaZ)
+        }
+    }
+```
 
 ## Constructing a scene
 
@@ -118,24 +174,22 @@ To construct a scene, you need to create a `World` instance with the following o
 * a `Camera`
 * a body of `Shape`s
 
+A `Light` only requires a point tuple to represent its origin. A `Camera` takes three tuples: the point designating its origin, the point designating where it is pointing at, and a vector representing which way is up.
+
 `World` also supports enumerating shapes using result builders, so you can do the following:
 
-```
+```swift
 World {
     Light(point(-10, 10, -10))
     Camera(800, 600, PI/3, .view(
-        point(0, 2, -5),
+        point(0, 3, -5),
         point(0, 0, 0),
         vector(0, 1, 0)))
-	Sphere(.solidColor(Color(0, 0, 1)))
-	    .difference {
-	        for (thetaX, thetaZ) in [(0, 0), (0, PI/2), (PI/2, 0)] {
-	            Cylinder(.solidColor(Color(0, 1, 0)))
-	                .scale(0.6, 0.6, 0.6)
-	                .rotateX(thetaX)
-	                .rotateZ(thetaZ)
-	        }
-	    }
+    Sphere(.solidColor(Color(1, 0, 0)))
+        .translate(-2, 0, 0)
+    Sphere(.solidColor(Color(0, 1, 0)))
+    Sphere(.solidColor(Color(0, 0, 1)))
+        .translate(2, 0, 0)
 ```
 
 Note the lack of commas separating the parameters to the `World` constructor as well as not needing brackets around the `Sphere` objects.
@@ -150,7 +204,7 @@ Next add Scintilla as a package dependency via File -> Add Packages; in that dia
 
 Now that you're ready to use Scintilla, all you need to do is create a new Swift file, say `MyWorld.swift`. Add the following code as an example scene:
 
-```
+```swift
 import ScintillaLib
 
 @main
@@ -162,14 +216,19 @@ struct MyWorld: ScintillaApp {
             point(0, 0, 0),
             vector(0, 1, 0)))
         Sphere(.solidColor(Color(0, 0, 1)))
+            .intersection {
+                Cube(.solidColor(Color(1, 0, 0)))
+                    .scale(0.8, 0.8, 0.8)
+            }
             .difference {
                 for (thetaX, thetaZ) in [(0, 0), (0, PI/2), (PI/2, 0)] {
-                     Cylinder(.solidColor(Color(0, 1, 0)))
-                         .scale(0.6, 0.6, 0.6)
-                         .rotateX(thetaX)
-                         .rotateZ(thetaZ)
+                    Cylinder(.solidColor(Color(0, 1, 0)))
+                        .scale(0.5, 0.5, 0.5)
+                        .rotateX(thetaX)
+                        .rotateZ(thetaZ)
                 }
             }
+            .rotateY(PI/6)
     }
 }
 ```
@@ -181,7 +240,9 @@ Please note the following about the example above:
 * Your struct must conform to the `ScintallaApp` protocol
 * The struct must have the `body` property, which is of type `World`
 
-If you've done all that, you now have a bona fide application and should be able to run it through Xcode. And if all goes well, you should see the file `MyWorld.ppm` on your desktop.
+If you've done all that, you now have a bona fide application and should be able to run it through Xcode. And if all goes well, you should see the file `MyWorld.ppm` on your desktop and it should look like this:
+
+![](./images/MyWorld.png)
 
 
 ## Relevant links
