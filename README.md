@@ -2,6 +2,39 @@
 
 This is a library that is intended to be used to generate ray traced scenes. I had originally implemented this in Clojure but I wanted to learn more about Swift by reimplementing it in that language. It's a library instead of an application like POV-Ray, but there is a component in it that allows you to easily create an object scene by expressing it in a Swift DSL, and then render it to a file. Moreover, since you can use Xcode to type in a scene, you can take advantage of its own features like type-checking and fixits, which were not possible using Clojure. As with the Clojure implementation, this one is based on the tests provided by the amazing book, The Ray Tracer Challenge by Jamis Buck.
 
+# Quick start
+
+* Open Xcode
+* Create a new project, using the Command Line Tool template
+* Add this library, via File -> Add Packages...
+  * Enter the URL of this repo, https://github.com/quephird/ScintillaLib, in the search field
+  * Click the Add Package button in the main dialog box
+  * Click the Add Package button in the new confirmation dialog box
+  * Observe that ScintillaLib is now in the list under Package Dependencies in the Project Navigator
+* Delete main.swift
+* Create a new Swift file, say QuickStart.swift and add the following code:
+
+```swift
+import ScintillaLib
+
+@main
+struct QuickStart: ScintillaApp {
+    var body: World {
+        Light(point(-10, 10, -10))
+        Camera(400, 400, PI/3, .view(
+            point(0, 2, -2),
+            point(0, 0, 0),
+            vector(0, 1, 0)))
+        Sphere(.solidColor(Color(1, 0, 0)))
+    }
+}
+```
+
+* Ensure that the project builds via Product -> Build
+* Run the project and observe that a new file, `QuickStart.ppm`, now exists on your desktop, and that opening it up results in an image that looks like this:
+
+![](./images/QuickStart.png)
+
 # Features
 
 This ray tracer allows you to describe and render scenes using a light source, a camera, and a collection of shapes, each shape having an associated material. Shapes can then be combined with each other using constructive solid geometry.
@@ -174,7 +207,15 @@ To construct a scene, you need to create a `World` instance with the following o
 * a `Camera`
 * a body of `Shape`s
 
-A `Light` only requires a point tuple to represent its origin. A `Camera` takes three tuples: the point designating its origin, the point designating where it is pointing at, and a vector representing which way is up.
+A `Light` only requires a point tuple to represent its origin. A `Camera` takes the following four arguments:
+
+* The width of the resultant image in pixels
+* The height of the resultant image in pixels
+* The solid angle in radians specifying the field of view
+* A view matrix that consists of:
+  * the point designating its origin
+  * the point designating where it is pointing at
+  * a vector representing which way is up.
 
 `World` also supports enumerating shapes using result builders, so you can do the following:
 
