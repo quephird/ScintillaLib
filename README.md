@@ -49,7 +49,7 @@ The implementation applies the underlying transformation matrices in reverse ord
 Currently materials employ either a solid color or a pattern, as well as have the following other attributes:
 
 | Property | Range of values |
-| --- | --- | --- |
+| --- | --- |
 | ambient reflectance | 0.0 - 1.0 |
 | diffuse reflectance | 0.0 - 1.0 |
 | specular reflectance | 0.0 - 1.0 |
