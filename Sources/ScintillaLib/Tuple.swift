@@ -14,6 +14,18 @@ public struct Tuple4 {
         self.data = (x, y, z, w)
     }
 
+    var x: Double {
+        self.data.0
+    }
+
+    var y: Double {
+        self.data.1
+    }
+
+    var z: Double {
+        self.data.2
+    }
+
     subscript(_ index: Int) -> Double {
         get {
             switch index {

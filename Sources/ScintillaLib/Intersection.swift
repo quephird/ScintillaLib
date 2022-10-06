@@ -53,7 +53,7 @@ public struct Intersection {
         let point = ray.position(self.t)
         let eye = ray.direction.negate()
         var normal = self.shape.normal(point)
-        var isInside: Bool
+        let isInside: Bool
         if normal.dot(eye) < 0 {
             isInside = true
             normal = normal.negate()
