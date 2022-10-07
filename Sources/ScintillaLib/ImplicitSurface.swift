@@ -9,7 +9,7 @@ public typealias SurfaceFunction = (Double, Double, Double) -> Double
 public typealias BoundingBox = ((Double, Double, Double), (Double, Double, Double))
 
 let DELTA = 0.0000000001
-let MAX_ITERATIONS_BISECTION = 100
+let MAX_ITERATIONS_BISECTION = 100.0
 
 public class ImplicitSurface: Shape {
     var f: SurfaceFunction
@@ -32,15 +32,17 @@ public class ImplicitSurface: Shape {
     }
 
     override func localIntersect(_ localRay: Ray) -> [Intersection] {
-        // First we check to see if the ray intersects the bounding box
-        guard let boundingBoxIntersection = self.boundingBox.intersect(localRay)
-            .first(where: { intersection in
-                intersection.t > 0
-            }) else {
+        // First we check to see if the ray intersects the bounding box;
+        // note that we need a pair of hits in order to construct a range
+        // of values for t below...
+        let boundingBoxIntersections = self.boundingBox.intersect(localRay)
+        guard boundingBoxIntersections.count == 2 else {
             return []
         }
+        let tNearer = boundingBoxIntersections[0].t
+        let tFurther = boundingBoxIntersections[1].t
 
-        // Next we substitute in the components of the inbound ray
+        // ... then we substitute in the components of the inbound ray
         // to convert f(x, y, z) into F(t), a function solely dependent on t...
         func ft(_ t: Double) -> Double {
             self.f(
@@ -50,16 +52,20 @@ public class ImplicitSurface: Shape {
             )
         }
 
-        var t = boundingBoxIntersection.t
+        // ... next we begin advancing from the nearer point of intersection
+        // and only continue through to the further one, computing a hit
+        // using the bisection method.
+        var t = tNearer
+        let deltaT = (tFurther - tNearer)/MAX_ITERATIONS_BISECTION
         var tPrev = 0.0
-        var iterations = 0
-        // TODO: iterate through the bounds
-        while iterations <= MAX_ITERATIONS_BISECTION {
+        while t <= tFurther {
             if ft(t) > 0 {
+                // If we're here, then we're outside the object and we should continue...
                 tPrev = t
-                t += 0.1
-                iterations += 1
+                t += deltaT
             } else {
+                // ... but if we're here, then we're somewhere _inside_ the object,
+                // and we need to refine t.
                 var a = tPrev
                 var b = t
                 while true {
@@ -73,8 +79,6 @@ public class ImplicitSurface: Shape {
                         b = t
                     }
                 }
-
-                break
             }
         }
 
@@ -83,7 +87,8 @@ public class ImplicitSurface: Shape {
 
     override func localNormal(_ localPoint: Tuple4) -> Tuple4 {
         // We take an approach below in approximating ∂F/∂x, ∂F/∂y, and ∂F/∂z
-        // that is similar to the one above for finding the simple derivative
+        // by computing the simple derivative using a very small value for Δx,
+        // Δy, and Δz, respectively.
         let gradFx = (f(localPoint.x + DELTA, localPoint.y, localPoint.z) - f(localPoint.x - DELTA, localPoint.y, localPoint.z))
         let gradFy = (f(localPoint.x, localPoint.y + DELTA, localPoint.z) - f(localPoint.x, localPoint.y - DELTA, localPoint.z))
         let gradFz = (f(localPoint.x, localPoint.y, localPoint.z + DELTA) - f(localPoint.x, localPoint.y, localPoint.z - DELTA))
