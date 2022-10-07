@@ -9,6 +9,7 @@ public typealias SurfaceFunction = (Double, Double, Double) -> Double
 
 let DELTA = 0.0000000001
 let MAX_ITERATIONS_NEWTON = 100
+let MAX_ITERATIONS_BISECTION = 100
 
 public class ImplicitSurface: Shape {
     var f: SurfaceFunction
@@ -32,29 +33,31 @@ public class ImplicitSurface: Shape {
             )
         }
 
-        // ... then we approximate the derivative of F(t) by using a
-        // small value for Δt...
-        func fPrimeT(_ t: Double) -> Double {
-            (ft(t + DELTA) - ft(t - DELTA))/2/DELTA
-        }
-
-        // ... then we proceed to Newton's method, starting at t=0,
-        // which is where the camera is. Note that there is no guarantee
-        // that this yields the root with the smallest positive value of t.
-        // There is a chance that we either find another root or miss
-        // finding one entirely, which can result in certain shapes being
-        // rendered with acne or not rendering at all.
-        var tPrev: Double = 0.0
-        var t: Double
+        var t = 0.0
+        var tPrev = t
         var iterations = 0
-        while iterations <= MAX_ITERATIONS_NEWTON {
-            t = tPrev - ft(tPrev)/fPrimeT(tPrev)
-            if abs(tPrev - t) < DELTA {
-                return [Intersection(t, self)]
-            }
+        while iterations <= MAX_ITERATIONS_BISECTION {
+            if ft(t) > 0 {
+                tPrev = t
+                t += 0.1
+                iterations += 1
+            } else {
+                var a = tPrev
+                var b = t
+                while true {
+                    t = (a+b)/2
+                    let f = ft(t)
+                    if abs(f) < EPSILON {
+                        return [Intersection(t, self)]
+                    } else if f > 0 {
+                        a = t
+                    } else {
+                        b = t
+                    }
+                }
 
-            tPrev = t
-            iterations += 1
+                break
+            }
         }
 
         return []
