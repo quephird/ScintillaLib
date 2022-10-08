@@ -77,6 +77,41 @@ Cube(.basicMaterial())
 
 The implementation applies the underlying transformation matrices in reverse order, so the programmer isn't burdened with those details and instead can simply chain operations in an intuitive manner.
 
+## Implicit surfaces
+
+Implicit surfaces are actually a subclass of `Shape` but are used a little differently from the other types. Implicit surfaces are created with a material _and_ a closure that represents the function F in the equation that defines the surface in terms of the three coordinates, namely:
+
+<p align="center">
+F(x, y, z) = 0
+</p>
+
+Since it is not possible to compute the bounds of an arbitrary choice of F, Scintilla needs to somehow be informed of them. The user can specify them by passing in a pair of 3-tuples representing the bottom-left-front and top-right-rear corners of a bounding box. If they do not, Scintilla defaults to a bounding box defined by (-1, -1, -1) and (1, 1, 1). Below is example code for rendering an implicit surface with an explicit bounding box:
+
+```
+import Darwin
+import ScintillaLib
+
+@main
+struct MyWorld: ScintillaApp {
+    var body: World {
+        Light(point(-10, 10, -10))
+        Camera(800, 600, PI/3, .view(
+            point(0, 0, -5),
+            point(0, 0, 0),
+            vector(0, 1, 0)))
+        ImplicitSurface(.solidColor(Color(0.2, 1, 0.5)), ((-2, -2, -2), (2, 2, 2))) { x, y, z in
+            x*x + y*y + z*z + sin(4*x) + sin(4*y) + sin(4*z) - 1
+        }
+    }
+}
+```
+
+... and here is what that looks like:
+
+![](./images/ImplicitSurface.png)
+
+Otherwise, they can be used just like any other primitive shape; they can be translated, scaled, and rotated, and all of their material properties work the same way as well.
+
 ## Materials
 
 Currently materials employ either a solid color or a pattern, as well as have the following other attributes:
