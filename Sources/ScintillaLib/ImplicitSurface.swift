@@ -9,7 +9,8 @@ public typealias SurfaceFunction = (Double, Double, Double) -> Double
 public typealias BoundingBox = ((Double, Double, Double), (Double, Double, Double))
 
 let DELTA = 0.0000000001
-let MAX_ITERATIONS_BISECTION = 100.0
+let NUM_BOUNDING_BOX_SUBDIVSIONS = 100
+let MAX_ITERATIONS_BISECTION = 100
 
 public class ImplicitSurface: Shape {
     var f: SurfaceFunction
@@ -56,7 +57,7 @@ public class ImplicitSurface: Shape {
         // and only continue through to the further one, computing a hit
         // using the bisection method.
         var t = tNearer
-        let deltaT = (tFurther - tNearer)/MAX_ITERATIONS_BISECTION
+        let deltaT = (tFurther - tNearer)/Double(NUM_BOUNDING_BOX_SUBDIVSIONS)
         var tPrev = 0.0
         while t <= tFurther {
             if ft(t) > 0 {
@@ -68,7 +69,8 @@ public class ImplicitSurface: Shape {
                 // and we need to refine t.
                 var a = tPrev
                 var b = t
-                while true {
+                var iterations = 0
+                while iterations <= MAX_ITERATIONS_BISECTION {
                     t = (a+b)/2
                     let f = ft(t)
                     if abs(f) < DELTA {
@@ -78,7 +80,11 @@ public class ImplicitSurface: Shape {
                     } else {
                         b = t
                     }
+                    iterations += 1
                 }
+                // If we got here, then we failed to converge on a value for t,
+                // so for now assume that we have a miss
+                break
             }
         }
 
