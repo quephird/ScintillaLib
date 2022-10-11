@@ -53,4 +53,10 @@ public struct AreaLight: Light {
             .add(uVec.multiplyScalar(Double(uSteps/2)))
             .add(vVec.multiplyScalar(Double(vSteps/2)))
     }
+
+    public func pointAt(_ u: Int, _ v: Int) -> Tuple4 {
+        return corner
+            .add(uVec.multiplyScalar(Double(u) + 0.5))
+            .add(vVec.multiplyScalar(Double(v) + 0.5))
+    }
 }
