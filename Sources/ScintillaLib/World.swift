@@ -170,7 +170,22 @@ public struct World {
 
     // TODO: This needs to switch on Light case
     func intensity(_ light: Light, _ worldPoint: Tuple4) -> Double {
-        return isShadowed(light.position, worldPoint) ? 0.0 : 1.0
+        switch light {
+        case let pointLight as PointLight:
+            return isShadowed(pointLight.position, worldPoint) ? 0.0 : 1.0
+        case let areaLight as AreaLight:
+            var intensity: Double = 0.0
+            for u in 0..<areaLight.uSteps {
+                for v in 0..<areaLight.vSteps {
+                    let pointOnLight = areaLight.pointAt(u, v)
+                    intensity += isShadowed(pointOnLight, worldPoint) ? 0.0 : 1.0
+                }
+            }
+
+            return intensity/Double(areaLight.samples)
+        default:
+            fatalError("Whoops! Encountered unsupport light implementation!")
+        }
     }
 
     func rayForPixel(_ pixelX: Int, _ pixelY: Int) -> Ray {
