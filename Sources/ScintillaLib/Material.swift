@@ -101,7 +101,7 @@ public class Material {
         return self
     }
 
-    func lighting(_ light: Light, _ object: Shape, _ point: Tuple4, _ eye: Tuple4, _ normal: Tuple4, _ isShadowed: Bool) -> Color {
+    func lighting(_ light: Light, _ object: Shape, _ point: Tuple4, _ eye: Tuple4, _ normal: Tuple4, _ intensity: Double) -> Color {
         // Combine the surface color with the light's color/intensity
         var effectiveColor: Color
         switch self.colorStrategy {
@@ -124,7 +124,7 @@ public class Material {
 
         var diffuse: Color
         var specular: Color
-        if lightDotNormal < 0 || isShadowed == true {
+        if lightDotNormal < 0 {
             diffuse = .black
             specular = .black
         } else {
@@ -145,6 +145,8 @@ public class Material {
                 specular = light.intensity.multiplyScalar(self.specular * factor)
             }
         }
+        diffuse = diffuse.multiplyScalar(intensity)
+        specular = specular.multiplyScalar(intensity)
 
         return ambient.add(diffuse).add(specular)
     }

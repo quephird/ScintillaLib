@@ -68,7 +68,7 @@ public struct World {
 
     func shadeHit(_ computations: Computations, _ remainingCalls: Int) -> Color {
         let material = computations.object.material
-        let isShadowed = self.isShadowed(self.light.position, computations.overPoint)
+        let intensity = self.intensity(self.light, computations.overPoint)
 
         let surfaceColor = material.lighting(
             self.light,
@@ -76,7 +76,7 @@ public struct World {
             computations.point,
             computations.eye,
             computations.normal,
-            isShadowed
+            intensity
         )
 
         let reflectedColor = self.reflectedColorAt(computations, remainingCalls)
