@@ -7,17 +7,22 @@
 
 import Foundation
 
-public struct Light {
-    var position: Tuple4
-    var intensity: Color
+public protocol Light {
+    var position: Tuple4 { get set }
+    var color: Color { get set }
+}
+
+public struct PointLight: Light {
+    public var position: Tuple4
+    public var color: Color
 
     public init(_ position: Tuple4) {
         self.position = position
-        self.intensity = .white
+        self.color = .white
     }
 
-    public init(_ position: Tuple4, _ intensity: Color) {
+    public init(_ position: Tuple4, _ color: Color) {
         self.position = position
-        self.intensity = intensity
+        self.color = color
     }
 }

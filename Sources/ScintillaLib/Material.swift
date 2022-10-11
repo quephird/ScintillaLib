@@ -106,7 +106,7 @@ public class Material {
         var effectiveColor: Color
         switch self.colorStrategy {
         case .solidColor(let color):
-            effectiveColor = color.hadamard(light.intensity)
+            effectiveColor = color.hadamard(light.color)
         case .pattern(let pattern):
             effectiveColor = pattern.colorAt(object, point)
         }
@@ -142,7 +142,7 @@ public class Material {
             } else {
                 // Compute the specular contribution
                 let factor = pow(reflectDotEye, self.shininess)
-                specular = light.intensity.multiplyScalar(self.specular * factor)
+                specular = light.color.multiplyScalar(self.specular * factor)
             }
         }
         diffuse = diffuse.multiplyScalar(intensity)

@@ -15,7 +15,7 @@ let testCamera = Camera(800, 600, PI/3, .view(
 
 func testWorld() -> World {
     World {
-        Light(point(-10, 10, -10))
+        PointLight(point(-10, 10, -10))
         Camera(800, 600, PI/3, .view(
             point(0, 1, -1),
             point(0, 0, 0),
@@ -56,7 +56,7 @@ class WorldTests: XCTestCase {
 
     func testShadeHitInside() throws {
         var world = testWorld()
-        let light = Light(point(0, 0.25, 0), Color(1, 1, 1))
+        let light = PointLight(point(0, 0.25, 0), Color(1, 1, 1))
         world.light = light
         let ray = Ray(point(0, 0, 0), vector(0, 0, 1))
         let shape = world.objects[1]
@@ -72,7 +72,7 @@ class WorldTests: XCTestCase {
         let s2 = Sphere(.basicMaterial())
             .translate(0, 0, 10)
         let world = World {
-            Light(point(0, 0, -10), Color(1, 1, 1))
+            PointLight(point(0, 0, -10), Color(1, 1, 1))
             Camera(800, 600, PI/3, .view(
                 point(0, 1, -1),
                 point(0, 0, 0),
@@ -192,7 +192,7 @@ class WorldTests: XCTestCase {
 
     func testColorAtTerminatesForWorldWithMutuallyReflectiveSurfaces() throws {
         let world = World {
-            Light(point(0, 0, 0))
+            PointLight(point(0, 0, 0))
             Camera(800, 600, PI/3, .view(
                 point(0, 1, -1),
                 point(0, 0, 0),
@@ -333,7 +333,7 @@ class WorldTests: XCTestCase {
         let glass = Material(.solidColor(.white), 0.1, 0.9, 0.9, 200, 0.0, 1.0, 1.5)
         let glassySphere = Sphere(glass)
         let world = World {
-            Light(point(-10, 10, -10))
+            PointLight(point(-10, 10, -10))
             Camera(800, 600, PI/3, .view(
                 point(0, 1, -1),
                 point(0, 0, 0),
@@ -356,7 +356,7 @@ class WorldTests: XCTestCase {
         let glass = Material(.solidColor(.white), 0.1, 0.9, 0.9, 200, 0.0, 1.0, 1.5)
         let glassySphere = Sphere(glass)
         let world = World {
-            Light(point(-10, 10, -10))
+            PointLight(point(-10, 10, -10))
             Camera(800, 600, PI/3, .view(
                 point(0, 1, -1),
                 point(0, 0, 0),
@@ -379,7 +379,7 @@ class WorldTests: XCTestCase {
         let glass = Material(.solidColor(.white), 0.1, 0.9, 0.9, 200, 0.0, 1.0, 1.5)
         let glassySphere = Sphere(glass)
         let world = World {
-            Light(point(-10, 10, -10))
+            PointLight(point(-10, 10, -10))
             Camera(800, 600, PI/3, .view(
                 point(0, 1, -1),
                 point(0, 0, 0),
@@ -420,7 +420,7 @@ class WorldTests: XCTestCase {
     }
 
     func testRayForPixelForCenterOfCanvas() throws {
-        let light = Light(point(-10, 10, -10))
+        let light = PointLight(point(-10, 10, -10))
         let camera = Camera(201, 101, PI/2, .identity)
         let objects: [Shape] = []
         let world = World(light, camera, objects)
@@ -431,7 +431,7 @@ class WorldTests: XCTestCase {
     }
 
     func testRayForPixelForCornerOfCanvas() throws {
-        let light = Light(point(-10, 10, -10))
+        let light = PointLight(point(-10, 10, -10))
         let camera = Camera(201, 101, PI/2, .identity)
         let objects: [Shape] = []
         let world = World(light, camera, objects)
@@ -442,7 +442,7 @@ class WorldTests: XCTestCase {
     }
 
     func testRayForPixelForTransformedCamera() throws {
-        let light = Light(point(-10, 10, -10))
+        let light = PointLight(point(-10, 10, -10))
         let transform = Matrix4.rotationY(PI/4)
             .multiplyMatrix(.translation(0, -2, 5))
         let camera = Camera(201, 101, PI/2, transform)

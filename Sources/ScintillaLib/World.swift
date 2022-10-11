@@ -168,6 +168,7 @@ public struct World {
         }
     }
 
+    // TODO: This needs to switch on Light case
     func intensity(_ light: Light, _ worldPoint: Tuple4) -> Double {
         return isShadowed(light.position, worldPoint) ? 0.0 : 1.0
     }
