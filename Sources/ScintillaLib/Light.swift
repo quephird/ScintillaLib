@@ -8,8 +8,8 @@
 import Foundation
 
 public protocol Light {
-    var position: Tuple4 { get set }
-    var color: Color { get set }
+    var position: Tuple4 { get }
+    var color: Color { get }
 }
 
 public struct PointLight: Light {
@@ -24,5 +24,33 @@ public struct PointLight: Light {
     public init(_ position: Tuple4, _ color: Color) {
         self.position = position
         self.color = color
+    }
+}
+
+public struct AreaLight: Light {
+    public var corner: Tuple4
+    public var color: Color
+    public var uVec: Tuple4
+    public var uSteps: Int
+    public var vVec: Tuple4
+    public var vSteps: Int
+    public var position: Tuple4
+    public var samples: Int
+
+    public init(_ corner: Tuple4, _ fullUVec: Tuple4, _ uSteps: Int, _ fullVVec: Tuple4, _ vSteps: Int) {
+        self.init(corner, .white, fullUVec, uSteps, fullVVec, vSteps)
+    }
+
+    public init(_ corner: Tuple4, _ color: Color, _ fullUVec: Tuple4, _ uSteps: Int, _ fullVVec: Tuple4, _ vSteps: Int) {
+        self.corner = corner
+        self.color = color
+        self.uSteps = uSteps
+        self.uVec = fullUVec.divideScalar(Double(uSteps))
+        self.vSteps = vSteps
+        self.vVec = fullVVec.divideScalar(Double(vSteps))
+        self.samples = uSteps * vSteps
+        self.position = corner
+            .add(uVec.multiplyScalar(Double(uSteps/2)))
+            .add(vVec.multiplyScalar(Double(vSteps/2)))
     }
 }
