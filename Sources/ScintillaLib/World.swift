@@ -68,7 +68,7 @@ public struct World {
 
     func shadeHit(_ computations: Computations, _ remainingCalls: Int) -> Color {
         let material = computations.object.material
-        let isShadowed = self.isShadowed(computations.overPoint)
+        let isShadowed = self.isShadowed(self.light.position, computations.overPoint)
 
         let surfaceColor = material.lighting(
             self.light,
@@ -153,11 +153,11 @@ public struct World {
         }
     }
 
-    func isShadowed(_ point: Tuple4) -> Bool {
-        let lightVector = self.light.position.subtract(point)
+    func isShadowed(_ lightPoint: Tuple4, _ worldPoint: Tuple4) -> Bool {
+        let lightVector = lightPoint.subtract(worldPoint)
         let lightDistance = lightVector.magnitude()
         let lightDirection = lightVector.normalize()
-        let lightRay = Ray(point, lightDirection)
+        let lightRay = Ray(worldPoint, lightDirection)
         var intersections = self.intersect(lightRay)
         let hit = hit(&intersections)
 
@@ -166,6 +166,10 @@ public struct World {
         } else {
             return false
         }
+    }
+
+    func intensity(_ light: Light, _ worldPoint: Tuple4) -> Double {
+        return isShadowed(light.position, worldPoint) ? 0.0 : 1.0
     }
 
     func rayForPixel(_ pixelX: Int, _ pixelY: Int) -> Ray {

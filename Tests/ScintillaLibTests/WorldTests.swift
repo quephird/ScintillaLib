@@ -120,26 +120,46 @@ class WorldTests: XCTestCase {
 
     func testIsShadowedPointAndLightNotCollinear() throws {
         let world = testWorld()
-        let point = point(0, 10, 0)
-        XCTAssertFalse(world.isShadowed(point))
+        let worldPoint = point(0, 10, 0)
+        XCTAssertFalse(world.isShadowed(world.light.position, worldPoint))
     }
 
     func testIsShadowedObjectBetweenPointAndLight() throws {
         let world = testWorld()
-        let point = point(10, -10, 10)
-        XCTAssertTrue(world.isShadowed(point))
+        let worldPoint = point(10, -10, 10)
+        XCTAssertTrue(world.isShadowed(world.light.position, worldPoint))
     }
 
     func testIsShadowedObjectBehindLight() throws {
         let world = testWorld()
-        let point = point(-20, 20, -20)
-        XCTAssertFalse(world.isShadowed(point))
+        let worldPoint = point(-20, 20, -20)
+        XCTAssertFalse(world.isShadowed(world.light.position, worldPoint))
     }
 
     func testIsShadowedObjectBehindPoint() throws {
         let world = testWorld()
-        let point = point(-2, 2, -2)
-        XCTAssertFalse(world.isShadowed(point))
+        let worldPoint = point(-2, 2, -2)
+        XCTAssertFalse(world.isShadowed(world.light.position, worldPoint))
+    }
+
+    func testIntensity() throws {
+        let testCases = [
+            (point(0, 1.0001, 0), 1.0),
+            (point(-1.0001, 0, 0), 1.0),
+            (point(0, 0, -1.0001), 1.0),
+            (point(0, 0, 1.0001), 0.0),
+            (point(1.0001, 0, 0), 0.0),
+            (point(0, -1.0001, 0), 0.0),
+            (point(0, 0, 0), 0.0),
+        ]
+
+        let world = testWorld()
+        let light = world.light
+
+        for (worldPoint, expectedIntensity) in testCases {
+            let actualIntesity = world.intensity(light, worldPoint)
+            XCTAssertEqual(actualIntesity, expectedIntensity)
+        }
     }
 
     func testReflectedColorForNonreflectiveMaterial() {
