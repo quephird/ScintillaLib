@@ -159,7 +159,7 @@ public struct World {
         let lightDirection = lightVector.normalize()
         let lightRay = Ray(worldPoint, lightDirection)
         var intersections = self.intersect(lightRay)
-        let hit = hit(&intersections)
+        let hit = shadowHit(&intersections)
 
         if hit != nil && hit!.t < lightDistance {
             return true
