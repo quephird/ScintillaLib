@@ -116,4 +116,30 @@ class MaterialTests: XCTestCase {
             XCTAssertTrue(actualLighting.isAlmostEqual(expectedLighting))
         }
     }
+
+    func testLightingSamplesAreaLight() throws {
+        let areaLight = AreaLight(
+            point(-0.5, -0.5, -5),
+            Color(1, 1, 1),
+            vector(1, 0, 0), 2,
+            vector(0, 1, 0), 2,
+            NoJitter())
+        let material: Material = .solidColor(.white)
+            .ambient(0.1)
+            .diffuse(0.9)
+            .specular(0.0)
+        let shape = Sphere(material)
+        let eye = point(0, 0, -5)
+
+        let testCases = [
+            (point(0, 0, -1), Color(0.9965, 0.9965, 0.9965)),
+            (point(0, 0.7071, -0.7071), Color(0.62318, 0.62318, 0.62318)),
+        ]
+        for (point, expectedColor) in testCases {
+            let eyeV = eye.subtract(point).normalize()
+            let normalV = vector(point.x, point.y, point.z)
+            let actualColor = material.lighting(areaLight, shape, point, eyeV, normalV, 1.0)
+            XCTAssert(actualColor.isAlmostEqual(expectedColor))
+        }
+    }
 }
