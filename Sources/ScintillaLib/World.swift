@@ -168,7 +168,6 @@ public struct World {
         }
     }
 
-    // TODO: This needs to switch on Light case
     func intensity(_ light: Light, _ worldPoint: Tuple4) -> Double {
         switch light {
         case let pointLight as PointLight:
@@ -184,7 +183,7 @@ public struct World {
 
             return intensity/Double(areaLight.samples)
         default:
-            fatalError("Whoops! Encountered unsupport light implementation!")
+            fatalError("Whoops! Encountered unsupported light implementation!")
         }
     }
 
