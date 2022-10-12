@@ -5,16 +5,6 @@
 //  Created by Danielle Kefford on 10/11/22.
 //
 
-extension Array {
-    func cycle() -> UnfoldSequence<Element, Int> {
-        return sequence(state: 0) { state in
-            let nextValue = self[state]
-            state = (state+1) % self.count
-            return nextValue
-        }
-    }
-}
-
 public protocol Jitter {
     mutating func next() -> Double
 }
