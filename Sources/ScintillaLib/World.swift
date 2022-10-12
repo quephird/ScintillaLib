@@ -173,7 +173,7 @@ public struct World {
         switch light {
         case let pointLight as PointLight:
             return isShadowed(pointLight.position, worldPoint) ? 0.0 : 1.0
-        case let areaLight as AreaLight:
+        case var areaLight as AreaLight:
             var intensity: Double = 0.0
             for u in 0..<areaLight.uSteps {
                 for v in 0..<areaLight.vSteps {

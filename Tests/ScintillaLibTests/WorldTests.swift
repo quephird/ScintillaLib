@@ -162,11 +162,13 @@ class WorldTests: XCTestCase {
         }
     }
 
-    func testIntensityOfAreaLight() throws {
+    func testIntensityOfAreaLightWithNoJitter() throws {
         let areaLight = AreaLight(
             point(-0.5, -0.5, -5),
+            Color(1, 1, 1),
             vector(1, 0, 0), 2,
-            vector(0, 1, 0), 2)
+            vector(0, 1, 0), 2,
+            NoJitter())
         let world = World {
             areaLight
             Camera(800, 600, PI/3, .view(
@@ -193,6 +195,43 @@ class WorldTests: XCTestCase {
         for (worldPoint, expectedIntensity) in testCases {
             let actualIntensity = world.intensity(areaLight, worldPoint)
             XCTAssertEqual(actualIntensity, expectedIntensity)
+        }
+    }
+
+    func testIntensityOfAreaLightWithPseduorandomJitter() throws {
+        let areaLight = AreaLight(
+            point(-0.5, -0.5, -5),
+            Color(1, 1, 1),
+            vector(1, 0, 0), 2,
+            vector(0, 1, 0), 2,
+            PseudorandomJitter([0.7, 0.3, 0.9, 0.1, 0.5]))
+        let world = World {
+            areaLight
+            Camera(800, 600, PI/3, .view(
+                point(0, 1, -1),
+                point(0, 0, 0),
+                vector(0, 1, 0)))
+            Sphere(.solidColor(Color(0.8, 1.0, 0.6))
+                .ambient(0.1)
+                .diffuse(0.7)
+                .specular(0.2)
+                .refractive(0.0)
+            )
+            Sphere(.basicMaterial())
+                .scale(0.5, 0.5, 0.5)
+        }
+
+        let testCases = [
+            (point(0, 0, 2), 0.0),
+            (point(1, -1, 2), 0.5),
+            (point(1.5, 0, 2), 1.0),
+            (point(1.25, 1.25, 3), 0.75),
+            (point(0, 0, -2), 1.0),
+        ]
+        for (worldPoint, expectedIntensity) in testCases {
+            let actualIntensity = world.intensity(areaLight, worldPoint)
+            XCTAssertEqual(actualIntensity, expectedIntensity)
+            print(actualIntensity)
         }
     }
 
