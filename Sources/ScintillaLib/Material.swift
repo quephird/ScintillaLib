@@ -111,11 +111,29 @@ public class Material {
             effectiveColor = pattern.colorAt(object, point)
         }
 
-        // Find the direction to the light source
-        let lightDirection = light.position.subtract(point).normalize()
-
         // Compute the ambient contribution
         let ambient = effectiveColor.multiplyScalar(self.ambient)
+
+        switch light {
+        case let pointLight as PointLight:
+            let (diffuse, specular) = self.calculateDiffuseAndSpecular(pointLight.position, pointLight.color, point, effectiveColor, eye, normal, intensity)
+            return ambient.add(diffuse).add(specular)
+        default:
+            fatalError("Whoops... encountered unsupported light implementation")
+        }
+    }
+
+    private func calculateDiffuseAndSpecular(
+        _ pointOnLight: Tuple4,
+        _ lightColor: Color,
+        _ point: Tuple4,
+        _ effectiveColor: Color,
+        _ eye: Tuple4,
+        _ normal: Tuple4,
+        _ intensity: Double
+    ) -> (Color, Color) {
+        // Find the direction to the light source
+        let lightDirection = pointOnLight.subtract(point).normalize()
 
         // light_dot_normal represents the cosine of the angle between the
         // light vector and the normal vector. A negative number means the
@@ -142,12 +160,12 @@ public class Material {
             } else {
                 // Compute the specular contribution
                 let factor = pow(reflectDotEye, self.shininess)
-                specular = light.color.multiplyScalar(self.specular * factor)
+                specular = lightColor.multiplyScalar(self.specular * factor)
             }
         }
         diffuse = diffuse.multiplyScalar(intensity)
         specular = specular.multiplyScalar(intensity)
 
-        return ambient.add(diffuse).add(specular)
+        return (diffuse, specular)
     }
 }
