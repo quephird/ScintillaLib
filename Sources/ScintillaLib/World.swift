@@ -142,8 +142,8 @@ public struct World {
     }
 
     func colorAt(_ ray: Ray, _ remainingCalls: Int) -> Color {
-        var allIntersections = self.intersect(ray)
-        let hit = hit(&allIntersections)
+        let allIntersections = self.intersect(ray)
+        let hit = hit(allIntersections)
         switch hit {
         case .none:
             return .black
@@ -158,8 +158,8 @@ public struct World {
         let lightDistance = lightVector.magnitude()
         let lightDirection = lightVector.normalize()
         let lightRay = Ray(worldPoint, lightDirection)
-        var intersections = self.intersect(lightRay)
-        let hit = shadowHit(&intersections)
+        let intersections = self.intersect(lightRay)
+        let hit = hit(intersections, includeOnlyShadowingObjects: true)
 
         if hit != nil && hit!.t < lightDistance {
             return true

@@ -81,22 +81,13 @@ public struct Intersection {
     }
 }
 
-func hit(_ intersections: inout [Intersection]) -> Optional<Intersection> {
-    intersections
-        .sort(by: { i1, i2 in
+func hit(_ intersections: [Intersection], includeOnlyShadowingObjects: Bool = false) -> Optional<Intersection> {
+    return intersections
+        .sorted(by: { i1, i2 in
             i1.t < i2.t
         })
-    return intersections
-        .filter({intersection in intersection.t > 0})
-        .first
-}
-
-func shadowHit(_ intersections: inout [Intersection]) -> Optional<Intersection> {
-    intersections
-        .sort(by: { i1, i2 in
-            i1.t < i2.t
-        })
-    return intersections
-        .filter({intersection in intersection.t > 0 && intersection.shape.castsShadow})
+        .filter { intersection in
+            intersection.t > 0 && (includeOnlyShadowingObjects ? intersection.shape.castsShadow : true)
+        }
         .first
 }
