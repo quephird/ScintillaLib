@@ -7,154 +7,154 @@
 
 import Foundation
 
-func testScene() -> World {
-    return World {
-        Light(point(-10, 10, -10))
-        Camera(800, 600, PI/3, .view(
-            point(0, 10, -15),
-            point(0, 0, 0),
-            vector(0, 1, 0)))
-        for n in 0...3 {
-            Cube(.solidColor(Color(1, 0, 0)))
-                .rotateY(PI/6)
-                .rotateX(PI/6)
-                .rotateZ(PI/6)
-                .translate(4*cos(Double(n)*PI/2), 0, 4*sin(Double(n)*PI/2))
-        }
-    }
-}
-
-func testGroup() -> World {
-    return World {
-        Light(point(-10, 10, -10))
-        Camera(800, 600, PI/3, .view(
-            point(0, 5, -10),
-            point(0, 0, 0),
-            vector(0, 1, 0)))
-        Group {
-            Sphere(.solidColor(Color(1, 0, 0)))
-            for n in 0...2 {
-                Sphere(.solidColor(Color(0, 1, 0)))
-                    .translate(2, 0, 0)
-                    .rotateY(2*Double(n)*PI/3)
-            }
-        }
-            .translate(0, 1, 0)
-        Plane(.pattern(Checkered2D(.black, .white, .identity)))
-    }
-}
-
-func testTorus() -> World {
-    return World {
-        Light(point(-10, 10, -10))
-        Camera(800, 600, PI/3, .view(
-            point(0, 5, -10),
-            point(0, 0, 0),
-            vector(0, 1, 0)))
-        Torus(.solidColor(Color(1, 0.5, 0)))
-            .translate(0, 1, 0)
-        Plane(.pattern(Checkered2D(.black, .white, .identity)))
-    }
-}
-
-func testDie() -> World {
-    let material = Material.solidColor(Color(1, 0.5, 0))
-        .reflective(0.2)
-
-    return World {
-        Light(point(-10, 10, -10))
-        Camera(800, 600, PI/3, .view(
-            point(0, 5, -10),
-            point(0, 0, 0),
-            vector(0, 1, 0)))
-        Cube(material).intersection {
-            Sphere(material)
-                .scale(1.55, 1.55, 1.55)
-            Cylinder(material, -2, 2, true)
-                .scale(1.35, 1.35, 1.35)
-            Cylinder(material, -2, 2, true)
-                .scale(1.35, 1.35, 1.35)
-                .rotateX(PI/2)
-            Cylinder(material, -2, 2, true)
-                .scale(1.35, 1.35, 1.35)
-                .rotateZ(PI/2)
-        }.difference {
-            for (x, y, z) in [
-                // face with six dimples
-                (-0.6, 1.0, 0.6),
-                (-0.6, 1.0, 0.0),
-                (-0.6, 1.0, -0.6),
-                (0.6, 1.0, 0.6),
-                (0.6, 1.0, 0.0),
-                (0.6, 1.0, -0.6),
-                // face with five dimples
-                (0.0, 0.0, -1.0),
-                (0.6, 0.6, -1.0),
-                (0.6, -0.6, -1.0),
-                (-0.6, 0.6, -1.0),
-                (-0.6, -0.6, -1.0),
-                // face with four dimples
-                (1.0, 0.6, 0.6),
-                (1.0, 0.6, -0.6),
-                (1.0, -0.6, 0.6),
-                (1.0, -0.6, -0.6),
-                // face with three dimples
-                (-1.0, 0.6, 0.6),
-                (-1.0, 0, 0),
-                (-1.0, -0.6, -0.6),
-                // face with two dimples
-                (0.6, 0.6, 1.0),
-                (-0.6, -0.6, 1.0),
-                // face with one dimple
-                (0.0, -1.0, 0.0),
-            ] {
-                Sphere(.solidColor(Color(1, 1, 1)))
-                    .scale(0.2, 0.2, 0.2)
-                    .translate(x, y, z)
-            }
-        }
-            .rotateY(PI/3)
-            .translate(0.0, 1.0, 0.0)
-        Plane(.pattern(Checkered2D(.black, .white, .identity)))
-    }
-}
-
-func chapterSevenScene() -> World {
-    return World {
-        Light(point(-10, 10, -10))
-        Camera(800, 600, PI/3, .view(
-            point(0, 2, -5),
-            point(0, 0, 0),
-            vector(0, 1, 0)))
-        Sphere(.solidColor(Color(1, 0.9, 0.9)))
-            .scale(10, 0.01, 10)
-        Sphere(.solidColor(Color(1, 0.9, 0.9)))
-            .scale(10, 0.01, 10)
-            .rotateX(PI/2)
-            .rotateY(-PI/4)
-            .translate(0, 0, 5)
-        Sphere(.solidColor(Color(1, 0.9, 0.9)))
-            .scale(10, 0.01, 10)
-            .rotateX(PI/2)
-            .rotateY(PI/4)
-            .translate(0, 0, 5)
-        Sphere(.solidColor(Color(1, 0.8, 0.1))
-                .diffuse(0.7)
-                .specular(0.3))
-            .scale(0.33, 0.33, 0.33)
-            .translate(-1.5, 0.33, -0.75)
-        Sphere(.solidColor(Color(0.1, 1.0, 0.5))
-                .diffuse(0.7)
-                .specular(0.3))
-            .translate(-0.5, 1.0, 0.5)
-        Sphere(.solidColor(Color(0.5, 1, 0.1))
-                .diffuse(0.7)
-                .specular(0.3))
-            .scale(0.5, 0.5, 0.5)
-            .translate(1.5, 0.5, -0.5)
-    }
-}
-
+//func testScene() -> World {
+//    return World {
+//        Light(point(-10, 10, -10))
+//        Camera(800, 600, PI/3, .view(
+//            point(0, 10, -15),
+//            point(0, 0, 0),
+//            vector(0, 1, 0)))
+//        for n in 0...3 {
+//            Cube(.solidColor(Color(1, 0, 0)))
+//                .rotateY(PI/6)
+//                .rotateX(PI/6)
+//                .rotateZ(PI/6)
+//                .translate(4*cos(Double(n)*PI/2), 0, 4*sin(Double(n)*PI/2))
+//        }
+//    }
+//}
+//
+//func testGroup() -> World {
+//    return World {
+//        Light(point(-10, 10, -10))
+//        Camera(800, 600, PI/3, .view(
+//            point(0, 5, -10),
+//            point(0, 0, 0),
+//            vector(0, 1, 0)))
+//        Group {
+//            Sphere(.solidColor(Color(1, 0, 0)))
+//            for n in 0...2 {
+//                Sphere(.solidColor(Color(0, 1, 0)))
+//                    .translate(2, 0, 0)
+//                    .rotateY(2*Double(n)*PI/3)
+//            }
+//        }
+//            .translate(0, 1, 0)
+//        Plane(.pattern(Checkered2D(.black, .white, .identity)))
+//    }
+//}
+//
+//func testTorus() -> World {
+//    return World {
+//        Light(point(-10, 10, -10))
+//        Camera(800, 600, PI/3, .view(
+//            point(0, 5, -10),
+//            point(0, 0, 0),
+//            vector(0, 1, 0)))
+//        Torus(.solidColor(Color(1, 0.5, 0)))
+//            .translate(0, 1, 0)
+//        Plane(.pattern(Checkered2D(.black, .white, .identity)))
+//    }
+//}
+//
+//func testDie() -> World {
+//    let material = Material.solidColor(Color(1, 0.5, 0))
+//        .reflective(0.2)
+//
+//    return World {
+//        Light(point(-10, 10, -10))
+//        Camera(800, 600, PI/3, .view(
+//            point(0, 5, -10),
+//            point(0, 0, 0),
+//            vector(0, 1, 0)))
+//        Cube(material).intersection {
+//            Sphere(material)
+//                .scale(1.55, 1.55, 1.55)
+//            Cylinder(material, -2, 2, true)
+//                .scale(1.35, 1.35, 1.35)
+//            Cylinder(material, -2, 2, true)
+//                .scale(1.35, 1.35, 1.35)
+//                .rotateX(PI/2)
+//            Cylinder(material, -2, 2, true)
+//                .scale(1.35, 1.35, 1.35)
+//                .rotateZ(PI/2)
+//        }.difference {
+//            for (x, y, z) in [
+//                // face with six dimples
+//                (-0.6, 1.0, 0.6),
+//                (-0.6, 1.0, 0.0),
+//                (-0.6, 1.0, -0.6),
+//                (0.6, 1.0, 0.6),
+//                (0.6, 1.0, 0.0),
+//                (0.6, 1.0, -0.6),
+//                // face with five dimples
+//                (0.0, 0.0, -1.0),
+//                (0.6, 0.6, -1.0),
+//                (0.6, -0.6, -1.0),
+//                (-0.6, 0.6, -1.0),
+//                (-0.6, -0.6, -1.0),
+//                // face with four dimples
+//                (1.0, 0.6, 0.6),
+//                (1.0, 0.6, -0.6),
+//                (1.0, -0.6, 0.6),
+//                (1.0, -0.6, -0.6),
+//                // face with three dimples
+//                (-1.0, 0.6, 0.6),
+//                (-1.0, 0, 0),
+//                (-1.0, -0.6, -0.6),
+//                // face with two dimples
+//                (0.6, 0.6, 1.0),
+//                (-0.6, -0.6, 1.0),
+//                // face with one dimple
+//                (0.0, -1.0, 0.0),
+//            ] {
+//                Sphere(.solidColor(Color(1, 1, 1)))
+//                    .scale(0.2, 0.2, 0.2)
+//                    .translate(x, y, z)
+//            }
+//        }
+//            .rotateY(PI/3)
+//            .translate(0.0, 1.0, 0.0)
+//        Plane(.pattern(Checkered2D(.black, .white, .identity)))
+//    }
+//}
+//
+//func chapterSevenScene() -> World {
+//    return World {
+//        Light(point(-10, 10, -10))
+//        Camera(800, 600, PI/3, .view(
+//            point(0, 2, -5),
+//            point(0, 0, 0),
+//            vector(0, 1, 0)))
+//        Sphere(.solidColor(Color(1, 0.9, 0.9)))
+//            .scale(10, 0.01, 10)
+//        Sphere(.solidColor(Color(1, 0.9, 0.9)))
+//            .scale(10, 0.01, 10)
+//            .rotateX(PI/2)
+//            .rotateY(-PI/4)
+//            .translate(0, 0, 5)
+//        Sphere(.solidColor(Color(1, 0.9, 0.9)))
+//            .scale(10, 0.01, 10)
+//            .rotateX(PI/2)
+//            .rotateY(PI/4)
+//            .translate(0, 0, 5)
+//        Sphere(.solidColor(Color(1, 0.8, 0.1))
+//                .diffuse(0.7)
+//                .specular(0.3))
+//            .scale(0.33, 0.33, 0.33)
+//            .translate(-1.5, 0.33, -0.75)
+//        Sphere(.solidColor(Color(0.1, 1.0, 0.5))
+//                .diffuse(0.7)
+//                .specular(0.3))
+//            .translate(-0.5, 1.0, 0.5)
+//        Sphere(.solidColor(Color(0.5, 1, 0.1))
+//                .diffuse(0.7)
+//                .specular(0.3))
+//            .scale(0.5, 0.5, 0.5)
+//            .translate(1.5, 0.5, -0.5)
+//    }
+//}
+//
 //func chapterNineScene() -> World {
 //    let floorMaterial = Material(.solidColor(Color(1, 0.9, 0.9)), 0.1, 0.9, 0.0, 200, 0.0, 0.0, 0.0)
 //    let floor = Plane(.identity, floorMaterial)

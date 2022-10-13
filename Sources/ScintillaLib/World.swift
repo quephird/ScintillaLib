@@ -68,7 +68,7 @@ public struct World {
 
     func shadeHit(_ computations: Computations, _ remainingCalls: Int) -> Color {
         let material = computations.object.material
-        let isShadowed = self.isShadowed(computations.overPoint)
+        let intensity = self.intensity(self.light, computations.overPoint)
 
         let surfaceColor = material.lighting(
             self.light,
@@ -76,7 +76,7 @@ public struct World {
             computations.point,
             computations.eye,
             computations.normal,
-            isShadowed
+            intensity
         )
 
         let reflectedColor = self.reflectedColorAt(computations, remainingCalls)
@@ -142,8 +142,8 @@ public struct World {
     }
 
     func colorAt(_ ray: Ray, _ remainingCalls: Int) -> Color {
-        var allIntersections = self.intersect(ray)
-        let hit = hit(&allIntersections)
+        let allIntersections = self.intersect(ray)
+        let hit = hit(allIntersections)
         switch hit {
         case .none:
             return .black
@@ -153,18 +153,37 @@ public struct World {
         }
     }
 
-    func isShadowed(_ point: Tuple4) -> Bool {
-        let lightVector = self.light.position.subtract(point)
+    func isShadowed(_ lightPoint: Tuple4, _ worldPoint: Tuple4) -> Bool {
+        let lightVector = lightPoint.subtract(worldPoint)
         let lightDistance = lightVector.magnitude()
         let lightDirection = lightVector.normalize()
-        let lightRay = Ray(point, lightDirection)
-        var intersections = self.intersect(lightRay)
-        let hit = hit(&intersections)
+        let lightRay = Ray(worldPoint, lightDirection)
+        let intersections = self.intersect(lightRay)
+        let hit = hit(intersections, includeOnlyShadowingObjects: true)
 
         if hit != nil && hit!.t < lightDistance {
             return true
         } else {
             return false
+        }
+    }
+
+    func intensity(_ light: Light, _ worldPoint: Tuple4) -> Double {
+        switch light {
+        case let pointLight as PointLight:
+            return isShadowed(pointLight.position, worldPoint) ? 0.0 : 1.0
+        case var areaLight as AreaLight:
+            var intensity: Double = 0.0
+            for u in 0..<areaLight.uSteps {
+                for v in 0..<areaLight.vSteps {
+                    let pointOnLight = areaLight.pointAt(u, v)
+                    intensity += isShadowed(pointOnLight, worldPoint) ? 0.0 : 1.0
+                }
+            }
+
+            return intensity/Double(areaLight.samples)
+        default:
+            fatalError("Whoops! Encountered unsupported light implementation!")
         }
     }
 

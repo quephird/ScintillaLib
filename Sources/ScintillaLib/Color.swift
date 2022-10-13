@@ -33,6 +33,10 @@ public struct Color {
         Color(self.r*scalar, self.g*scalar, self.b*scalar)
     }
 
+    func divideScalar(_ scalar: Double) -> Self {
+        return self.multiplyScalar(1.0/scalar)
+    }
+
     func hadamard(_ other: Self) -> Self {
         Color(self.r*other.r, self.g*other.g, self.b*other.b)
     }

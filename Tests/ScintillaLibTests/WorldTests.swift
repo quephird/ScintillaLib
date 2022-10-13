@@ -15,7 +15,7 @@ let testCamera = Camera(800, 600, PI/3, .view(
 
 func testWorld() -> World {
     World {
-        Light(point(-10, 10, -10))
+        PointLight(point(-10, 10, -10))
         Camera(800, 600, PI/3, .view(
             point(0, 1, -1),
             point(0, 0, 0),
@@ -56,7 +56,7 @@ class WorldTests: XCTestCase {
 
     func testShadeHitInside() throws {
         var world = testWorld()
-        let light = Light(point(0, 0.25, 0), Color(1, 1, 1))
+        let light = PointLight(point(0, 0.25, 0), Color(1, 1, 1))
         world.light = light
         let ray = Ray(point(0, 0, 0), vector(0, 0, 1))
         let shape = world.objects[1]
@@ -72,7 +72,7 @@ class WorldTests: XCTestCase {
         let s2 = Sphere(.basicMaterial())
             .translate(0, 0, 10)
         let world = World {
-            Light(point(0, 0, -10), Color(1, 1, 1))
+            PointLight(point(0, 0, -10), Color(1, 1, 1))
             Camera(800, 600, PI/3, .view(
                 point(0, 1, -1),
                 point(0, 0, 0),
@@ -120,26 +120,119 @@ class WorldTests: XCTestCase {
 
     func testIsShadowedPointAndLightNotCollinear() throws {
         let world = testWorld()
-        let point = point(0, 10, 0)
-        XCTAssertFalse(world.isShadowed(point))
+        let worldPoint = point(0, 10, 0)
+        XCTAssertFalse(world.isShadowed(world.light.position, worldPoint))
     }
 
     func testIsShadowedObjectBetweenPointAndLight() throws {
         let world = testWorld()
-        let point = point(10, -10, 10)
-        XCTAssertTrue(world.isShadowed(point))
+        let worldPoint = point(10, -10, 10)
+        XCTAssertTrue(world.isShadowed(world.light.position, worldPoint))
     }
 
     func testIsShadowedObjectBehindLight() throws {
         let world = testWorld()
-        let point = point(-20, 20, -20)
-        XCTAssertFalse(world.isShadowed(point))
+        let worldPoint = point(-20, 20, -20)
+        XCTAssertFalse(world.isShadowed(world.light.position, worldPoint))
     }
 
     func testIsShadowedObjectBehindPoint() throws {
         let world = testWorld()
-        let point = point(-2, 2, -2)
-        XCTAssertFalse(world.isShadowed(point))
+        let worldPoint = point(-2, 2, -2)
+        XCTAssertFalse(world.isShadowed(world.light.position, worldPoint))
+    }
+
+    func testIntensityOfPointLight() throws {
+        let testCases = [
+            (point(0, 1.0001, 0), 1.0),
+            (point(-1.0001, 0, 0), 1.0),
+            (point(0, 0, -1.0001), 1.0),
+            (point(0, 0, 1.0001), 0.0),
+            (point(1.0001, 0, 0), 0.0),
+            (point(0, -1.0001, 0), 0.0),
+            (point(0, 0, 0), 0.0),
+        ]
+
+        let world = testWorld()
+        let light = world.light
+
+        for (worldPoint, expectedIntensity) in testCases {
+            let actualIntesity = world.intensity(light, worldPoint)
+            XCTAssertEqual(actualIntesity, expectedIntensity)
+        }
+    }
+
+    func testIntensityOfAreaLightWithNoJitter() throws {
+        let areaLight = AreaLight(
+            point(-0.5, -0.5, -5),
+            Color(1, 1, 1),
+            vector(1, 0, 0), 2,
+            vector(0, 1, 0), 2,
+            NoJitter())
+        let world = World {
+            areaLight
+            Camera(800, 600, PI/3, .view(
+                point(0, 1, -1),
+                point(0, 0, 0),
+                vector(0, 1, 0)))
+            Sphere(.solidColor(Color(0.8, 1.0, 0.6))
+                .ambient(0.1)
+                .diffuse(0.7)
+                .specular(0.2)
+                .refractive(0.0)
+            )
+            Sphere(.basicMaterial())
+                .scale(0.5, 0.5, 0.5)
+        }
+
+        let testCases = [
+            (point(0, 0, 2), 0.0),
+            (point(1, -1, 2), 0.25),
+            (point(1.5, 0, 2), 0.5),
+            (point(1.25, 1.25, 3), 0.75),
+            (point(0, 0, -2), 1.0),
+        ]
+        for (worldPoint, expectedIntensity) in testCases {
+            let actualIntensity = world.intensity(areaLight, worldPoint)
+            XCTAssertEqual(actualIntensity, expectedIntensity)
+        }
+    }
+
+    func testIntensityOfAreaLightWithPseduorandomJitter() throws {
+        let areaLight = AreaLight(
+            point(-0.5, -0.5, -5),
+            Color(1, 1, 1),
+            vector(1, 0, 0), 2,
+            vector(0, 1, 0), 2,
+            PseudorandomJitter([0.7, 0.3, 0.9, 0.1, 0.5]))
+        let world = World {
+            areaLight
+            Camera(800, 600, PI/3, .view(
+                point(0, 1, -1),
+                point(0, 0, 0),
+                vector(0, 1, 0)))
+            Sphere(.solidColor(Color(0.8, 1.0, 0.6))
+                .ambient(0.1)
+                .diffuse(0.7)
+                .specular(0.2)
+                .refractive(0.0)
+            )
+            Sphere(.basicMaterial())
+                .scale(0.5, 0.5, 0.5)
+        }
+
+        let testCases = [
+            (point(0, 0, 2), 0.0),
+            (point(1, -1, 2), 0.5),
+            (point(1.5, 0, 2), 1.0),
+            (point(1.25, 1.25, 3), 0.75),
+            (point(0, 0, -2), 1.0),
+        ]
+        for (worldPoint, expectedIntensity) in testCases {
+            let actualIntensity = world.intensity(areaLight, worldPoint)
+            XCTAssertEqual(actualIntensity, expectedIntensity)
+            print(actualIntensity)
+        }
     }
 
     func testReflectedColorForNonreflectiveMaterial() {
@@ -172,7 +265,7 @@ class WorldTests: XCTestCase {
 
     func testColorAtTerminatesForWorldWithMutuallyReflectiveSurfaces() throws {
         let world = World {
-            Light(point(0, 0, 0))
+            PointLight(point(0, 0, 0))
             Camera(800, 600, PI/3, .view(
                 point(0, 1, -1),
                 point(0, 0, 0),
@@ -313,7 +406,7 @@ class WorldTests: XCTestCase {
         let glass = Material(.solidColor(.white), 0.1, 0.9, 0.9, 200, 0.0, 1.0, 1.5)
         let glassySphere = Sphere(glass)
         let world = World {
-            Light(point(-10, 10, -10))
+            PointLight(point(-10, 10, -10))
             Camera(800, 600, PI/3, .view(
                 point(0, 1, -1),
                 point(0, 0, 0),
@@ -336,7 +429,7 @@ class WorldTests: XCTestCase {
         let glass = Material(.solidColor(.white), 0.1, 0.9, 0.9, 200, 0.0, 1.0, 1.5)
         let glassySphere = Sphere(glass)
         let world = World {
-            Light(point(-10, 10, -10))
+            PointLight(point(-10, 10, -10))
             Camera(800, 600, PI/3, .view(
                 point(0, 1, -1),
                 point(0, 0, 0),
@@ -359,7 +452,7 @@ class WorldTests: XCTestCase {
         let glass = Material(.solidColor(.white), 0.1, 0.9, 0.9, 200, 0.0, 1.0, 1.5)
         let glassySphere = Sphere(glass)
         let world = World {
-            Light(point(-10, 10, -10))
+            PointLight(point(-10, 10, -10))
             Camera(800, 600, PI/3, .view(
                 point(0, 1, -1),
                 point(0, 0, 0),
@@ -400,7 +493,7 @@ class WorldTests: XCTestCase {
     }
 
     func testRayForPixelForCenterOfCanvas() throws {
-        let light = Light(point(-10, 10, -10))
+        let light = PointLight(point(-10, 10, -10))
         let camera = Camera(201, 101, PI/2, .identity)
         let objects: [Shape] = []
         let world = World(light, camera, objects)
@@ -411,7 +504,7 @@ class WorldTests: XCTestCase {
     }
 
     func testRayForPixelForCornerOfCanvas() throws {
-        let light = Light(point(-10, 10, -10))
+        let light = PointLight(point(-10, 10, -10))
         let camera = Camera(201, 101, PI/2, .identity)
         let objects: [Shape] = []
         let world = World(light, camera, objects)
@@ -422,7 +515,7 @@ class WorldTests: XCTestCase {
     }
 
     func testRayForPixelForTransformedCamera() throws {
-        let light = Light(point(-10, 10, -10))
+        let light = PointLight(point(-10, 10, -10))
         let transform = Matrix4.rotationY(PI/4)
             .multiplyMatrix(.translation(0, -2, 5))
         let camera = Camera(201, 101, PI/2, transform)

@@ -13,8 +13,8 @@ class IntersectionTests: XCTestCase {
         let s = Sphere(.basicMaterial())
         let i1 = Intersection(1, s)
         let i2 = Intersection(2, s)
-        var intersections = [i2, i1]
-        let h = hit(&intersections)!
+        let intersections = [i2, i1]
+        let h = hit(intersections)!
         XCTAssert(h.t.isAlmostEqual(i1.t))
     }
 
@@ -22,8 +22,8 @@ class IntersectionTests: XCTestCase {
         let s = Sphere(.basicMaterial())
         let i1 = Intersection(-1, s)
         let i2 = Intersection(1, s)
-        var intersections = [i2, i1]
-        let h = hit(&intersections)!
+        let intersections = [i2, i1]
+        let h = hit(intersections)!
         XCTAssert(h.t.isAlmostEqual(i2.t))
     }
 
@@ -31,8 +31,8 @@ class IntersectionTests: XCTestCase {
         let s = Sphere(.basicMaterial())
         let i1 = Intersection(-2, s)
         let i2 = Intersection(-1, s)
-        var intersections = [i2, i1]
-        let h = hit(&intersections)
+        let intersections = [i2, i1]
+        let h = hit(intersections)
         XCTAssertNil(h)
     }
 
@@ -42,9 +42,23 @@ class IntersectionTests: XCTestCase {
         let i2 = Intersection(7, s)
         let i3 = Intersection(-3, s)
         let i4 = Intersection(2, s)
-        var intersections = [i1, i2, i3, i4]
-        let h = hit(&intersections)!
+        let intersections = [i1, i2, i3, i4]
+        let h = hit(intersections)!
         XCTAssert(h.t.isAlmostEqual(i4.t))
+    }
+
+    func testHitOnlyConsidersObjectsThatCastShadowsWhenCalledThatWay() throws {
+        let s1 = Sphere(.basicMaterial())
+            .castsShadow(false)
+        let i1 = Intersection(1, s1)
+        let i2 = Intersection(3, s1)
+        let s2 = Sphere(.basicMaterial())
+            .translate(3, 0, 0)
+        let i3 = Intersection(4, s2)
+        let i4 = Intersection(6, s2)
+        let intersections = [i1, i2, i3, i4]
+        let h = hit(intersections, includeOnlyShadowingObjects: true)!
+        XCTAssertEqual(h.shape.id, s2.id)
     }
 
     func testPrepareComputationsOutside() throws {
