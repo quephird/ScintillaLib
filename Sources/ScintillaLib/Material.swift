@@ -119,24 +119,22 @@ public class Material {
             let (diffuse, specular) = self.calculateDiffuseAndSpecular(pointLight.position, pointLight.color, point, effectiveColor, eye, normal, intensity)
             return ambient.add(diffuse).add(specular)
         case var areaLight as AreaLight:
-            var diffuseSamples: [Color] = []
-            var specularSamples: [Color] = []
+            var diffuseSamples: Color = .black
+            var specularSamples: Color = .black
+
             for u in 0..<areaLight.uSteps {
                 for v in 0..<areaLight.vSteps {
                     let pointOnLight = areaLight.pointAt(u, v)
                     let (diffuse, specular) = self.calculateDiffuseAndSpecular(pointOnLight, areaLight.color, point, effectiveColor, eye, normal, intensity)
-                    diffuseSamples.append(diffuse)
-                    specularSamples.append(specular)
+                    diffuseSamples = diffuseSamples.add(diffuse)
+                    specularSamples = specularSamples.add(specular)
                 }
             }
 
-            let diffuse = diffuseSamples.reduce(Color.black) { accumulator, element in
-                accumulator.add(element)
-            }.multiplyScalar(1.0/Double(areaLight.samples))
-            let specular = specularSamples.reduce(Color.black) { accumulator, element in
-                accumulator.add(element)
-            }.multiplyScalar(1.0/Double(areaLight.samples))
-            return ambient.add(diffuse).add(specular)
+            let diffuseAverage = diffuseSamples.divideScalar(Double(areaLight.samples))
+            let specularAverage = specularSamples.divideScalar(Double(areaLight.samples))
+
+            return ambient.add(diffuseAverage).add(specularAverage)
         default:
             fatalError("Whoops... encountered unsupported light implementation")
         }
