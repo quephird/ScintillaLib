@@ -28,15 +28,15 @@ public struct PointLight: Light {
 }
 
 public struct AreaLight: Light {
-    public var corner: Tuple4
-    public var color: Color
-    public var uVec: Tuple4
-    public var uSteps: Int
-    public var vVec: Tuple4
-    public var vSteps: Int
     public var position: Tuple4
-    public var samples: Int
-    public var jitter: Jitter
+    public var color: Color
+    var corner: Tuple4
+    var uVec: Tuple4
+    var uSteps: Int
+    var vVec: Tuple4
+    var vSteps: Int
+    var samples: Int
+    var jitter: Jitter
 
     public init(_ corner: Tuple4, _ fullUVec: Tuple4, _ uSteps: Int, _ fullVVec: Tuple4, _ vSteps: Int) {
         self.init(corner, .white, fullUVec, uSteps, fullVVec, vSteps, RandomJitter())
