@@ -20,7 +20,7 @@ import ScintillaLib
 @main
 struct QuickStart: ScintillaApp {
     var body: World {
-        Light(point(-10, 10, -10))
+        PointLight(point(-10, 10, -10))
         Camera(400, 400, PI/3, .view(
             point(0, 2, -2),
             point(0, 0, 0),
@@ -94,7 +94,7 @@ import ScintillaLib
 @main
 struct MyWorld: ScintillaApp {
     var body: World {
-        Light(point(-10, 10, -10))
+        PointLight(point(-10, 10, -10))
         Camera(800, 600, PI/3, .view(
             point(0, 0, -5),
             point(0, 0, 0),
@@ -234,6 +234,52 @@ Sphere(.solidColor(Color(0, 0, 1)))
     }
 ```
 
+## Lights
+
+Scintilla currently supports two kinds of `Light`s: `PointLight` and `AreaLight`. `PointLight` minimally requires a position to be constructed and defaults to a white color if no other one is specified. Light rays emanate from a single point, the `PointLight`'s position, and are cast on the world.
+
+`AreaLight`s require more information in order to be constructed:
+
+| Parameter name | Description |
+| --- | --- |
+| `corner` | a `Tuple4` object which represents the x, y, and z coordinates of the corner of the light source |
+| `color` | the `Color` of the light source |
+| `fullUVec` | a `Tuple4` object representing the direction and size of one dimension of the light source |
+| `uSteps` | the number of subdivisions along the vector defined by `fullUVec` | 
+| `fullVVec` | a `Tuple4` object representing the direction and magnitude of the second dimension of the light source |
+| `vSteps` | the number of subdivisions along the vector defined by `fullVVec` | 
+
+The following diagram might make it clearer to understand what the parameters represent:
+
+```
+                            --------- fullVVec ------->
+
+                    ^      |------|------|------|------|
+                    |      |      | *    |      |  *   |
+                    |      | *    |      |   *  |      |
+                    |      |------|------|------|------|
+                fullUVec   |      |      |  *   |     *|
+                    |      |    * |  *   |      |      |
+                    |      |------|------|------|------|
+                    |      |      |   *  |   *  |      |
+                    |      |  *   |      |      |*     |
+                    |      |------|------|------|------|
+
+                        corner
+
+```
+Instead of a single point source of light, an `AreaLight` can be thought of as a rectangular one being composed of multiple cells, `uSteps`*`vSteps` in number. For each pixel to be rendered in the scene, a ray is cast from each of the cells, the position of which is randomly "jittered" from the center of each one, indicated above by asterisks. The colors associated with each light ray are then averaged and assigned to each pixel in the scene, the primary result of which is softer shadows of objects. You can see the stark difference below.
+
+A scene rendered with a point light:
+
+![](./images/PointLight.png)
+
+A scene rendered with an area light with 10 subdivisions along both dimensions:
+
+![](./images/AreaLight.png)
+
+**NOTA BENE**: Using an `AreaLight` results in longer rendering times that are proportional to the values of the `uSteps` and `vSteps` parameters.
+
 ## Constructing a scene
 
 To construct a scene, you need to create a `World` instance with the following objects
@@ -242,7 +288,7 @@ To construct a scene, you need to create a `World` instance with the following o
 * a `Camera`
 * a body of `Shape`s
 
-A `Light` only requires a point tuple to represent its origin. A `Camera` takes the following four arguments:
+Lights and shapes are discussed above. A `Camera` takes the following four arguments:
 
 * The width of the resultant image in pixels
 * The height of the resultant image in pixels
@@ -256,7 +302,7 @@ A `Light` only requires a point tuple to represent its origin. A `Camera` takes 
 
 ```swift
 World {
-    Light(point(-10, 10, -10))
+    PointLight(point(-10, 10, -10))
     Camera(800, 600, PI/3, .view(
         point(0, 3, -5),
         point(0, 0, 0),
@@ -286,7 +332,7 @@ import ScintillaLib
 @main
 struct MyWorld: ScintillaApp {
     var body: World {
-        Light(point(-10, 10, -10))
+        PointLight(point(-10, 10, -10))
         Camera(800, 600, PI/3, .view(
             point(0, 10, -15),
             point(0, 0, 0),
