@@ -187,10 +187,10 @@ public struct World {
         }
     }
 
-    func rayForPixel(_ pixelX: Int, _ pixelY: Int, _ jitterX: Double, _ jitterY: Double) -> Ray {
+    func rayForPixel(_ pixelX: Int, _ pixelY: Int, _ dx: Double, _ dy: Double) -> Ray {
         // The offset from the edge of the canvas to the pixel's center
-        let offsetX = (Double(pixelX) + jitterX) * self.camera.pixelSize
-        let offsetY = (Double(pixelY) + jitterY) * self.camera.pixelSize
+        let offsetX = (Double(pixelX) + dx) * self.camera.pixelSize
+        let offsetY = (Double(pixelY) + dy) * self.camera.pixelSize
 
         // The untransformed coordinates of the pixel in world space.
         // (Remember that the camera looks toward -z, so +x is to the *left*.)
@@ -211,19 +211,28 @@ public struct World {
         var canvas = Canvas(self.camera.horizontalSize, self.camera.verticalSize)
         for y in 0...self.camera.verticalSize-1 {
             for x in 0...self.camera.horizontalSize-1 {
+                let subpixelSamplesX = 4
+                let subpixelSamplesY = 4
+
                 var colorSamples: Color = .black
-                for _ in 0..<15 {
-                    let jitterX = Double.random(in: 0.0...1.0)
-                    let jitterY = Double.random(in: 0.0...1.0)
-                    let ray = self.rayForPixel(x, y, jitterX, jitterY)
-                    let color = self.colorAt(ray, MAX_RECURSIVE_CALLS)
-                    colorSamples = colorSamples.add(color)
+                for i in 0..<subpixelSamplesX {
+                    for j in 0..<subpixelSamplesY {
+                        let subpixelWidth = 1.0/Double(subpixelSamplesX)
+                        let subpixelHeight = 1.0/Double(subpixelSamplesY)
+                        let jitterX = Double.random(in: 0.0...subpixelWidth)
+                        let jitterY = Double.random(in: 0.0...subpixelHeight)
+                        let dx = Double(i)*subpixelWidth + jitterX
+                        let dy = Double(j)*subpixelHeight + jitterY
+                        let ray = self.rayForPixel(x, y, dx, dy)
+                        let color = self.colorAt(ray, MAX_RECURSIVE_CALLS)
+                        colorSamples = colorSamples.add(color)
+                    }
                 }
 
-                canvas.setPixel(x, y, colorSamples.divideScalar(15))
+                let totalSamples = subpixelSamplesX*subpixelSamplesX
+                canvas.setPixel(x, y, colorSamples.divideScalar(Double(totalSamples)))
             }
         }
         return canvas
     }
 }
-
