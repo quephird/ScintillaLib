@@ -13,6 +13,7 @@ public struct World {
     var light: Light
     var camera: Camera
     var objects: [Shape]
+    var antialiasing: Bool = false
 
     public init(@WorldBuilder builder: () -> World) {
         self = builder()
@@ -28,6 +29,11 @@ public struct World {
         self.light = light
         self.camera = camera
         self.objects = objects
+    }
+
+    public mutating func antialiasing(_ antialiasing: Bool) -> Self {
+        self.antialiasing = antialiasing
+        return self
     }
 
     func intersect(_ ray: Ray) -> [Intersection] {
@@ -187,7 +193,7 @@ public struct World {
         }
     }
 
-    func rayForPixel(_ pixelX: Int, _ pixelY: Int, _ dx: Double, _ dy: Double) -> Ray {
+    func rayForPixel(_ pixelX: Int, _ pixelY: Int, _ dx: Double = 0.5, _ dy: Double = 0.5) -> Ray {
         // The offset from the edge of the canvas to the pixel's center
         let offsetX = (Double(pixelX) + dx) * self.camera.pixelSize
         let offsetY = (Double(pixelY) + dy) * self.camera.pixelSize
@@ -207,10 +213,11 @@ public struct World {
         return Ray(origin, direction)
     }
 
+    // TODO: Need to think about how best to inject jitter
     public func render() -> Canvas {
         var canvas = Canvas(self.camera.horizontalSize, self.camera.verticalSize)
-        for y in 0...self.camera.verticalSize-1 {
-            for x in 0...self.camera.horizontalSize-1 {
+        for y in 0..<self.camera.verticalSize {
+            for x in 0..<self.camera.horizontalSize {
                 let subpixelSamplesX = 4
                 let subpixelSamplesY = 4
 
