@@ -216,40 +216,58 @@ public class World {
         return Ray(origin, direction)
     }
 
-    public func render() -> Canvas {
+    public func render() async -> Canvas {
         var canvas = Canvas(self.camera.horizontalSize, self.camera.verticalSize)
-        for y in 0..<self.camera.verticalSize {
-            for x in 0..<self.camera.horizontalSize {
-                let color: Color
 
-                if self.antialiasing {
-                    let subpixelSamplesX = 4
-                    let subpixelSamplesY = 4
+        await withTaskGroup(of: (Int, [Color]).self) { group in
+            for y in 0..<self.camera.verticalSize {
+                group.addTask {
+                    var lineColors: [Color] = []
+                    lineColors.reserveCapacity(self.camera.horizontalSize)
 
-                    var colorSamples: Color = .black
-                    for i in 0..<subpixelSamplesX {
-                        for j in 0..<subpixelSamplesY {
-                            let subpixelWidth = 1.0/Double(subpixelSamplesX)
-                            let subpixelHeight = 1.0/Double(subpixelSamplesY)
-                            let jitterX = Double.random(in: 0.0...subpixelWidth)
-                            let jitterY = Double.random(in: 0.0...subpixelHeight)
-                            let dx = Double(i)*subpixelWidth + jitterX
-                            let dy = Double(j)*subpixelHeight + jitterY
-                            let ray = self.rayForPixel(x, y, dx, dy)
-                            let colorSample = self.colorAt(ray, MAX_RECURSIVE_CALLS)
-                            colorSamples = colorSamples.add(colorSample)
+                    for x in 0..<self.camera.horizontalSize {
+                        let color: Color
+
+                        if self.antialiasing {
+                            let subpixelSamplesX = 4
+                            let subpixelSamplesY = 4
+
+                            var colorSamples: Color = .black
+                            for i in 0..<subpixelSamplesX {
+                                for j in 0..<subpixelSamplesY {
+                                    let subpixelWidth = 1.0/Double(subpixelSamplesX)
+                                    let subpixelHeight = 1.0/Double(subpixelSamplesY)
+                                    let jitterX = Double.random(in: 0.0...subpixelWidth)
+                                    let jitterY = Double.random(in: 0.0...subpixelHeight)
+                                    let dx = Double(i)*subpixelWidth + jitterX
+                                    let dy = Double(j)*subpixelHeight + jitterY
+                                    let ray = self.rayForPixel(x, y, dx, dy)
+                                    let colorSample = self.colorAt(ray, MAX_RECURSIVE_CALLS)
+                                    colorSamples = colorSamples.add(colorSample)
+                                }
+                            }
+
+                            let totalSamples = subpixelSamplesX*subpixelSamplesX
+                            color = colorSamples.divideScalar(Double(totalSamples))
+                            lineColors.append(color)
+                        } else {
+                            let ray = self.rayForPixel(x, y)
+                            color = self.colorAt(ray, MAX_RECURSIVE_CALLS)
+                            lineColors.append(color)
                         }
                     }
 
-                    let totalSamples = subpixelSamplesX*subpixelSamplesX
-                    color = colorSamples.divideScalar(Double(totalSamples))
-                } else {
-                    let ray = self.rayForPixel(x, y)
-                    color = self.colorAt(ray, MAX_RECURSIVE_CALLS)
+                    return (y, lineColors)
                 }
-                canvas.setPixel(x, y, color)
+            }
+
+            for await (y, lineColors) in group {
+                for (x, color) in lineColors.enumerated() {
+                    canvas.setPixel(x, y, color)
+                }
             }
         }
+
         return canvas
     }
 }

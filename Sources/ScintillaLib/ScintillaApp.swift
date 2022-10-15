@@ -14,10 +14,10 @@ public protocol ScintillaApp {
 }
 
 extension ScintillaApp {
-    public static func main() {
+    public static func main() async {
         let instance = Self()
         let instanceBody = instance.body
-        let canvas = instanceBody.render()
+        let canvas = await instanceBody.render()
 
         let outputFilename = String(describing: self) + ".ppm"
         canvas.save(to: outputFilename)
