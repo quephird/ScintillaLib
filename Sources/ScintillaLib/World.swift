@@ -9,14 +9,17 @@ import Foundation
 
 let MAX_RECURSIVE_CALLS = 5
 
-public struct World {
+public class World {
     var light: Light
     var camera: Camera
     var objects: [Shape]
     var antialiasing: Bool = false
 
     public init(@WorldBuilder builder: () -> World) {
-        self = builder()
+        let world = builder()
+        self.light = world.light
+        self.camera = world.camera
+        self.objects = world.objects
     }
 
     public init(_ light: Light, _ camera: Camera, @ShapeBuilder builder: () -> [Shape]) {
@@ -31,7 +34,7 @@ public struct World {
         self.objects = objects
     }
 
-    public mutating func antialiasing(_ antialiasing: Bool) -> Self {
+    public func antialiasing(_ antialiasing: Bool) -> Self {
         self.antialiasing = antialiasing
         return self
     }
@@ -218,26 +221,34 @@ public struct World {
         var canvas = Canvas(self.camera.horizontalSize, self.camera.verticalSize)
         for y in 0..<self.camera.verticalSize {
             for x in 0..<self.camera.horizontalSize {
-                let subpixelSamplesX = 4
-                let subpixelSamplesY = 4
+                let color: Color
 
-                var colorSamples: Color = .black
-                for i in 0..<subpixelSamplesX {
-                    for j in 0..<subpixelSamplesY {
-                        let subpixelWidth = 1.0/Double(subpixelSamplesX)
-                        let subpixelHeight = 1.0/Double(subpixelSamplesY)
-                        let jitterX = Double.random(in: 0.0...subpixelWidth)
-                        let jitterY = Double.random(in: 0.0...subpixelHeight)
-                        let dx = Double(i)*subpixelWidth + jitterX
-                        let dy = Double(j)*subpixelHeight + jitterY
-                        let ray = self.rayForPixel(x, y, dx, dy)
-                        let color = self.colorAt(ray, MAX_RECURSIVE_CALLS)
-                        colorSamples = colorSamples.add(color)
+                if self.antialiasing {
+                    let subpixelSamplesX = 4
+                    let subpixelSamplesY = 4
+
+                    var colorSamples: Color = .black
+                    for i in 0..<subpixelSamplesX {
+                        for j in 0..<subpixelSamplesY {
+                            let subpixelWidth = 1.0/Double(subpixelSamplesX)
+                            let subpixelHeight = 1.0/Double(subpixelSamplesY)
+                            let jitterX = Double.random(in: 0.0...subpixelWidth)
+                            let jitterY = Double.random(in: 0.0...subpixelHeight)
+                            let dx = Double(i)*subpixelWidth + jitterX
+                            let dy = Double(j)*subpixelHeight + jitterY
+                            let ray = self.rayForPixel(x, y, dx, dy)
+                            let colorSample = self.colorAt(ray, MAX_RECURSIVE_CALLS)
+                            colorSamples = colorSamples.add(colorSample)
+                        }
                     }
-                }
 
-                let totalSamples = subpixelSamplesX*subpixelSamplesX
-                canvas.setPixel(x, y, colorSamples.divideScalar(Double(totalSamples)))
+                    let totalSamples = subpixelSamplesX*subpixelSamplesX
+                    color = colorSamples.divideScalar(Double(totalSamples))
+                } else {
+                    let ray = self.rayForPixel(x, y)
+                    color = self.colorAt(ray, MAX_RECURSIVE_CALLS)
+                }
+                canvas.setPixel(x, y, color)
             }
         }
         return canvas
