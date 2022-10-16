@@ -1,6 +1,6 @@
 # Purpose
 
-This is a library that is intended to be used to generate ray traced scenes. I had originally implemented this in Clojure but I wanted to learn more about Swift by reimplementing it in that language. It's a library instead of an application like POV-Ray, but there is a component in it that allows you to easily create an object scene by expressing it in a Swift DSL, and then render it to a file. Moreover, since you can use Xcode to type in a scene, you can take advantage of its own features like type-checking and fixits, which were not possible using Clojure. As with the Clojure implementation, this one is based on the tests provided by the amazing book, The Ray Tracer Challenge by Jamis Buck.
+This is a library that is intended to be used to generate ray traced scenes. I had originally implemented this in Clojure but I wanted to learn more about Swift by reimplementing it in that language. It's a library instead of an application like POV-Ray, but there is a component in it that allows you to easily create an object scene by expressing it in a Swift DSL, and then render it to a file. Moreover, since you can use Xcode to type in a scene, you can take advantage of its own features like type-checking and fixits, which were not possible using Clojure. We're effectively using Xcode as a GUI for running a set of sketches. As with the Clojure implementation, this one is based on the tests provided by the amazing book, The Ray Tracer Challenge by Jamis Buck.
 
 # Quick start
 
@@ -19,7 +19,7 @@ import ScintillaLib
 
 @main
 struct QuickStart: ScintillaApp {
-    var body: World {
+    var body = World {
         PointLight(point(-10, 10, -10))
         Camera(400, 400, PI/3, .view(
             point(0, 2, -2),
@@ -93,7 +93,7 @@ import ScintillaLib
 
 @main
 struct MyWorld: ScintillaApp {
-    var body: World {
+    var body = World {
         PointLight(point(-10, 10, -10))
         Camera(800, 600, PI/3, .view(
             point(0, 0, -5),
@@ -258,8 +258,8 @@ The following diagram might make it clearer to understand what the parameters re
                     |      |      | *    |      |  *   |
                     |      | *    |      |   *  |      |
                     |      |------|------|------|------|
-                fullUVec   |      |      |  *   |     *|
-                    |      |    * |  *   |      |      |
+                    |      |      |  *   |     *|
+                fullUVec   |    * |  *   |      |      |
                     |      |------|------|------|------|
                     |      |      |   *  |   *  |      |
                     |      |  *   |      |      |*     |
@@ -331,10 +331,10 @@ import ScintillaLib
 
 @main
 struct MyWorld: ScintillaApp {
-    var body: World {
+    var body = World {
         PointLight(point(-10, 10, -10))
         Camera(800, 600, PI/3, .view(
-            point(0, 10, -15),
+            point(0, 1, -2),
             point(0, 0, 0),
             vector(0, 1, 0)))
         Sphere(.solidColor(Color(0, 0, 1)))
@@ -366,6 +366,51 @@ If you've done all that, you now have a bona fide application and should be able
 
 ![](./images/MyWorld.png)
 
+You can also optionally render a scene with antialiasing. In the image above, you can see that the various edges of the object are pretty jagged and take away from the verisimilitude of the image. By adding a property modifier to the `World` object, `.antialiasing(true)`, we can improve its quality:
+
+```
+import ScintillaLib
+
+@main
+struct CSGExample: ScintillaApp {
+    var body = World {
+        PointLight(point(-10, 10, -10))
+        Camera(400, 400, PI/3, .view(
+            point(0, 1.5, -2),
+            point(0, 0, 0),
+            vector(0, 1, 0)))
+        Sphere(.solidColor(Color(0, 0, 1)))
+            .intersection {
+                Cube(.solidColor(Color(1, 0, 0)))
+                    .scale(0.8, 0.8, 0.8)
+            }
+            .difference {
+                for (thetaX, thetaZ) in [(0, 0), (0, PI/2), (PI/2, 0)] {
+                    Cylinder(.solidColor(Color(0, 1, 0)))
+                        .scale(0.5, 0.5, 0.5)
+                        .rotateX(thetaX)
+                        .rotateZ(thetaZ)
+                }
+            }
+            .rotateY(PI/6)
+    }
+        .antialiasing(true)
+}
+```
+
+... and below is the resultant image:
+
+![](./images/Antialiasing.png)
+
+Because rendering times are much slower with antialiasing turned out, you should make sure that the run configuration is set to Release in order to run Swift in the fastest fashion. To get there, go to Product -> Scheme -> Edit Scheme...
+
+![](./images/SchemeSettings.png)
+
+## Adding new scenes
+
+You can have multiple scenes in a single project by adding new targets via File -> New -> Target... Just make sure that ScintillaLib is included as a library in the target; go to the project navigator, click on the project name, then the target name in the editor pane, then the General tab.
+
+![](./images/Libraries.png)
 
 ## Relevant links
 

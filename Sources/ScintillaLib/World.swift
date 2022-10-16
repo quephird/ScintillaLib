@@ -9,13 +9,17 @@ import Foundation
 
 let MAX_RECURSIVE_CALLS = 5
 
-public struct World {
+public class World {
     var light: Light
     var camera: Camera
     var objects: [Shape]
+    var antialiasing: Bool = false
 
     public init(@WorldBuilder builder: () -> World) {
-        self = builder()
+        let world = builder()
+        self.light = world.light
+        self.camera = world.camera
+        self.objects = world.objects
     }
 
     public init(_ light: Light, _ camera: Camera, @ShapeBuilder builder: () -> [Shape]) {
@@ -28,6 +32,11 @@ public struct World {
         self.light = light
         self.camera = camera
         self.objects = objects
+    }
+
+    public func antialiasing(_ antialiasing: Bool) -> Self {
+        self.antialiasing = antialiasing
+        return self
     }
 
     func intersect(_ ray: Ray) -> [Intersection] {
@@ -187,10 +196,10 @@ public struct World {
         }
     }
 
-    func rayForPixel(_ pixelX: Int, _ pixelY: Int) -> Ray {
+    func rayForPixel(_ pixelX: Int, _ pixelY: Int, _ dx: Double = 0.5, _ dy: Double = 0.5) -> Ray {
         // The offset from the edge of the canvas to the pixel's center
-        let offsetX = (Double(pixelX) + 0.5) * self.camera.pixelSize
-        let offsetY = (Double(pixelY) + 0.5) * self.camera.pixelSize
+        let offsetX = (Double(pixelX) + dx) * self.camera.pixelSize
+        let offsetY = (Double(pixelY) + dy) * self.camera.pixelSize
 
         // The untransformed coordinates of the pixel in world space.
         // (Remember that the camera looks toward -z, so +x is to the *left*.)
@@ -209,14 +218,38 @@ public struct World {
 
     public func render() -> Canvas {
         var canvas = Canvas(self.camera.horizontalSize, self.camera.verticalSize)
-        for y in 0...self.camera.verticalSize-1 {
-            for x in 0...self.camera.horizontalSize-1 {
-                let ray = self.rayForPixel(x, y)
-                let color = self.colorAt(ray, MAX_RECURSIVE_CALLS)
+        for y in 0..<self.camera.verticalSize {
+            for x in 0..<self.camera.horizontalSize {
+                let color: Color
+
+                if self.antialiasing {
+                    let subpixelSamplesX = 4
+                    let subpixelSamplesY = 4
+
+                    var colorSamples: Color = .black
+                    for i in 0..<subpixelSamplesX {
+                        for j in 0..<subpixelSamplesY {
+                            let subpixelWidth = 1.0/Double(subpixelSamplesX)
+                            let subpixelHeight = 1.0/Double(subpixelSamplesY)
+                            let jitterX = Double.random(in: 0.0...subpixelWidth)
+                            let jitterY = Double.random(in: 0.0...subpixelHeight)
+                            let dx = Double(i)*subpixelWidth + jitterX
+                            let dy = Double(j)*subpixelHeight + jitterY
+                            let ray = self.rayForPixel(x, y, dx, dy)
+                            let colorSample = self.colorAt(ray, MAX_RECURSIVE_CALLS)
+                            colorSamples = colorSamples.add(colorSample)
+                        }
+                    }
+
+                    let totalSamples = subpixelSamplesX*subpixelSamplesX
+                    color = colorSamples.divideScalar(Double(totalSamples))
+                } else {
+                    let ray = self.rayForPixel(x, y)
+                    color = self.colorAt(ray, MAX_RECURSIVE_CALLS)
+                }
                 canvas.setPixel(x, y, color)
             }
         }
         return canvas
     }
 }
-
