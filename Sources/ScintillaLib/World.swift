@@ -219,51 +219,58 @@ public class World {
     public func render() async -> Canvas {
         var canvas = Canvas(self.camera.horizontalSize, self.camera.verticalSize)
 
-        await withTaskGroup(of: (Int, [Color]).self) { group in
-            for y in 0..<self.camera.verticalSize {
+        await withTaskGroup(of: [(Int, [Color])].self) { group in
+            for c in 0..<16 {
                 group.addTask {
-                    var lineColors: [Color] = []
-                    lineColors.reserveCapacity(self.camera.horizontalSize)
+                    var yColors: [(y: Int, xColors: [Color])] = []
+                    yColors.reserveCapacity(self.camera.verticalSize/16)
 
-                    for x in 0..<self.camera.horizontalSize {
-                        let color: Color
+                    for y in stride(from: c, to: self.camera.verticalSize, by: 16) {
 
-                        if self.antialiasing {
-                            let subpixelSamplesX = 4
-                            let subpixelSamplesY = 4
+                        var xColors: [Color] = []
+                        xColors.reserveCapacity(self.camera.horizontalSize)
+                        for x in 0..<self.camera.horizontalSize {
+                            let color: Color
 
-                            var colorSamples: Color = .black
-                            for i in 0..<subpixelSamplesX {
-                                for j in 0..<subpixelSamplesY {
-                                    let subpixelWidth = 1.0/Double(subpixelSamplesX)
-                                    let subpixelHeight = 1.0/Double(subpixelSamplesY)
-                                    let jitterX = Double.random(in: 0.0...subpixelWidth)
-                                    let jitterY = Double.random(in: 0.0...subpixelHeight)
-                                    let dx = Double(i)*subpixelWidth + jitterX
-                                    let dy = Double(j)*subpixelHeight + jitterY
-                                    let ray = self.rayForPixel(x, y, dx, dy)
-                                    let colorSample = self.colorAt(ray, MAX_RECURSIVE_CALLS)
-                                    colorSamples = colorSamples.add(colorSample)
+                            if self.antialiasing {
+                                let subpixelSamplesX = 4
+                                let subpixelSamplesY = 4
+
+                                var colorSamples: Color = .black
+                                for i in 0..<subpixelSamplesX {
+                                    for j in 0..<subpixelSamplesY {
+                                        let subpixelWidth = 1.0/Double(subpixelSamplesX)
+                                        let subpixelHeight = 1.0/Double(subpixelSamplesY)
+                                        let jitterX = Double.random(in: 0.0...subpixelWidth)
+                                        let jitterY = Double.random(in: 0.0...subpixelHeight)
+                                        let dx = Double(i)*subpixelWidth + jitterX
+                                        let dy = Double(j)*subpixelHeight + jitterY
+                                        let ray = self.rayForPixel(x, y, dx, dy)
+                                        let colorSample = self.colorAt(ray, MAX_RECURSIVE_CALLS)
+                                        colorSamples = colorSamples.add(colorSample)
+                                    }
                                 }
+
+                                let totalSamples = subpixelSamplesX*subpixelSamplesX
+                                color = colorSamples.divideScalar(Double(totalSamples))
+                            } else {
+                                let ray = self.rayForPixel(x, y)
+                                color = self.colorAt(ray, MAX_RECURSIVE_CALLS)
                             }
-
-                            let totalSamples = subpixelSamplesX*subpixelSamplesX
-                            color = colorSamples.divideScalar(Double(totalSamples))
-                            lineColors.append(color)
-                        } else {
-                            let ray = self.rayForPixel(x, y)
-                            color = self.colorAt(ray, MAX_RECURSIVE_CALLS)
-                            lineColors.append(color)
+                            xColors.append(color)
                         }
-                    }
 
-                    return (y, lineColors)
+                        yColors.append((y: y, xColors: xColors))
+                    }
+                    return yColors
                 }
             }
 
-            for await (y, lineColors) in group {
-                for (x, color) in lineColors.enumerated() {
-                    canvas.setPixel(x, y, color)
+            for await result in group {
+                for (y, xColors) in result {
+                    for (x, color) in xColors.enumerated() {
+                        canvas.setPixel(x, y, color)
+                    }
                 }
             }
         }
