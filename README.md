@@ -19,7 +19,7 @@ import ScintillaLib
 
 @main
 struct QuickStart: ScintillaApp {
-    var body: World = World {
+    var body = World {
         PointLight(point(-10, 10, -10))
         Camera(400, 400, PI/3, .view(
             point(0, 2, -2),
@@ -93,7 +93,7 @@ import ScintillaLib
 
 @main
 struct MyWorld: ScintillaApp {
-    var body: World = World {
+    var body = World {
         PointLight(point(-10, 10, -10))
         Camera(800, 600, PI/3, .view(
             point(0, 0, -5),
@@ -331,7 +331,7 @@ import ScintillaLib
 
 @main
 struct MyWorld: ScintillaApp {
-    var body: World = World {
+    var body = World {
         PointLight(point(-10, 10, -10))
         Camera(800, 600, PI/3, .view(
             point(0, 1, -2),
@@ -373,7 +373,7 @@ import ScintillaLib
 
 @main
 struct CSGExample: ScintillaApp {
-    var body: World = World {
+    var body = World {
         PointLight(point(-10, 10, -10))
         Camera(400, 400, PI/3, .view(
             point(0, 1.5, -2),

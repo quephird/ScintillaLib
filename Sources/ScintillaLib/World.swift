@@ -216,7 +216,6 @@ public class World {
         return Ray(origin, direction)
     }
 
-    // TODO: Need to think about how best to inject jitter
     public func render() -> Canvas {
         var canvas = Canvas(self.camera.horizontalSize, self.camera.verticalSize)
         for y in 0..<self.camera.verticalSize {
