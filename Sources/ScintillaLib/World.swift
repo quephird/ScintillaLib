@@ -218,14 +218,15 @@ public class World {
 
     public func render() async -> Canvas {
         var canvas = Canvas(self.camera.horizontalSize, self.camera.verticalSize)
+        let taskGroupCount = 8
 
         await withTaskGroup(of: [(Int, [Color])].self) { group in
-            for c in 0..<16 {
+            for c in 0..<taskGroupCount {
                 group.addTask {
                     var yColors: [(y: Int, xColors: [Color])] = []
-                    yColors.reserveCapacity(self.camera.verticalSize/16)
+                    yColors.reserveCapacity(self.camera.verticalSize/taskGroupCount)
 
-                    for y in stride(from: c, to: self.camera.verticalSize, by: 16) {
+                    for y in stride(from: c, to: self.camera.verticalSize, by: taskGroupCount) {
 
                         var xColors: [Color] = []
                         xColors.reserveCapacity(self.camera.horizontalSize)
