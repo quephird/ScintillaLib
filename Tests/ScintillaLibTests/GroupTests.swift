@@ -17,10 +17,10 @@ class GroupTests: XCTestCase {
     }
 
     func testLocalIntersectWithNonEmptyGroup() throws {
-        let s1 = Sphere(.basicMaterial())
-        let s2 = Sphere(.basicMaterial())
+        let s1 = Sphere()
+        let s2 = Sphere()
             .translate(0, 0, -3)
-        let s3 = Sphere(.basicMaterial())
+        let s3 = Sphere()
             .translate(5, 0, 0)
         let group = Group {
             s1
@@ -39,7 +39,7 @@ class GroupTests: XCTestCase {
 
     func testLocalIntersectWithTransformedGroup() throws {
         let group = Group {
-            Sphere(.basicMaterial())
+            Sphere()
                 .translate(5, 0, 0)
         }
             .scale(2, 2, 2)
