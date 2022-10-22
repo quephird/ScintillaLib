@@ -10,7 +10,7 @@ import XCTest
 
 class ShapeTests: XCTestCase {
     func testWorldToObjectForNestedObject() throws {
-        let s = Sphere(.basicMaterial())
+        let s = Sphere()
             .translate(5, 0, 0)
 
         let group = Group {
@@ -27,7 +27,7 @@ class ShapeTests: XCTestCase {
     }
 
     func testObjectToWorldForNestedObject() throws {
-        let s = Sphere(.basicMaterial())
+        let s = Sphere()
             .translate(5, 0, 0)
         let group = Group {
             Group {
@@ -43,7 +43,7 @@ class ShapeTests: XCTestCase {
     }
 
     func testNormalForNestedObject() throws {
-        let s = Sphere(.basicMaterial())
+        let s = Sphere()
             .translate(5, 0, 0)
         let group = Group {
             Group {

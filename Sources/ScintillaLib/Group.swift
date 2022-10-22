@@ -12,7 +12,7 @@ public class Group: Shape {
 
     public init(@ShapeBuilder builder: () -> [Shape]) {
         self.children = builder()
-        super.init(.basicMaterial())
+        super.init()
         for child in children {
             child.parent = .group(self)
         }

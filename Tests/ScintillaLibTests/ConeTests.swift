@@ -10,7 +10,7 @@ import XCTest
 
 class ConeTests: XCTestCase {
     func testLocalIntersectWithRayThatHitsWalls() throws {
-        let cone = Cone(.basicMaterial())
+        let cone = Cone()
 
         let testCases = [
             (point(0, 0, -5), vector(0, 0, 1), [5.0]),
@@ -33,7 +33,7 @@ class ConeTests: XCTestCase {
     }
 
     func testLocalIntersectWithRayParallelToOneHalf() throws {
-        let cone = Cone(.basicMaterial())
+        let cone = Cone()
         let ray = Ray(point(0, 0, -1), vector(0, 1, 1).normalize())
         let allIntersections = cone.localIntersect(ray)
         XCTAssertEqual(allIntersections.count, 1)
@@ -41,7 +41,7 @@ class ConeTests: XCTestCase {
     }
 
     func testLocalIntersectWithRayThatHitsCaps() throws {
-        let cone = Cone(.basicMaterial(), -0.5, 0.5, true)
+        let cone = Cone(-0.5, 0.5, true)
 
         let testCases = [
             (point(0, 0, -5), vector(0, 1, 0), 0),
@@ -57,7 +57,7 @@ class ConeTests: XCTestCase {
     }
 
     func testLocalNormalOnWalls() throws {
-        let cone = Cone(.basicMaterial())
+        let cone = Cone()
 
         let testCases = [
             (point(0, 0, 0), vector(0, 0, 0)),

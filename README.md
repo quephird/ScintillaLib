@@ -25,7 +25,8 @@ struct QuickStart: ScintillaApp {
             point(0, 2, -2),
             point(0, 0, 0),
             vector(0, 1, 0)))
-        Sphere(.solidColor(Color(1, 0, 0)))
+        Sphere()
+            .material(.solidColor(Color(1, 0, 0)))
     }
 }
 ```
@@ -66,7 +67,7 @@ All shapes also have the following property modifiers for setting/updating the u
 This means that you can chain operations together in a logical manner and not have to explicitly `let` out a transformation matrix and then pass it in to the shape's constructor, like this:
 
 ```swift
-Cube(.basicMaterial())
+Cube()
     .shear(1, 1, 0, 1, 0, 0)
     .scale(1, 2, 3)
     .rotateX(PI/3)
@@ -99,9 +100,10 @@ struct MyWorld: ScintillaApp {
             point(0, 0, -5),
             point(0, 0, 0),
             vector(0, 1, 0)))
-        ImplicitSurface(.solidColor(Color(0.2, 1, 0.5)), ((-2, -2, -2), (2, 2, 2))) { x, y, z in
+        ImplicitSurface(((-2, -2, -2), (2, 2, 2))) { x, y, z in
             x*x + y*y + z*z + sin(4*x) + sin(4*y) + sin(4*z) - 1
         }
+            .material(.solidColor(Color(0.2, 1, 0.5)))
     }
 }
 ```
@@ -172,14 +174,18 @@ There are three supported operations for combining various shapes:
 The implementation for CSG takes advantage of so-called result builders, a feature of Swift that allows the programmer to list parameters to a function with minimal punctuation. Furthermore, Scintilla is responsible for nesting pairs of CSG operations so you don't have to, and so you can express the subtraction of three cylinders from a sphere like this:
 
 ```swift
-Sphere(.solidColor(Color(0, 0, 1)))
+Sphere()
+    .material(.solidColor(Color(0, 0, 1)))
     .difference {
-        Cylinder(.solidColor(Color(0, 1, 0)))
+        Cylinder()
+            .material(.solidColor(Color(0, 1, 0)))
             .scale(0.6, 0.6, 0.6)
-        Cylinder(.solidColor(Color(0, 1, 0)))
+        Cylinder()
+            .material(.solidColor(Color(0, 1, 0)))
             .scale(0.6, 0.6, 0.6)
             .rotateZ(PI/2)
-        Cylinder(.solidColor(Color(0, 1, 0)))
+        Cylinder()
+            .material(.solidColor(Color(0, 1, 0)))
             .scale(0.6, 0.6, 0.6)
             .rotateX(PI/2)
     }
@@ -191,13 +197,17 @@ Sphere(.solidColor(Color(0, 0, 1)))
 CSG(.difference,
     CSG(.difference,
         CSG(.difference,
-            Sphere(.solidColor(Color(0, 0, 1))),
-            Cylinder(.solidColor(Color(0, 1, 0)))
+            Sphere()
+                .material(.solidColor(Color(0, 0, 1)))),
+            Cylinder()
+                .material(.solidColor(Color(0, 1, 0)))
                 .scale(0.5, 0.5, 0.5)),
-        Cylinder(.solidColor(Color(0, 1, 0)))
+        Cylinder()
+            .material(.solidColor(Color(0, 1, 0)))
             .scale(0.5, 0.5, 0.5)
             .rotateZ(PI/2)),
-    Cylinder(.solidColor(Color(0, 1, 0)))
+    Cylinder()
+        .material(.solidColor(Color(0, 1, 0)))
         .scale(0.5, 0.5, 0.5)
         .rotateX(PI/2))
 ```
@@ -205,10 +215,12 @@ CSG(.difference,
 You can even use `for` loops in the middle of an expression to accomplish the same:
 
 ```swift
-Sphere(.solidColor(Color(0, 0, 1)))
+Sphere()
+    .material(.solidColor(Color(0, 0, 1)))
     .difference {
         for (thetaX, thetaZ) in [(0, 0), (0, PI/2), (PI/2, 0)] {
-            Cylinder(.solidColor(Color(0, 1, 0)))
+            Cylinder()
+                .material(.solidColor(Color(0, 1, 0)))
                 .scale(0.6, 0.6, 0.6)
                 .rotateX(thetaX)
                 .rotateZ(thetaZ)
@@ -219,14 +231,17 @@ Sphere(.solidColor(Color(0, 0, 1)))
 You can also chain calls to `.union()`, `.intersection()`, and `.difference()` to create complex shapes:
 
 ```swift
-Sphere(.solidColor(Color(0, 0, 1)))
+Sphere()
+    .material(.solidColor(Color(0, 0, 1)))
     .intersection {
-        Cube(.solidColor(Color(1, 0, 0)))
+        Cube()
+            .material(.solidColor(Color(1, 0, 0)))
             .scale(0.8, 0.8, 0.8)
     }
     .difference {
         for (thetaX, thetaZ) in [(0, 0), (0, PI/2), (PI/2, 0)] {
-            Cylinder(.solidColor(Color(0, 1, 0)))
+            Cylinder()
+                .material(.solidColor(Color(0, 1, 0)))
                 .scale(0.5, 0.5, 0.5)
                 .rotateX(thetaX)
                 .rotateZ(thetaZ)
@@ -258,7 +273,7 @@ The following diagram might make it clearer to understand what the parameters re
                     |      |      | *    |      |  *   |
                     |      | *    |      |   *  |      |
                     |      |------|------|------|------|
-                    |      |      |  *   |     *|
+                    |      |      |      |  *   |     *|
                 fullUVec   |    * |  *   |      |      |
                     |      |------|------|------|------|
                     |      |      |   *  |   *  |      |
@@ -307,10 +322,13 @@ World {
         point(0, 3, -5),
         point(0, 0, 0),
         vector(0, 1, 0)))
-    Sphere(.solidColor(Color(1, 0, 0)))
+    Sphere()
+        .material(.solidColor(Color(1, 0, 0)))
         .translate(-2, 0, 0)
-    Sphere(.solidColor(Color(0, 1, 0)))
-    Sphere(.solidColor(Color(0, 0, 1)))
+    Sphere()
+        .material(.solidColor(Color(0, 1, 0)))
+    Sphere()
+        .material(.solidColor(Color(0, 0, 1)))
         .translate(2, 0, 0)
 ```
 
@@ -337,14 +355,17 @@ struct MyWorld: ScintillaApp {
             point(0, 1, -2),
             point(0, 0, 0),
             vector(0, 1, 0)))
-        Sphere(.solidColor(Color(0, 0, 1)))
+        Sphere()
+            .material(.solidColor(Color(0, 0, 1)))
             .intersection {
-                Cube(.solidColor(Color(1, 0, 0)))
+                Cube()
+                    .material(.solidColor(Color(1, 0, 0)))
                     .scale(0.8, 0.8, 0.8)
             }
             .difference {
                 for (thetaX, thetaZ) in [(0, 0), (0, PI/2), (PI/2, 0)] {
-                    Cylinder(.solidColor(Color(0, 1, 0)))
+                    Cylinder()
+                        .material(.solidColor(Color(0, 1, 0)))
                         .scale(0.5, 0.5, 0.5)
                         .rotateX(thetaX)
                         .rotateZ(thetaZ)
@@ -379,14 +400,17 @@ struct CSGExample: ScintillaApp {
             point(0, 1.5, -2),
             point(0, 0, 0),
             vector(0, 1, 0)))
-        Sphere(.solidColor(Color(0, 0, 1)))
+        Sphere()
+            .material(.solidColor(Color(0, 0, 1)))
             .intersection {
-                Cube(.solidColor(Color(1, 0, 0)))
+                Cube()
+                    .material(.solidColor(Color(1, 0, 0)))
                     .scale(0.8, 0.8, 0.8)
             }
             .difference {
                 for (thetaX, thetaZ) in [(0, 0), (0, PI/2), (PI/2, 0)] {
-                    Cylinder(.solidColor(Color(0, 1, 0)))
+                    Cylinder()
+                        .material(.solidColor(Color(0, 1, 0)))
                         .scale(0.5, 0.5, 0.5)
                         .rotateX(thetaX)
                         .rotateZ(thetaZ)

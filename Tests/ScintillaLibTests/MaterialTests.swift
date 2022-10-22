@@ -11,7 +11,7 @@ import XCTest
 class MaterialTests: XCTestCase {
     func testLightingEyeBetweenLightAndSurface() throws {
         let m = Material.basicMaterial()
-        let shape = Sphere(m)
+        let shape = Sphere().material(m)
         let position = point(0, 0, 0)
         let eye = vector(0, 0, -1)
         let normal = vector(0, 0, -1)
@@ -23,7 +23,7 @@ class MaterialTests: XCTestCase {
 
     func testLightingEyeOffsetFortyFiveDegrees() throws {
         let m = Material.basicMaterial()
-        let shape = Sphere(m)
+        let shape = Sphere().material(m)
         let position = point(0, 0, 0)
         let eye = vector(0, sqrt(2)/2, -sqrt(2)/2)
         let normal = vector(0, 0, -1)
@@ -35,7 +35,7 @@ class MaterialTests: XCTestCase {
 
     func testLightingLightOffsetFortyFiveDegrees() throws {
         let m = Material.basicMaterial()
-        let shape = Sphere(m)
+        let shape = Sphere().material(m)
         let position = point(0, 0, 0)
         let eye = vector(0, 0, -1)
         let normal = vector(0, 0, -1)
@@ -47,7 +47,7 @@ class MaterialTests: XCTestCase {
 
     func testLightingEyeInPathOfReflectionVector() throws {
         let m = Material.basicMaterial()
-        let shape = Sphere(m)
+        let shape = Sphere().material(m)
         let position = point(0, 0, 0)
         let eye = vector(0, -sqrt(2)/2, -sqrt(2)/2)
         let normal = vector(0, 0, -1)
@@ -59,7 +59,7 @@ class MaterialTests: XCTestCase {
 
     func testLightingLightBehindSurface() throws {
         let m = Material.basicMaterial()
-        let shape = Sphere(m)
+        let shape = Sphere().material(m)
         let position = point(0, 0, 0)
         let eye = vector(0, 0, -1)
         let normal = vector(0, 0, -1)
@@ -75,7 +75,7 @@ class MaterialTests: XCTestCase {
         let eye = vector(0, 0, -1)
         let normal = vector(0, 0, -1)
         let material = Material.basicMaterial()
-        let shape = Sphere(material)
+        let shape = Sphere().material(material)
         let actualValue = material.lighting(light, shape, position, eye, normal, 0.0)
         let expectedValue = Color(0.1, 0.1, 0.1)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
@@ -84,7 +84,7 @@ class MaterialTests: XCTestCase {
     func testLightingWithPattern() throws {
         let striped = Striped(Color(1, 1, 1), Color(0, 0, 0), .identity)
         let material = Material(.pattern(striped), 1.0, 0.0, 0.0, 200, 0.0, 0.0, 0.0)
-        let shape = Sphere(material)
+        let shape = Sphere().material(material)
         let eye = vector(0, 0, -1)
         let normal = vector(0, 0, -1)
         let light = PointLight(point(0, 0, -10), Color(1, 1, 1))
@@ -96,12 +96,12 @@ class MaterialTests: XCTestCase {
 
     func testLightUsesIntensityToAttenuateColor() throws {
         let light = PointLight(point(0, 0, -10))
-        let shape = Sphere(.solidColor(.white)
-            .ambient(0.1)
-            .diffuse(0.9)
-            .specular(0.0)
-            .refractive(0.0)
-        )
+        let shape = Sphere()
+            .material(.solidColor(.white)
+                .ambient(0.1)
+                .diffuse(0.9)
+                .specular(0.0)
+                .refractive(0.0))
         let point  = point(0, 0, -1)
         let eye    = vector(0, 0, -1)
         let normal = vector(0, 0, -1)
@@ -128,7 +128,7 @@ class MaterialTests: XCTestCase {
             .ambient(0.1)
             .diffuse(0.9)
             .specular(0.0)
-        let shape = Sphere(material)
+        let shape = Sphere().material(material)
         let eye = point(0, 0, -5)
 
         let testCases = [

@@ -34,7 +34,7 @@ class PatternTests: XCTestCase {
     }
 
     func testStripePatternWithObjectTransformation() throws {
-        let shape = Sphere(.basicMaterial())
+        let shape = Sphere()
             .scale(2, 2, 2)
         let pattern = Striped(.white, .black, .identity)
         let actualValue = pattern.colorAt(shape, point(1.5, 0, 0))
@@ -43,7 +43,7 @@ class PatternTests: XCTestCase {
     }
 
     func testStripePatternWithPatternTransformation() throws {
-        let shape = Sphere(.basicMaterial())
+        let shape = Sphere()
         let pattern = Striped(.white, .black, .scaling(2, 2, 2))
         let actualValue = pattern.colorAt(shape, point(1.5, 0, 0))
         let expectedValue = Color.white
@@ -51,7 +51,7 @@ class PatternTests: XCTestCase {
     }
 
     func testStripePatternWithBothTransformations() throws {
-        let shape = Sphere(.basicMaterial())
+        let shape = Sphere()
             .scale(2, 2, 2)
         let pattern = Striped(.white, .black, .translation(0.5, 0, 0))
         let actualValue = pattern.colorAt(shape, point(2.5, 0, 0))
