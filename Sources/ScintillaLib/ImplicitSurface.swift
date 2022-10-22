@@ -14,22 +14,20 @@ let MAX_ITERATIONS_BISECTION = 100
 
 public class ImplicitSurface: Shape {
     var f: SurfaceFunction
-    var boundingBox: Cube = Cube(.basicMaterial())
+    var boundingBox: Cube = Cube()
 
-    public init(_ material: Material, _ f: @escaping SurfaceFunction) {
+    public init(_ f: @escaping SurfaceFunction) {
         self.f = f
-        super.init(material)
     }
 
-    public init(_ material: Material, _ boundingBox: BoundingBox, _ f: @escaping SurfaceFunction) {
+    public init(_ boundingBox: BoundingBox, _ f: @escaping SurfaceFunction) {
         let ((xMin, yMin, zMin), (xMax, yMax, zMax)) = boundingBox
         let (scaleX, scaleY, scaleZ) = ((xMax-xMin)/2, (yMax-yMin)/2, (zMax-zMin)/2)
         let (translateX, translateY, translateZ) = ((xMax+xMin)/2, (yMax+yMin)/2, (zMax+zMin)/2)
-        self.boundingBox = Cube(.basicMaterial())
+        self.boundingBox = Cube()
             .scale(scaleX, scaleY, scaleZ)
             .translate(translateX, translateY, translateZ)
         self.f = f
-        super.init(material)
     }
 
     override func localIntersect(_ localRay: Ray) -> [Intersection] {

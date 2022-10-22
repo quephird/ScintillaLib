@@ -16,16 +16,15 @@ public class Shape {
             self.inverseTransposeTransform = transform.inverse().transpose()
         }
     }
-    var material: Material
+    var material: Material = .basicMaterial()
     var inverseTransform: Matrix4
     var inverseTransposeTransform: Matrix4
     var parent: Container?
     var castsShadow: Bool
 
-    public init(_ material: Material) {
+    public init() {
         self.id = Self.latestId
         self.transform = .identity
-        self.material = material
         self.inverseTransform = transform.inverse()
         self.inverseTransposeTransform = transform.inverse().transpose()
         self.castsShadow = true
@@ -42,6 +41,12 @@ public class Shape {
 
     public func intersection(@ShapeBuilder _ otherShapesBuilder: () -> [Shape]) -> Shape {
         return CSG.makeCSG(.intersection, self, otherShapesBuilder)
+    }
+
+    public func material(_ material: Material) -> Self {
+        self.material = material
+
+        return self
     }
 
     public func castsShadow(_ castsShadow: Bool) -> Self {
