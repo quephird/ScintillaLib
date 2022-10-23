@@ -123,6 +123,13 @@ public struct Tuple4 {
             self[2].isAlmostEqual(to[2]) &&
             self[3].isAlmostEqual(to[3])
     }
+
+    func project(_ onto: Self) -> Self {
+        let sDotO = self.dot(onto)
+        return onto
+            .multiplyScalar(sDotO)
+            .divideScalar(onto.magnitude()*onto.magnitude())
+    }
 }
 
 public func point(_ x: Double, _ y: Double, _ z: Double) -> Tuple4 {
