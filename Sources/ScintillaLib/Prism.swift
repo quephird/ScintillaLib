@@ -93,16 +93,17 @@ public class Prism: Shape {
         }
 
         // Check if the point resides on one of the sides
-//        for (point1, point2) in neighboringPairs(self.xzPoints) {
-//            let corner = point(point1.0, yBase, point1.1)
-//            let bottomSide = vector(point2.0-point1.0, 0, point2.1-point1.1)
-//            let leftSide = vector(0, yTop-yBase, 0)
-//            let pointToCorner = localPoint.subtract(corner)
-//            let normal = bottomSide.cross(leftSide)
-//            if pointToCorner.dot(normal) < EPSILON {
-//                return normal
-//            }
-//        }
+        for (i, (x1, z1)) in self.xzPoints.enumerated() {
+            let (x2, z2) = self.xzPoints[(i+1)%self.xzPoints.count]
+            let corner = point(x1, yBase, z1)
+            let bottomSide = vector(x2-x1, 0, z2-z1)
+            let leftSide = vector(0, yTop-yBase, 0)
+            let pointToCorner = localPoint.subtract(corner)
+            let normal = bottomSide.cross(leftSide)
+            if abs(pointToCorner.dot(normal)) < EPSILON {
+                return normal
+            }
+        }
 
         // We shouldn't get here
         return vector(0, 0, -1)
@@ -110,7 +111,7 @@ public class Prism: Shape {
 }
 
 // Returns the t value for where the ray hits the rectangle
-// formed by the two sides and positioned at the corner passed in
+// formed by the two sides and positioned at the corner passed in.
 // Method taken from https://stackoverflow.com/a/8862483
 func checkRectangle(_ ray: Ray, _ corner: Tuple4, _ side1: Tuple4, _ side2: Tuple4) -> Double? {
     // Compute the normal to the rectangle by taking the cross product of the two sides
