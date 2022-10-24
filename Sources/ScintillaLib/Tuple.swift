@@ -130,6 +130,10 @@ public struct Tuple4 {
             .multiplyScalar(sDotO)
             .divideScalar(onto.magnitude()*onto.magnitude())
     }
+
+    func angle(_ with: Self) -> Double {
+        return acos(self.dot(with)/self.magnitude()/with.magnitude())
+    }
 }
 
 public func point(_ x: Double, _ y: Double, _ z: Double) -> Tuple4 {
