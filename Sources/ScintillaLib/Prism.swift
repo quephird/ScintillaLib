@@ -45,16 +45,17 @@ public class Prism: Shape {
         var intersections: [Intersection] = []
 
         // Check sides of prism
-        // For each pair of neighboring points...
-//        for (i, (x1, z1)) in self.xzPoints.enumerated() {
-//            let cornerVertex = point(x1, yBase, z1)
-//            let (x2, z2) = self.xzPoints[(i+1)%self.xzPoints.count]
-//            let bottomSide = vector(x2-x1, 0, z2-z1)
-//            let leftSide = vector(0, yTop-yBase, 0)
-//            if let t = checkRectangle(localRay, cornerVertex, bottomSide, leftSide) {
-//                intersections.append(Intersection(t, self))
-//            }
-//        }
+        for (i, (x1, z1)) in self.xzPoints.enumerated() {
+            // TODO: Add more comments
+            // For each pair of neighboring points...
+            let cornerVertex = point(x1, yBase, z1)
+            let (x2, z2) = self.xzPoints[(i+1)%self.xzPoints.count]
+            let bottomSide = vector(x2-x1, 0, z2-z1)
+            let leftSide = vector(0, yTop-yBase, 0)
+            if let t = checkRectangle(localRay, cornerVertex, bottomSide, leftSide) {
+                intersections.append(Intersection(t, self))
+            }
+        }
 
         // Check if ray hits base of prism
         let basePlane = Plane().translate(0, yBase, 0)
@@ -92,27 +93,30 @@ public class Prism: Shape {
         }
 
         // Check if the point resides on one of the sides
-        for (point1, point2) in neighboringPairs(self.xzPoints) {
-            let corner = point(point1.0, yBase, point1.1)
-            let bottomSide = vector(point2.0-point1.0, 0, point2.1-point1.1)
-            let leftSide = vector(0, yTop-yBase, 0)
-            let pointToCorner = localPoint.subtract(corner)
-            let normal = bottomSide.cross(leftSide)
-            if pointToCorner.dot(normal) < EPSILON {
-                return normal
-            }
-        }
+//        for (point1, point2) in neighboringPairs(self.xzPoints) {
+//            let corner = point(point1.0, yBase, point1.1)
+//            let bottomSide = vector(point2.0-point1.0, 0, point2.1-point1.1)
+//            let leftSide = vector(0, yTop-yBase, 0)
+//            let pointToCorner = localPoint.subtract(corner)
+//            let normal = bottomSide.cross(leftSide)
+//            if pointToCorner.dot(normal) < EPSILON {
+//                return normal
+//            }
+//        }
 
         // We shouldn't get here
-        return vector(0, 0, 0)
+        return vector(0, 0, -1)
     }
 }
 
+// Returns the t value for where the ray hits the rectangle
+// formed by the two sides and positioned at the corner passed in
+// Method taken from https://stackoverflow.com/a/8862483
 func checkRectangle(_ ray: Ray, _ corner: Tuple4, _ side1: Tuple4, _ side2: Tuple4) -> Double? {
     // Compute the normal to the rectangle by taking the cross product of the two sides
-    let normal = side1.cross(side2).normalize()
+    let normal = side2.cross(side1).normalize()
 
-    // Effectively compute the angle between the ray and the normal vector
+    // Compute the angle between the ray and the normal vector
     let dDotN = ray.direction.dot(normal)
     if abs(dDotN) < EPSILON {
         // Ray is effectively parallel to side and thus cannot possibly intersect it
@@ -130,7 +134,9 @@ func checkRectangle(_ ray: Ray, _ corner: Tuple4, _ side1: Tuple4, _ side2: Tupl
 
     // ... and then check that it's within the bounds of the rectangle
     if projectionToSide1.normalize().isAlmostEqual(side1.normalize()) &&
-        projectionToSide2.normalize().isAlmostEqual(side2.normalize()) {
+        projectionToSide1.magnitude() <= side1.magnitude() &&
+        projectionToSide2.normalize().isAlmostEqual(side2.normalize()) &&
+        projectionToSide2.magnitude() <= side2.magnitude() {
         return t
     }
 
