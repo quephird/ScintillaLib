@@ -86,7 +86,11 @@ Implicit surfaces are actually a subclass of `Shape` but are used a little diffe
 F(x, y, z) = 0
 </p>
 
-Since it is not possible to compute the bounds of an arbitrary choice of F, Scintilla needs to somehow be informed of them. The user can specify them by passing in a pair of 3-tuples representing the bottom-left-front and top-right-rear corners of a bounding box. If they do not, Scintilla defaults to a bounding box defined by (-1, -1, -1) and (1, 1, 1). Below is example code for rendering an implicit surface with an explicit bounding box:
+Since it is not possible to compute the bounds of an arbitrary choice of F, Scintilla needs to somehow be informed of them. The user can specify them by passing in a pair of 3-tuples representing the bottom-left-front and top-right-rear corners of a bounding box. If they do not, Scintilla defaults to a bounding box defined by (-1, -1, -1) and (1, 1, 1). Below is example code for rendering an implicit surface with an explicit bounding box for the equation:
+
+<p align="center">
+x² + y² + z² + sin(4x) + sin(4y) + sin(4z) = 1
+</p>
 
 ```
 import Darwin
@@ -113,6 +117,44 @@ struct MyWorld: ScintillaApp {
 ![](./images/ImplicitSurface.png)
 
 Otherwise, they can be used just like any other primitive shape; they can be translated, scaled, and rotated, and all of their material properties work the same way as well.
+
+## Prisms
+
+Another `Shape` type that is available in Scintilla is the `Prism` object. To use a prism you need to pass in three parameters to the constructor:
+
+* The base y-value
+* The top y-value
+* An array of tuples of `Double`s representing (x, z) coordinates of the vertices of a polygon 
+
+The shape is extruded along the y-axis starting from the base y-value to the top one. Here is an example of a star-based prism:
+
+```
+import Darwin
+import ScintillaLib
+
+@main
+struct PrismScene: ScintillaApp {
+    var body: World {
+        PointLight(point(-5, 5, -5))
+        Camera(400, 400, PI/3, .view(
+            point(0, 5, -5),
+            point(0, 1, 0),
+            vector(0, 1, 0)))
+        Prism(
+            0.0, 2.0,
+            [(1.0, 0.0), (1.5, 0.5), (0.5, 0.5), (0.0, 1.0), (-0.5, 0.5),
+             (-1.5, 0.5), (-1.0, 0.0), (-1.0, -1.0), (0.0, -0.5), (1.0, -1.0)]
+        )
+            .material(.solidColor(Color(1, 0.5, 0)))
+        Plane()
+            .material(.solidColor(.white))
+    }
+}
+```
+
+![](./images/Prism.png)
+
+For now, only line segments joining the vertices are supported; perhaps in the future Beziér curves can be. Nonetheless, both convex _and_ concave polygons are fully supported.
 
 ## Materials
 
