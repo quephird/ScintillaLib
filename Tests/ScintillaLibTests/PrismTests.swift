@@ -117,7 +117,31 @@ class PrismTests: XCTestCase {
     }
 
     func testLocalIntersectPrismFromConcaveQuad() throws {
-        // TODO: Add at least a couple of tests
+        let yBase = -1.0
+        let yTop = 1.0
+        let xzPoints = [
+            (1.0, -1.0), (0.0, 1.0), (-1.0, -1.0), (0.0, 0.0)
+        ]
+        let prism = Prism(yBase, yTop, xzPoints)
+
+        for ((ox, oy, oz), (dx, dy, dz), expectedTs) in [
+            ((-2.0, 0.0, -0.5), (1.0, 0.0, 0.0), [1.25, 1.5, 2.5, 2.75]), // Ray entering through left side, four hits
+            ((-2.0, 0.0, 0.5), (1.0, 0.0, 0.0), [1.75, 2.25]), // Ray entering through left side, only two hits
+            ((-0.625, 2.0, -0.5), (0.0, -1.0, 0.0), [1.0, 3.0]), // Ray entering through top side, two hits
+            ((-1.0, 2.0, -0.5), (0.0, -1.0, 0.0), []), // Ray originating from top left, total miss
+        ] {
+            let ray = Ray(point(ox, oy, oz), vector(dx, dy, dz))
+            let actualTs = prism
+                .localIntersect(ray)
+                .sorted { (i1, i2) in
+                    i1.t < i2.t
+                }
+                .map { i in
+                    i.t
+                }
+            XCTAssertEqual(actualTs, expectedTs)
+        }
+
     }
 
     func testLocalNormalForTriangularPrism() {
