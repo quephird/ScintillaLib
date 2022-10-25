@@ -81,7 +81,7 @@ public class Prism: Shape {
             let bottomSide = vector(x2-x1, 0, z2-z1)
             let leftSide = vector(0, yTop-yBase, 0)
             let pointToCorner = localPoint.subtract(corner)
-            let normal = bottomSide.cross(leftSide)
+            let normal = leftSide.cross(bottomSide).normalize()
             if abs(pointToCorner.dot(normal)) < EPSILON {
                 return normal
             }

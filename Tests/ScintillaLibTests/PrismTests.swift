@@ -88,4 +88,56 @@ class PrismTests: XCTestCase {
             XCTAssertEqual(actualResult, expectedResult)
         }
     }
+
+    func testLocalIntersectTriangularPrism() throws {
+        let prism = Prism(
+            -1.0, 1.0, [
+                (1.0, -1.0),
+                (0.0, 1.0),
+                (-1.0, -1.0)
+            ]
+        )
+        for ((ox, oy, oz), (dx, dy, dz), expectedTs) in [
+            ((0.5, 0.0, -2.0), (0.0, 0.0, 1.0), [1.0, 2.0]), // Ray entering through front side
+            ((-2.0, 0.0, 0.0), (1.0, 0.0, 0.0), [1.5, 2.5]), // Ray entering from the left
+            ((0.0, -2.0, 0.0), (0.0, 1.0, 0.0), [1.0, 3.0]), // Ray entering from the bottom center
+            ((-1.0, 3.0, 0.0), (1.0, -2.0, 0.0), [1.0, 1.5]), // Ray entering from the top at an angle
+        ] {
+            let ray = Ray(point(ox, oy, oz), vector(dx, dy, dz))
+            let actualTs = prism
+                .localIntersect(ray)
+                .sorted { (i1, i2) in
+                    i1.t < i2.t
+                }
+                .map { i in
+                    i.t
+                }
+            XCTAssertEqual(actualTs, expectedTs)
+        }
+    }
+
+    func testLocalIntersectPrismFromConcaveQuad() throws {
+        // TODO: Add at least a couple of tests
+    }
+
+    func testLocalNormalForTriangularPrism() {
+        let prism = Prism(
+            -1.0, 1.0, [
+                (1.0, -1.0),
+                (0.0, 1.0),
+                (-1.0, -1.0)
+            ]
+        )
+        for ((ix, iy, iz), (nx, ny, nz)) in [
+            ((0.0, 0.0, -1.0), (0.0, 0.0, -1.0)), // Middle front side
+            ((0.5, 0.0, 0.0), (0.89443, 0.0, 0.44721)), // Right side
+            ((-0.5, 0.0, 0.0), (-0.89443, 0.0, 0.44721)), // Left side
+            ((0.0, 1.0, 0.0), (0.0, 1.0, 0.0)), // Top side
+            ((0.0, -1.0, 0.0), (0.0, -1.0, 0.0)), // Bottom side
+        ] {
+            let actualNormal = prism.localNormal(point(ix, iy, iz))
+            let expectedNormal = vector(nx, ny, nz)
+            XCTAssertTrue(actualNormal.isAlmostEqual(expectedNormal))
+        }
+    }
 }
