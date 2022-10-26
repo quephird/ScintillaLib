@@ -10,7 +10,7 @@ import XCTest
 
 class SphereTests: XCTestCase {
     func testIntersectTangent() throws {
-        let r = Ray(point(0, 1, -5), vector(0, 0, 1))
+        let r = Ray(Point(0, 1, -5), Vector(0, 0, 1))
         let s = Sphere()
         let intersections = s.intersect(r)
         XCTAssertEqual(intersections.count, 1)
@@ -18,14 +18,14 @@ class SphereTests: XCTestCase {
     }
 
     func testIntersectMiss() throws {
-        let r = Ray(point(0, 2, -5), vector(0, 0, 1))
+        let r = Ray(Point(0, 2, -5), Vector(0, 0, 1))
         let s = Sphere()
         let intersections = s.intersect(r)
         XCTAssertEqual(intersections.count, 0)
     }
 
     func testIntersectInside() throws {
-        let r = Ray(point(0, 0, 0), vector(0, 0, 1))
+        let r = Ray(Point(0, 0, 0), Vector(0, 0, 1))
         let s = Sphere()
         let intersections = s.intersect(r)
         XCTAssertEqual(intersections.count, 2)
@@ -34,7 +34,7 @@ class SphereTests: XCTestCase {
     }
 
     func testIntersectSphereBehind() throws {
-        let r = Ray(point(0, 0, 5), vector(0, 0, 1))
+        let r = Ray(Point(0, 0, 5), Vector(0, 0, 1))
         let s = Sphere()
         let intersections = s.intersect(r)
         XCTAssertEqual(intersections.count, 2)
@@ -43,7 +43,7 @@ class SphereTests: XCTestCase {
     }
 
     func testIntersectScaledSphere() throws {
-        let worldRay = Ray(point(0, 0, -5), vector(0, 0, 1))
+        let worldRay = Ray(Point(0, 0, -5), Vector(0, 0, 1))
         let s = Sphere()
             .scale(2, 2, 2)
         let intersections = s.intersect(worldRay)
@@ -53,7 +53,7 @@ class SphereTests: XCTestCase {
     }
 
     func testIntersectTranslatedSphere() throws {
-        let worldRay = Ray(point(0, 0, -5), vector(0, 0, 1))
+        let worldRay = Ray(Point(0, 0, -5), Vector(0, 0, 1))
         let s = Sphere()
             .translate(5, 0, 0)
         let intersections = s.intersect(worldRay)
@@ -61,42 +61,42 @@ class SphereTests: XCTestCase {
     }
 
     func testNormalPointOnXAxis() throws {
-        let p = point(1, 0, 0)
+        let p = Point(1, 0, 0)
         let s = Sphere()
         let actualValue = s.normal(p)
-        let expectedValue = vector(1, 0, 0)
+        let expectedValue = Vector(1, 0, 0)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
 
     func testNormalPointOnYAxis() throws {
-        let p = point(0, 1, 0)
+        let p = Point(0, 1, 0)
         let s = Sphere()
         let actualValue = s.normal(p)
-        let expectedValue = vector(0, 1, 0)
+        let expectedValue = Vector(0, 1, 0)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
 
     func testNormalPointOnZAxis() throws {
-        let p = point(0, 0, 1)
+        let p = Point(0, 0, 1)
         let s = Sphere()
         let actualValue = s.normal(p)
-        let expectedValue = vector(0, 0, 1)
+        let expectedValue = Vector(0, 0, 1)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
 
     func testNormalNonaxialPoint() throws {
-        let p = point(sqrt(3)/3, sqrt(3)/3, sqrt(3)/3)
+        let p = Point(sqrt(3)/3, sqrt(3)/3, sqrt(3)/3)
         let s = Sphere()
         let actualValue = s.normal(p)
-        let expectedValue = vector(sqrt(3)/3, sqrt(3)/3, sqrt(3)/3)
+        let expectedValue = Vector(sqrt(3)/3, sqrt(3)/3, sqrt(3)/3)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
 
     func testNormalTranslatedSphere() throws {
         let s = Sphere()
             .translate(0, 1, 0)
-        let actualValue = s.normal(point(0, 1.70711, -0.70711))
-        let expectedValue = vector(0, 0.70711, -0.70711)
+        let actualValue = s.normal(Point(0, 1.70711, -0.70711))
+        let expectedValue = Vector(0, 0.70711, -0.70711)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
 
@@ -104,8 +104,8 @@ class SphereTests: XCTestCase {
         let s = Sphere()
             .scale(1, 0.5, 1)
             .rotateY(PI/5)
-        let actualValue = s.normal(point(0, sqrt(2)/2, -sqrt(2)/2))
-        let expectedValue = vector(0, 0.97014, -0.24254)
+        let actualValue = s.normal(Point(0, sqrt(2)/2, -sqrt(2)/2))
+        let expectedValue = Vector(0, 0.97014, -0.24254)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
 }

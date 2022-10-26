@@ -10,9 +10,9 @@ import XCTest
 
 class PrismTests: XCTestCase {
     func testCheckRectangleRayHits() throws {
-        let corner = point(0, 0, 0)
-        let bottom = vector(1, 0, 0)
-        let left = vector(0, 2, 0)
+        let corner = Point(0, 0, 0)
+        let bottom = Vector(1, 0, 0)
+        let left = Vector(0, 2, 0)
 
         for ((ox, oy, oz), (dx, dy, dz), expectedT) in [
             ((0.5, 0.5, -1.0), (0.0, 0.0, 1.0), 1.0),
@@ -21,7 +21,7 @@ class PrismTests: XCTestCase {
             ((0.9, 0.1, -1.0), (0.0, 0.0, 1.0), 1.0),
             ((0.1, 0.1, -1.0), (0.0, 0.0, 1.0), 1.0),
         ] {
-            let ray = Ray(point(ox, oy, oz), vector(dx, dy, dz))
+            let ray = Ray(Point(ox, oy, oz), Vector(dx, dy, dz))
             let maybeT = checkRectangle(ray, corner, bottom, left)
 
             XCTAssertNotNil(maybeT)
@@ -30,9 +30,9 @@ class PrismTests: XCTestCase {
     }
 
     func testCheckRectangleRayMisses() throws {
-        let corner = point(0, 0, 0)
-        let bottom = vector(1, 0, 0)
-        let left = vector(0, 2, 0)
+        let corner = Point(0, 0, 0)
+        let bottom = Vector(1, 0, 0)
+        let left = Vector(0, 2, 0)
 
         for ((ox, oy, oz), (dx, dy, dz)) in [
             ((1.1, 2.1, -1.0), (0.0, 0.0, 1.0)),
@@ -40,7 +40,7 @@ class PrismTests: XCTestCase {
             ((1.1, -0.1, -1.0), (0.0, 0.0, 1.0)),
             ((-0.1, -0.1, -1.0), (0.0, 0.0, 1.0)),
         ] {
-            let ray = Ray(point(ox, oy, oz), vector(dx, dy, dz))
+            let ray = Ray(Point(ox, oy, oz), Vector(dx, dy, dz))
             let maybeT = checkRectangle(ray, corner, bottom, left)
 
             XCTAssertNil(maybeT)
@@ -64,7 +64,7 @@ class PrismTests: XCTestCase {
             ((0.9, 1.0, -1.1), false),
             ((0.0, 1.1, 0.0), false), // Point off plane
         ] {
-            let actualResult = isInsidePolygon(point(x, y, z), xzTuples, yPolygon)
+            let actualResult = isInsidePolygon(Point(x, y, z), xzTuples, yPolygon)
             XCTAssertEqual(actualResult, expectedResult)
         }
     }
@@ -84,7 +84,7 @@ class PrismTests: XCTestCase {
             ((1.0, 2.0, -1.1), false),
             ((-1.0, 2.0, -1.1), false),
         ] {
-            let actualResult = isInsidePolygon(point(x, y, z), xzTuples, yPolygon)
+            let actualResult = isInsidePolygon(Point(x, y, z), xzTuples, yPolygon)
             XCTAssertEqual(actualResult, expectedResult)
         }
     }
@@ -103,7 +103,7 @@ class PrismTests: XCTestCase {
             ((0.0, -2.0, 0.0), (0.0, 1.0, 0.0), [1.0, 3.0]), // Ray entering from the bottom center
             ((-1.0, 3.0, 0.0), (1.0, -2.0, 0.0), [1.0, 1.5]), // Ray entering from the top at an angle
         ] {
-            let ray = Ray(point(ox, oy, oz), vector(dx, dy, dz))
+            let ray = Ray(Point(ox, oy, oz), Vector(dx, dy, dz))
             let actualTs = prism
                 .localIntersect(ray)
                 .sorted { (i1, i2) in
@@ -130,7 +130,7 @@ class PrismTests: XCTestCase {
             ((-0.625, 2.0, -0.5), (0.0, -1.0, 0.0), [1.0, 3.0]), // Ray entering through top side, two hits
             ((-1.0, 2.0, -0.5), (0.0, -1.0, 0.0), []), // Ray originating from top left, total miss
         ] {
-            let ray = Ray(point(ox, oy, oz), vector(dx, dy, dz))
+            let ray = Ray(Point(ox, oy, oz), Vector(dx, dy, dz))
             let actualTs = prism
                 .localIntersect(ray)
                 .sorted { (i1, i2) in
@@ -159,8 +159,8 @@ class PrismTests: XCTestCase {
             ((0.0, 1.0, 0.0), (0.0, 1.0, 0.0)), // Top side
             ((0.0, -1.0, 0.0), (0.0, -1.0, 0.0)), // Bottom side
         ] {
-            let actualNormal = prism.localNormal(point(ix, iy, iz))
-            let expectedNormal = vector(nx, ny, nz)
+            let actualNormal = prism.localNormal(Point(ix, iy, iz))
+            let expectedNormal = Vector(nx, ny, nz)
             XCTAssertTrue(actualNormal.isAlmostEqual(expectedNormal))
         }
     }

@@ -62,33 +62,33 @@ class IntersectionTests: XCTestCase {
     }
 
     func testPrepareComputationsOutside() throws {
-        let ray = Ray(point(0, 0, -5), vector(0, 0, 1))
+        let ray = Ray(Point(0, 0, -5), Vector(0, 0, 1))
         let shape = Sphere()
         let intersection = Intersection(4, shape)
         let computations = intersection.prepareComputations(ray, [intersection])
         XCTAssertEqual(computations.t, intersection.t)
         XCTAssertEqual(computations.object.id, shape.id)
-        XCTAssert(computations.point.isAlmostEqual(point(0, 0, -1)))
-        XCTAssert(computations.eye.isAlmostEqual(vector(0, 0, -1)))
-        XCTAssert(computations.normal.isAlmostEqual(vector(0, 0, -1)))
+        XCTAssert(computations.point.isAlmostEqual(Point(0, 0, -1)))
+        XCTAssert(computations.eye.isAlmostEqual(Vector(0, 0, -1)))
+        XCTAssert(computations.normal.isAlmostEqual(Vector(0, 0, -1)))
         XCTAssertEqual(computations.isInside, false)
     }
 
     func testPrepareComputationsInside() throws {
-        let ray = Ray(point(0, 0, 0), vector(0, 0, 1))
+        let ray = Ray(Point(0, 0, 0), Vector(0, 0, 1))
         let shape = Sphere()
         let intersection = Intersection(1, shape)
         let computations = intersection.prepareComputations(ray, [intersection])
         XCTAssertEqual(computations.t, intersection.t)
         XCTAssertEqual(computations.object.id, shape.id)
-        XCTAssert(computations.point.isAlmostEqual(point(0, 0, 1)))
-        XCTAssert(computations.eye.isAlmostEqual(vector(0, 0, -1)))
-        XCTAssert(computations.normal.isAlmostEqual(vector(0, 0, -1)))
+        XCTAssert(computations.point.isAlmostEqual(Point(0, 0, 1)))
+        XCTAssert(computations.eye.isAlmostEqual(Vector(0, 0, -1)))
+        XCTAssert(computations.normal.isAlmostEqual(Vector(0, 0, -1)))
         XCTAssertEqual(computations.isInside, true)
     }
 
     func testPrepareComputationsShouldComputeOverPoint() throws {
-        let ray = Ray(point(0, 0, -5), vector(0, 0, 1))
+        let ray = Ray(Point(0, 0, -5), Vector(0, 0, 1))
         let shape = Sphere()
             .translate(0, 0, 1)
         let intersection = Intersection(5, shape)
@@ -98,7 +98,7 @@ class IntersectionTests: XCTestCase {
     }
 
     func testPrepareComputationsShouldComputeUnderPoint() throws {
-        let ray = Ray(point(0, 0, -5), vector(0, 0, 1))
+        let ray = Ray(Point(0, 0, -5), Vector(0, 0, 1))
         let shape = Sphere()
             .translate(0, 0, 1)
         let intersection = Intersection(5, shape)
@@ -109,10 +109,10 @@ class IntersectionTests: XCTestCase {
 
     func testPrepareComputationsReflected() throws {
         let shape = Plane()
-        let ray = Ray(point(0, 1, -1), vector(0, -sqrt(2)/2, sqrt(2)/2))
+        let ray = Ray(Point(0, 1, -1), Vector(0, -sqrt(2)/2, sqrt(2)/2))
         let intersection = Intersection(sqrt(2), shape)
         let computations = intersection.prepareComputations(ray, [intersection])
-        XCTAssertTrue(computations.reflected.isAlmostEqual(vector(0, sqrt(2)/2, sqrt(2)/2)))
+        XCTAssertTrue(computations.reflected.isAlmostEqual(Vector(0, sqrt(2)/2, sqrt(2)/2)))
     }
 
     func testPrepareComputationsForN1AndN2() throws {
@@ -126,7 +126,7 @@ class IntersectionTests: XCTestCase {
             .material(.basicMaterial().refractive(2.5))
             .translate(0, 0, 0.25)
 
-        let ray = Ray(point(0, 0, -4), vector(0, 0, 1))
+        let ray = Ray(Point(0, 0, -4), Vector(0, 0, 1))
         let allIntersections = [
             Intersection(2, glassSphereA),
             Intersection(2.75, glassSphereB),

@@ -323,21 +323,16 @@ public struct Matrix4 {
         )
         for r in 0...3 {
             for c in 0...3 {
-                let selfRow = Tuple4(self[0, r], self[1, r], self[2, r], self[3, r])
-                let otherColumn = Tuple4(other[c, 0], other[c, 1], other[c, 2], other[c, 3])
-                m[c, r] = selfRow.dot(otherColumn)
+                m[c, r] = self[0, r]*other[c, 0] +
+                          self[1, r]*other[c, 1] +
+                          self[2, r]*other[c, 2] +
+                          self[3, r]*other[c, 3]
             }
         }
         return m
     }
 
     func multiplyTuple(_ vector: Vector) -> Vector {
-//        var t = Tuple4(0, 0, 0, 0)
-//        for r in 0...3 {
-//            let selfRow = Tuple4(self[0, r], self[1, r], self[2, r], self[3, r])
-//            t[r] = selfRow.dot(tuple)
-//        }
-//        return t
         var v = Vector(0, 0, 0)
         for r in 0...3 {
             v[r] = self[0, r]*vector.x + self[1, r]*vector.y + self[2, r]*vector.z
@@ -348,10 +343,9 @@ public struct Matrix4 {
     func multiplyTuple(_ point: Point) -> Point {
         var p = Point(0, 0, 0)
         for r in 0...3 {
-            let selfRow = Tuple4(self[0, r], self[1, r], self[2, r], self[3, r])
-            t[r] = selfRow.dot(tuple)
+            p[r] = self[0, r]*point.x + self[1, r]*point.y + self[2, r]*point.z + self[3, r]
         }
-        return t
+        return p
     }
 
     func transpose() -> Matrix4 {

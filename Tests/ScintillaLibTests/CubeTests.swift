@@ -13,13 +13,13 @@ class CubeTests: XCTestCase {
         let cube = Cube()
 
         let testCases = [
-            (point(5, 0.5, 0), vector(-1, 0, 0), 4.0, 6.0),
-            (point(-5, 0.5, 0), vector(1, 0, 0), 4.0, 6.0),
-            (point(0.5, 5, 0), vector(0, -1, 0), 4.0, 6.0),
-            (point(0.5, -5, 0), vector(0, 1, 0), 4.0, 6.0),
-            (point(0.5, 0, 5), vector(0, 0, -1), 4.0, 6.0),
-            (point(0.5, 0, -5), vector(0, 0, 1), 4.0, 6.0),
-            (point(0, 0.5, 0), vector(0, 0, 1), -1.0, 1.0),
+            (Point(5, 0.5, 0), Vector(-1, 0, 0), 4.0, 6.0),
+            (Point(-5, 0.5, 0), Vector(1, 0, 0), 4.0, 6.0),
+            (Point(0.5, 5, 0), Vector(0, -1, 0), 4.0, 6.0),
+            (Point(0.5, -5, 0), Vector(0, 1, 0), 4.0, 6.0),
+            (Point(0.5, 0, 5), Vector(0, 0, -1), 4.0, 6.0),
+            (Point(0.5, 0, -5), Vector(0, 0, 1), 4.0, 6.0),
+            (Point(0, 0.5, 0), Vector(0, 0, 1), -1.0, 1.0),
         ]
 
         for (origin, direction, t1, t2) in testCases {
@@ -35,12 +35,12 @@ class CubeTests: XCTestCase {
         let cube = Cube()
 
         let testCases = [
-            (point(-2, 0, 0), vector(0.2673, 0.5345, 0.8018)),
-            (point(0, -2, 0), vector(0.8018, 0.2673, 0.5345)),
-            (point(0, 0, -2), vector(0.5345, 0.8018, 0.2673)),
-            (point(2, 0, 2), vector(0, 0, -1)),
-            (point(0, 2, 2), vector(0, -1, 0)),
-            (point(2, 2, 0), vector(-1, 0, 0)),
+            (Point(-2, 0, 0), Vector(0.2673, 0.5345, 0.8018)),
+            (Point(0, -2, 0), Vector(0.8018, 0.2673, 0.5345)),
+            (Point(0, 0, -2), Vector(0.5345, 0.8018, 0.2673)),
+            (Point(2, 0, 2), Vector(0, 0, -1)),
+            (Point(0, 2, 2), Vector(0, -1, 0)),
+            (Point(2, 2, 0), Vector(-1, 0, 0)),
         ]
 
         for (origin, direction) in testCases {
@@ -54,14 +54,14 @@ class CubeTests: XCTestCase {
         let cube = Cube()
 
         let testCases = [
-            (point(1, 0.5, -0.8), vector(1, 0, 0)),
-            (point(-1, -0.2, 0.9), vector(-1, 0, 0)),
-            (point(-0.4, 1, -0.1), vector(0, 1, 0)),
-            (point(0.3, -1, -0.7), vector(0, -1, 0)),
-            (point(-0.6, 0.3, 1), vector(0, 0, 1)),
-            (point(0.4, 0.4, -1), vector(0, 0, -1)),
-            (point(1, 1, 1), vector(1, 0, 0)),
-            (point(-1, -1, -1), vector(-1, 0, 0))
+            (Point(1, 0.5, -0.8), Vector(1, 0, 0)),
+            (Point(-1, -0.2, 0.9), Vector(-1, 0, 0)),
+            (Point(-0.4, 1, -0.1), Vector(0, 1, 0)),
+            (Point(0.3, -1, -0.7), Vector(0, -1, 0)),
+            (Point(-0.6, 0.3, 1), Vector(0, 0, 1)),
+            (Point(0.4, 0.4, -1), Vector(0, 0, -1)),
+            (Point(1, 1, 1), Vector(1, 0, 0)),
+            (Point(-1, -1, -1), Vector(-1, 0, 0))
         ]
 
         for (localPoint, expectedValue) in testCases {

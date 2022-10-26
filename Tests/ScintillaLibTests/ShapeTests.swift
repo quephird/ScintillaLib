@@ -21,8 +21,8 @@ class ShapeTests: XCTestCase {
         }
             .rotateY(PI/2)
 
-        let actualValue = s.worldToObject(point(-2, 0, -10))
-        let expectedValue = point(0, 0, -1)
+        let actualValue = s.worldToObject(Point(-2, 0, -10))
+        let expectedValue = Point(0, 0, -1)
         XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
     }
 
@@ -37,8 +37,8 @@ class ShapeTests: XCTestCase {
         }
             .rotateY(PI/2)
 
-        let actualValue = s.objectToWorld(vector(sqrt(3)/3, sqrt(3)/3, sqrt(3)/3))
-        let expectedValue = vector(0.28571, 0.42857, -0.85714)
+        let actualValue = s.objectToWorld(Vector(sqrt(3)/3, sqrt(3)/3, sqrt(3)/3))
+        let expectedValue = Vector(0.28571, 0.42857, -0.85714)
         XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
     }
 
@@ -53,8 +53,8 @@ class ShapeTests: XCTestCase {
         }
             .rotateY(PI/2)
 
-        let actualValue = s.normal(point(1.7321, 1.1547, -5.5774))
-        let expectedValue = vector(0.28570, 0.42854, -0.85716)
+        let actualValue = s.normal(Point(1.7321, 1.1547, -5.5774))
+        let expectedValue = Vector(0.28570, 0.42854, -0.85716)
         XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
     }
 }

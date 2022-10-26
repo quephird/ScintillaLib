@@ -83,8 +83,8 @@ public struct Point: Tuple4 {
     func subtract(_ other: Self) -> Vector {
         Vector(
             self.x - other.x,
-            self.x - other.y,
-            self.x - other.z
+            self.y - other.y,
+            self.z - other.z
         )
     }
 }
@@ -146,7 +146,7 @@ public struct Vector: Tuple4 {
 
     func cross(_ other: Self) -> Self {
         Vector(
-            self.x*other.z - self.z*other.y,
+            self.y*other.z - self.z*other.y,
             self.z*other.x - self.x*other.z,
             self.x*other.y - self.y*other.x
         )

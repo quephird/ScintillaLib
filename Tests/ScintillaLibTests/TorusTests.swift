@@ -27,7 +27,7 @@ class TorusTests: XCTestCase {
     }
 
     func testIntersectFourHits() throws {
-        let r = Ray(point(-5, 0, 0), vector(1, 0, 0))
+        let r = Ray(Point(-5, 0, 0), Vector(1, 0, 0))
         let torus = Torus(3, 1)
         let intersections = torus.intersect(r)
         let expectedHits = [1.0, 3.0, 7.0, 9.0]
@@ -38,7 +38,7 @@ class TorusTests: XCTestCase {
     }
 
     func testIntersectThreeHitsWithOneHitTangent() throws {
-        let r = Ray(point(-5, 0, -2), vector(1, 0, 0))
+        let r = Ray(Point(-5, 0, -2), Vector(1, 0, 0))
         let torus = Torus(3, 1)
         let intersections = torus.intersect(r)
         let expectedHits = [1.53590, 5.0, 8.46410]
@@ -49,7 +49,7 @@ class TorusTests: XCTestCase {
     }
 
     func testIntersectTwoHits() throws {
-        let r = Ray(point(-5, 0, -3), vector(1, 0, 0))
+        let r = Ray(Point(-5, 0, -3), Vector(1, 0, 0))
         let torus = Torus(3, 1)
         let intersections = torus.intersect(r)
         let expectedHits = [2.35425, 7.64575]
@@ -60,7 +60,7 @@ class TorusTests: XCTestCase {
     }
 
     func testIntersectOneHitTangentRay() throws {
-        let r = Ray(point(-5, 0, -4), vector(1, 0, 0))
+        let r = Ray(Point(-5, 0, -4), Vector(1, 0, 0))
         let torus = Torus(3, 1)
         let intersections = torus.intersect(r)
         let expectedHits = [5.0]
@@ -71,7 +71,7 @@ class TorusTests: XCTestCase {
     }
 
     func testIntersectMiss() throws {
-        let r = Ray(point(-5, 0, -5), vector(1, 0, 0))
+        let r = Ray(Point(-5, 0, -5), Vector(1, 0, 0))
         let torus = Torus(3, 1)
         let intersections = torus.intersect(r)
         XCTAssert(intersections.isEmpty)
