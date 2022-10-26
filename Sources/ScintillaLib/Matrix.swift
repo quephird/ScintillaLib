@@ -241,7 +241,7 @@ public struct Matrix4 {
         )
     }
 
-    public static func view(_ from: Tuple4, _ to: Tuple4, _ up: Tuple4) -> Matrix4 {
+    public static func view(_ from: Point, _ to: Point, _ up: Vector) -> Matrix4 {
         let forward = to.subtract(from).normalize()
         let upNormalized = up.normalize()
         let left = forward.cross(upNormalized)
@@ -331,8 +331,22 @@ public struct Matrix4 {
         return m
     }
 
-    func multiplyTuple(_ tuple: Tuple4) -> Tuple4 {
-        var t = Tuple4(0, 0, 0, 0)
+    func multiplyTuple(_ vector: Vector) -> Vector {
+//        var t = Tuple4(0, 0, 0, 0)
+//        for r in 0...3 {
+//            let selfRow = Tuple4(self[0, r], self[1, r], self[2, r], self[3, r])
+//            t[r] = selfRow.dot(tuple)
+//        }
+//        return t
+        var v = Vector(0, 0, 0)
+        for r in 0...3 {
+            v[r] = self[0, r]*vector.x + self[1, r]*vector.y + self[2, r]*vector.z
+        }
+        return v
+    }
+
+    func multiplyTuple(_ point: Point) -> Point {
+        var p = Point(0, 0, 0)
         for r in 0...3 {
             let selfRow = Tuple4(self[0, r], self[1, r], self[2, r], self[3, r])
             t[r] = selfRow.dot(tuple)

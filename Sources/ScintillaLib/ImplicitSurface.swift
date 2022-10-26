@@ -89,7 +89,7 @@ public class ImplicitSurface: Shape {
         return []
     }
 
-    override func localNormal(_ localPoint: Tuple4) -> Tuple4 {
+    override func localNormal(_ localPoint: Point) -> Vector {
         // We take an approach below in approximating ∂F/∂x, ∂F/∂y, and ∂F/∂z
         // by computing the simple derivative using a very small value for Δx,
         // Δy, and Δz, respectively.
@@ -97,6 +97,6 @@ public class ImplicitSurface: Shape {
         let gradFy = (f(localPoint.x, localPoint.y + DELTA, localPoint.z) - f(localPoint.x, localPoint.y - DELTA, localPoint.z))
         let gradFz = (f(localPoint.x, localPoint.y, localPoint.z + DELTA) - f(localPoint.x, localPoint.y, localPoint.z - DELTA))
 
-        return vector(gradFx, gradFy, gradFz).normalize()
+        return Vector(gradFx, gradFy, gradFz).normalize()
     }
 }

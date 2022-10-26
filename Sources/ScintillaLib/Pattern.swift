@@ -16,7 +16,7 @@ public class Pattern {
         self.inverseTransform = transform.inverse()
     }
 
-    func colorAt( _ object: Shape, _ worldPoint: Tuple4) -> Color {
+    func colorAt( _ object: Shape, _ worldPoint: Point) -> Color {
         let objectPoint = object.inverseTransform.multiplyTuple(worldPoint)
         let patternPoint = self.inverseTransform.multiplyTuple(objectPoint)
         return self.colorAt(patternPoint)

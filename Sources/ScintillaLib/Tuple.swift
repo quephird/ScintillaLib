@@ -7,13 +7,11 @@
 
 import Foundation
 
-public struct Tuple4 {
-    var data: (Double, Double, Double, Double)
+public protocol Tuple4 {
+    var data: (Double, Double, Double, Double) { get set }
+}
 
-    public init(_ x: Double, _ y: Double, _ z: Double, _ w: Double) {
-        self.data = (x, y, z, w)
-    }
-
+extension Tuple4 {
     var x: Double {
         self.data.0
     }
@@ -24,6 +22,10 @@ public struct Tuple4 {
 
     var z: Double {
         self.data.2
+    }
+
+    var w: Double {
+        self.data.3
     }
 
     subscript(_ index: Int) -> Double {
@@ -47,51 +49,91 @@ public struct Tuple4 {
         }
     }
 
-    func add(_ other: Self) -> Self {
-        Tuple4(
-            self[0]+other[0],
-            self[1]+other[1],
-            self[2]+other[2],
-            self[3]+other[3]
+    func isAlmostEqual(_ to: Self) -> Bool {
+        self[0].isAlmostEqual(to[0]) &&
+            self[1].isAlmostEqual(to[1]) &&
+            self[2].isAlmostEqual(to[2]) &&
+            self[3].isAlmostEqual(to[3])
+    }
+}
+
+public struct Point: Tuple4 {
+    public var data: (Double, Double, Double, Double)
+
+    public init(_ x: Double, _ y: Double, _ z: Double) {
+        self.data = (x, y, z, 1.0)
+    }
+
+    func add(_ other: Vector) -> Point {
+        Point(
+            self.x + other.x,
+            self.y + other.y,
+            self.z + other.z
         )
     }
 
-    func subtract(_ other: Self) -> Self {
-        Tuple4(
-            self[0]-other[0],
-            self[1]-other[1],
-            self[2]-other[2],
-            self[3]-other[3]
+    func subtract(_ other: Vector) -> Point {
+        Point(
+            self.x - other.x,
+            self.y - other.y,
+            self.z - other.z
+        )
+    }
+
+    func subtract(_ other: Self) -> Vector {
+        Vector(
+            self.x - other.x,
+            self.x - other.y,
+            self.x - other.z
+        )
+    }
+}
+
+public struct Vector: Tuple4 {
+    public var data: (Double, Double, Double, Double)
+
+    public init(_ x: Double, _ y: Double, _ z: Double) {
+        self.data = (x, y, z, 0.0)
+    }
+
+    func add(_ other: Vector) -> Vector {
+        Vector(
+            self.x + other.x,
+            self.y + other.y,
+            self.z + other.z
+        )
+    }
+
+    func add(_ other: Point) -> Point {
+        Point(
+            self.x + other.x,
+            self.y + other.y,
+            self.z + other.z
         )
     }
 
     func negate() -> Self {
-        Tuple4(-self[0], -self[1], -self[2], -self[3])
+        Vector(-self.x, -self.y, -self.z)
+    }
+
+    func subtract(_ other: Self) -> Self {
+        self.add(other.negate())
     }
 
     func multiplyScalar(_ scalar: Double) -> Self {
-        Tuple4(
-            scalar*self[0],
-            scalar*self[1],
-            scalar*self[2],
-            scalar*self[3]
+        Vector(
+            scalar*self.x,
+            scalar*self.y,
+            scalar*self.z
         )
     }
 
     func divideScalar(_ scalar: Double) -> Self {
-        Tuple4(
-            self[0]/scalar,
-            self[1]/scalar,
-            self[2]/scalar,
-            self[3]/scalar
-        )
+        self.multiplyScalar(1/scalar)
     }
 
     func magnitude() -> Double {
-        (self[0]*self[0] +
-            self[1]*self[1] +
-            self[2]*self[2] +
-            self[3]*self[3]).squareRoot()
+        (self.x*self.x + self.y*self.y + self.z*self.z).squareRoot()
     }
 
     func normalize() -> Self {
@@ -99,29 +141,19 @@ public struct Tuple4 {
     }
 
     func dot(_ other: Self) -> Double {
-        self[0]*other[0] +
-            self[1]*other[1] +
-            self[2]*other[2] +
-            self[3]*other[3]
+        self.x*other.x + self.y*other.y + self.z*other.z
     }
 
     func cross(_ other: Self) -> Self {
-        vector(
-            self[1] * other[2] - self[2] * other[1],
-            self[2] * other[0] - self[0] * other[2],
-            self[0] * other[1] - self[1] * other[0]
+        Vector(
+            self.x*other.z - self.z*other.y,
+            self.z*other.x - self.x*other.z,
+            self.x*other.y - self.y*other.x
         )
     }
 
-    func reflect(_ normal: Tuple4) -> Tuple4 {
-        return self.subtract(normal.multiplyScalar(2 * self.dot(normal)))
-    }
-
-    func isAlmostEqual(_ to: Self) -> Bool {
-        self[0].isAlmostEqual(to[0]) &&
-            self[1].isAlmostEqual(to[1]) &&
-            self[2].isAlmostEqual(to[2]) &&
-            self[3].isAlmostEqual(to[3])
+    func reflect(_ normal: Vector) -> Vector {
+        self.subtract(normal.multiplyScalar(2 * self.dot(normal)))
     }
 
     func project(_ onto: Self) -> Self {
@@ -134,12 +166,4 @@ public struct Tuple4 {
     func angle(_ with: Self) -> Double {
         return acos(self.dot(with)/self.magnitude()/with.magnitude())
     }
-}
-
-public func point(_ x: Double, _ y: Double, _ z: Double) -> Tuple4 {
-    Tuple4(x, y, z, 1.0)
-}
-
-public func vector(_ x: Double, _ y: Double, _ z: Double) -> Tuple4 {
-    Tuple4(x, y, z, 0.0)
 }

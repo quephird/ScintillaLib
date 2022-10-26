@@ -162,7 +162,7 @@ public class World {
         }
     }
 
-    func isShadowed(_ lightPoint: Tuple4, _ worldPoint: Tuple4) -> Bool {
+    func isShadowed(_ lightPoint: Point, _ worldPoint: Point) -> Bool {
         let lightVector = lightPoint.subtract(worldPoint)
         let lightDistance = lightVector.magnitude()
         let lightDirection = lightVector.normalize()
@@ -177,7 +177,7 @@ public class World {
         }
     }
 
-    func intensity(_ light: Light, _ worldPoint: Tuple4) -> Double {
+    func intensity(_ light: Light, _ worldPoint: Point) -> Double {
         switch light {
         case let pointLight as PointLight:
             return isShadowed(pointLight.position, worldPoint) ? 0.0 : 1.0
@@ -209,8 +209,8 @@ public class World {
         // Using the camera matrix, transform the canvas point and the origin,
         // and then compute the ray's direction vector.
         // (Remember that the canvas is at z=-1)
-        let pixel = self.camera.inverseViewTransform.multiplyTuple(point(worldX, worldY, -1))
-        let origin = self.camera.inverseViewTransform.multiplyTuple(point(0, 0, 0))
+        let pixel = self.camera.inverseViewTransform.multiplyTuple(Point(worldX, worldY, -1))
+        let origin = self.camera.inverseViewTransform.multiplyTuple(Point(0, 0, 0))
         let direction = pixel.subtract(origin).normalize()
 
         return Ray(origin, direction)

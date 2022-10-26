@@ -101,7 +101,7 @@ public class Material {
         return self
     }
 
-    func lighting(_ light: Light, _ object: Shape, _ point: Tuple4, _ eye: Tuple4, _ normal: Tuple4, _ intensity: Double) -> Color {
+    func lighting(_ light: Light, _ object: Shape, _ point: Point, _ eye: Vector, _ normal: Vector, _ intensity: Double) -> Color {
         // Combine the surface color with the light's color/intensity
         var effectiveColor: Color
         switch self.colorStrategy {
@@ -141,12 +141,12 @@ public class Material {
     }
 
     private func calculateDiffuseAndSpecular(
-        _ pointOnLight: Tuple4,
+        _ pointOnLight: Point,
         _ lightColor: Color,
-        _ point: Tuple4,
+        _ point: Point,
         _ effectiveColor: Color,
-        _ eye: Tuple4,
-        _ normal: Tuple4,
+        _ eye: Vector,
+        _ normal: Vector,
         _ intensity: Double
     ) -> (Color, Color) {
         // Find the direction to the light source

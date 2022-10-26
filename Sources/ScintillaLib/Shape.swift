@@ -106,17 +106,17 @@ public class Shape {
         fatalError("Subclasses must override this method!")
     }
 
-    func normal(_ worldPoint: Tuple4) -> Tuple4 {
+    func normal(_ worldPoint: Point) -> Vector {
         let localPoint = self.worldToObject(worldPoint)
         let localNormal = self.localNormal(localPoint)
         return self.objectToWorld(localNormal)
     }
 
-    func localNormal(_ localPoint: Tuple4) -> Tuple4 {
+    func localNormal(_ localPoint: Point) -> Vector {
         fatalError("Subclasses must override this method!")
     }
 
-    func worldToObject(_ worldPoint: Tuple4) -> Tuple4 {
+    func worldToObject(_ worldPoint: Point) -> Point {
         var objectPoint = worldPoint
         if case .group(let group) = parent {
             objectPoint = group.worldToObject(worldPoint)
@@ -126,7 +126,7 @@ public class Shape {
         return self.inverseTransform.multiplyTuple(objectPoint)
     }
 
-    func objectToWorld(_ objectNormal: Tuple4) -> Tuple4 {
+    func objectToWorld(_ objectNormal: Vector) -> Vector {
         var worldNormal = self.inverseTransposeTransform.multiplyTuple(objectNormal)
         worldNormal[3] = 0
         worldNormal = worldNormal.normalize()

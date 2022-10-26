@@ -8,45 +8,45 @@
 import Foundation
 
 public protocol Light {
-    var position: Tuple4 { get }
+    var position: Point { get }
     var color: Color { get }
 }
 
 public struct PointLight: Light {
-    public var position: Tuple4
+    public var position: Point
     public var color: Color
 
-    public init(_ position: Tuple4) {
+    public init(_ position: Point) {
         self.position = position
         self.color = .white
     }
 
-    public init(_ position: Tuple4, _ color: Color) {
+    public init(_ position: Point, _ color: Color) {
         self.position = position
         self.color = color
     }
 }
 
 public struct AreaLight: Light {
-    public var position: Tuple4
+    public var position: Point
     public var color: Color
-    var corner: Tuple4
-    var uVec: Tuple4
+    var corner: Point
+    var uVec: Vector
     var uSteps: Int
-    var vVec: Tuple4
+    var vVec: Vector
     var vSteps: Int
     var samples: Int
     var jitter: Jitter
 
-    public init(_ corner: Tuple4, _ fullUVec: Tuple4, _ uSteps: Int, _ fullVVec: Tuple4, _ vSteps: Int) {
+    public init(_ corner: Point, _ fullUVec: Vector, _ uSteps: Int, _ fullVVec: Vector, _ vSteps: Int) {
         self.init(corner, .white, fullUVec, uSteps, fullVVec, vSteps, RandomJitter())
     }
 
-    public init(_ corner: Tuple4, _ color: Color, _ fullUVec: Tuple4, _ uSteps: Int, _ fullVVec: Tuple4, _ vSteps: Int) {
+    public init(_ corner: Point, _ color: Color, _ fullUVec: Vector, _ uSteps: Int, _ fullVVec: Vector, _ vSteps: Int) {
         self.init(corner, color, fullUVec, uSteps, fullVVec, vSteps, RandomJitter())
     }
 
-    public init(_ corner: Tuple4, _ color: Color, _ fullUVec: Tuple4, _ uSteps: Int, _ fullVVec: Tuple4, _ vSteps: Int, _ jitter: Jitter) {
+    public init(_ corner: Point, _ color: Color, _ fullUVec: Vector, _ uSteps: Int, _ fullVVec: Vector, _ vSteps: Int, _ jitter: Jitter) {
         self.corner = corner
         self.color = color
         self.uSteps = uSteps
@@ -60,7 +60,7 @@ public struct AreaLight: Light {
         self.jitter = jitter
     }
 
-    public mutating func pointAt(_ u: Int, _ v: Int) -> Tuple4 {
+    public mutating func pointAt(_ u: Int, _ v: Int) -> Point {
         return corner
             .add(uVec.multiplyScalar(Double(u) + self.jitter.next()))
             .add(vVec.multiplyScalar(Double(v) + self.jitter.next()))

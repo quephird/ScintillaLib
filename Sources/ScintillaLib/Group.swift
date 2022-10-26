@@ -32,8 +32,8 @@ public class Group: Shape {
         return allIntersections
     }
 
-    override func localNormal(_ localPoint: Tuple4) -> Tuple4 {
-        return vector(0, 0, 1)
+    override func localNormal(_ localPoint: Point) -> Vector {
+        return Vector(0, 0, 1)
     }
 
     func addChild(_ childObject: Shape) {
