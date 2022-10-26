@@ -42,17 +42,17 @@ class Tuple4Tests: XCTestCase {
 
     func testMultiplyScalar() throws {
         let t = Vector(1.0, -2.0, 3.0)
-        XCTAssert(t.multiplyScalar(3.5).isAlmostEqual(Vector(3.5, -7.0, 10.5)))
+        XCTAssert(t.multiply(3.5).isAlmostEqual(Vector(3.5, -7.0, 10.5)))
     }
 
     func testMultiplyScalarFraction() throws {
         let t = Vector(1.0, -2.0, 3.0)
-        XCTAssert(t.multiplyScalar(0.5).isAlmostEqual(Vector(0.5, -1.0, 1.5)))
+        XCTAssert(t.multiply(0.5).isAlmostEqual(Vector(0.5, -1.0, 1.5)))
     }
 
     func testDivideScalar() throws {
         let t = Vector(1.0, -2.0, 3.0)
-        XCTAssert(t.divideScalar(2).isAlmostEqual(Vector(0.5, -1.0, 1.5)))
+        XCTAssert(t.divide(2).isAlmostEqual(Vector(0.5, -1.0, 1.5)))
     }
 
     func testMagnitude() throws {

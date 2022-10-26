@@ -120,7 +120,7 @@ public struct Vector: Tuple4 {
         self.add(other.negate())
     }
 
-    func multiplyScalar(_ scalar: Double) -> Self {
+    func multiply(_ scalar: Double) -> Self {
         Vector(
             scalar*self.x,
             scalar*self.y,
@@ -128,8 +128,8 @@ public struct Vector: Tuple4 {
         )
     }
 
-    func divideScalar(_ scalar: Double) -> Self {
-        self.multiplyScalar(1/scalar)
+    func divide(_ scalar: Double) -> Self {
+        self.multiply(1/scalar)
     }
 
     func magnitude() -> Double {
@@ -137,7 +137,7 @@ public struct Vector: Tuple4 {
     }
 
     func normalize() -> Self {
-        self.divideScalar(self.magnitude())
+        self.divide(self.magnitude())
     }
 
     func dot(_ other: Self) -> Double {
@@ -153,14 +153,14 @@ public struct Vector: Tuple4 {
     }
 
     func reflect(_ normal: Vector) -> Vector {
-        self.subtract(normal.multiplyScalar(2 * self.dot(normal)))
+        self.subtract(normal.multiply(2 * self.dot(normal)))
     }
 
     func project(_ onto: Self) -> Self {
         let sDotO = self.dot(onto)
         return onto
-            .multiplyScalar(sDotO)
-            .divideScalar(onto.magnitude()*onto.magnitude())
+            .multiply(sDotO)
+            .divide(onto.magnitude()*onto.magnitude())
     }
 
     func angle(_ with: Self) -> Double {

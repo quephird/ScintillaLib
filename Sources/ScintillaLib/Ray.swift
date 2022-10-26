@@ -17,7 +17,7 @@ public struct Ray {
     }
 
     func position(_ t: Double) -> Point {
-        self.origin.add(self.direction.multiplyScalar(t))
+        self.origin.add(self.direction.multiply(t))
     }
 
     func transform(_ m: Matrix4) -> Ray {

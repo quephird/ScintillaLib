@@ -50,19 +50,19 @@ public struct AreaLight: Light {
         self.corner = corner
         self.color = color
         self.uSteps = uSteps
-        self.uVec = fullUVec.divideScalar(Double(uSteps))
+        self.uVec = fullUVec.divide(Double(uSteps))
         self.vSteps = vSteps
-        self.vVec = fullVVec.divideScalar(Double(vSteps))
+        self.vVec = fullVVec.divide(Double(vSteps))
         self.samples = uSteps * vSteps
         self.position = corner
-            .add(uVec.multiplyScalar(Double(uSteps/2)))
-            .add(vVec.multiplyScalar(Double(vSteps/2)))
+            .add(uVec.multiply(Double(uSteps/2)))
+            .add(vVec.multiply(Double(vSteps/2)))
         self.jitter = jitter
     }
 
     public mutating func pointAt(_ u: Int, _ v: Int) -> Point {
         return corner
-            .add(uVec.multiplyScalar(Double(u) + self.jitter.next()))
-            .add(vVec.multiplyScalar(Double(v) + self.jitter.next()))
+            .add(uVec.multiply(Double(u) + self.jitter.next()))
+            .add(vVec.multiply(Double(v) + self.jitter.next()))
     }
 }

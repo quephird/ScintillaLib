@@ -136,8 +136,8 @@ public class World {
 
                 // Compute the direction of the refracted ray
                 let direction = computations.normal
-                    .multiplyScalar(ratio * cosThetaI - cosThetaT)
-                    .subtract(computations.eye.multiplyScalar(ratio))
+                    .multiply(ratio * cosThetaI - cosThetaT)
+                    .subtract(computations.eye.multiply(ratio))
 
                 // Create the refracted ray
                 let refracted = Ray(computations.underPoint, direction)
