@@ -102,7 +102,7 @@ class Matrix4Tests: XCTestCase {
             40, 58, 110, 102,
             16, 26, 46, 42
         )
-        let actualValue = m1.multiplyMatrix(m2)
+        let actualValue = m1.multiply(m2)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
 
@@ -323,7 +323,7 @@ class Matrix4Tests: XCTestCase {
         let rx = Matrix4.rotationX(PI/2)
         let s = Matrix4.scaling(5, 5, 5)
         let t = Matrix4.translation(10, 5, 7)
-        let fullTransform = t.multiplyMatrix(s).multiplyMatrix(rx)
+        let fullTransform = t.multiply(s).multiply(rx)
         let actualValue = fullTransform.multiply(p)
         let expectedValue = Point(15, 0, 7)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))

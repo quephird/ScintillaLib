@@ -253,7 +253,7 @@ public struct Matrix4 {
             0,           0,           0,           1
         )
         let transform = translation(-from[0], -from[1], -from[2])
-        return orientation.multiplyMatrix(transform)
+        return orientation.multiply(transform)
     }
 
     subscript(_ i: Int, _ j: Int) -> Double {
@@ -314,7 +314,7 @@ public struct Matrix4 {
         return true
     }
 
-    func multiplyMatrix(_ other: Matrix4) -> Matrix4 {
+    func multiply(_ other: Matrix4) -> Matrix4 {
         var m = Matrix4(
             0, 0, 0, 0,
             0, 0, 0, 0,

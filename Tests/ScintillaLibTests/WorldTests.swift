@@ -524,7 +524,7 @@ class WorldTests: XCTestCase {
     func testRayForPixelForTransformedCamera() throws {
         let light = PointLight(Point(-10, 10, -10))
         let transform = Matrix4.rotationY(PI/4)
-            .multiplyMatrix(.translation(0, -2, 5))
+            .multiply(.translation(0, -2, 5))
         let camera = Camera(201, 101, PI/2, transform)
         let objects: [Shape] = []
         let world = World(light, camera, objects)

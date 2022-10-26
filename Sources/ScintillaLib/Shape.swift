@@ -57,42 +57,42 @@ public class Shape {
 
     public func translate(_ x: Double, _ y: Double, _ z: Double) -> Self {
         self.transform = .translation(x, y, z)
-            .multiplyMatrix(self.transform)
+            .multiply(self.transform)
 
         return self
     }
 
     public func scale(_ x: Double, _ y: Double, _ z: Double) -> Self {
         self.transform = .scaling(x, y, z)
-            .multiplyMatrix(self.transform)
+            .multiply(self.transform)
 
         return self
     }
 
     public func rotateX(_ t: Double) -> Self {
         self.transform = .rotationX(t)
-            .multiplyMatrix(self.transform)
+            .multiply(self.transform)
 
         return self
     }
 
     public func rotateY(_ t: Double) -> Self {
         self.transform = .rotationY(t)
-            .multiplyMatrix(self.transform)
+            .multiply(self.transform)
 
         return self
     }
 
     public func rotateZ(_ t: Double) -> Self {
         self.transform = .rotationZ(t)
-            .multiplyMatrix(self.transform)
+            .multiply(self.transform)
 
         return self
     }
 
     public func shear(_ xy: Double, _ xz: Double, _ yx: Double, _ yz: Double, _ zx: Double, _ zy: Double) -> Self {
         self.transform = .shearing(xy, xz, yx, yz, zx, zy)
-            .multiplyMatrix(self.transform)
+            .multiply(self.transform)
 
         return self
     }
