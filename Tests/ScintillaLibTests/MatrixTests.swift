@@ -114,7 +114,7 @@ class Matrix4Tests: XCTestCase {
             0, 0, 0, 1
         )
         let t = Point(1, 2, 3)
-        let actualValue = m.multiplyTuple(t)
+        let actualValue = m.multiply(t)
         let expectedValue = Point(18, 24, 33)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
@@ -184,7 +184,7 @@ class Matrix4Tests: XCTestCase {
     func testTranslation() throws {
         let transform = Matrix4.translation(5, -3, 2)
         let p = Point(-3, 4, 5)
-        let actualValue = transform.multiplyTuple(p)
+        let actualValue = transform.multiply(p)
         let expectedValue = Point(2, 1, 7)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
@@ -192,7 +192,7 @@ class Matrix4Tests: XCTestCase {
     func testTranslationInverse() throws {
         let transform = Matrix4.translation(5, -3, 2).inverse()
         let p = Point(-3, 4, 5)
-        let actualValue = transform.multiplyTuple(p)
+        let actualValue = transform.multiply(p)
         let expectedValue = Point(-8, 7, 3)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
@@ -200,14 +200,14 @@ class Matrix4Tests: XCTestCase {
     func testTranslationDoesNotAffectVectors() throws {
         let transform = Matrix4.translation(5, -3, 2).inverse()
         let v = Vector(-3, 4, 5)
-        let actualValue = transform.multiplyTuple(v)
+        let actualValue = transform.multiply(v)
         XCTAssert(actualValue.isAlmostEqual(v))
     }
 
     func testScalingPoint() throws {
         let transform = Matrix4.scaling(2, 3, 4)
         let p = Point(-4, 6, 8)
-        let actualValue = transform.multiplyTuple(p)
+        let actualValue = transform.multiply(p)
         let expectedValue = Point(-8, 18, 32)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
@@ -215,7 +215,7 @@ class Matrix4Tests: XCTestCase {
     func testScalingVector() throws {
         let transform = Matrix4.scaling(2, 3, 4)
         let v = Vector(-4, 6, 8)
-        let actualValue = transform.multiplyTuple(v)
+        let actualValue = transform.multiply(v)
         let expectedValue = Vector(-8, 18, 32)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
@@ -223,7 +223,7 @@ class Matrix4Tests: XCTestCase {
     func testScalingInverse() throws {
         let transform = Matrix4.scaling(2, 3, 4).inverse()
         let v = Vector(-4, 6, 8)
-        let actualValue = transform.multiplyTuple(v)
+        let actualValue = transform.multiply(v)
         let expectedValue = Vector(-2, 2, 2)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
@@ -233,11 +233,11 @@ class Matrix4Tests: XCTestCase {
         let halfQuarter = Matrix4.rotationX(PI/4)
         let fullQuarter = Matrix4.rotationX(PI/2)
 
-        var actualValue = halfQuarter.multiplyTuple(p)
+        var actualValue = halfQuarter.multiply(p)
         var expectedValue = Point(0, sqrt(2)/2, sqrt(2)/2)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
 
-        actualValue = fullQuarter.multiplyTuple(p)
+        actualValue = fullQuarter.multiply(p)
         expectedValue = Point(0, 0, 1)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
@@ -247,11 +247,11 @@ class Matrix4Tests: XCTestCase {
         let halfQuarter = Matrix4.rotationY(PI/4)
         let fullQuarter = Matrix4.rotationY(PI/2)
 
-        var actualValue = halfQuarter.multiplyTuple(p)
+        var actualValue = halfQuarter.multiply(p)
         var expectedValue = Point(sqrt(2)/2, 0, sqrt(2)/2)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
 
-        actualValue = fullQuarter.multiplyTuple(p)
+        actualValue = fullQuarter.multiply(p)
         expectedValue = Point(1, 0, 0)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
@@ -261,11 +261,11 @@ class Matrix4Tests: XCTestCase {
         let halfQuarter = Matrix4.rotationZ(PI/4)
         let fullQuarter = Matrix4.rotationZ(PI/2)
 
-        var actualValue = halfQuarter.multiplyTuple(p)
+        var actualValue = halfQuarter.multiply(p)
         var expectedValue = Point(-sqrt(2)/2, sqrt(2)/2, 0)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
 
-        actualValue = fullQuarter.multiplyTuple(p)
+        actualValue = fullQuarter.multiply(p)
         expectedValue = Point(-1, 0, 0)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
@@ -273,7 +273,7 @@ class Matrix4Tests: XCTestCase {
     func testShearingXy() throws {
         let transform = Matrix4.shearing(1, 0, 0, 0, 0, 0)
         let p = Point(2, 3, 4)
-        let actualValue = transform.multiplyTuple(p)
+        let actualValue = transform.multiply(p)
         let expectedValue = Point(5, 3, 4)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
@@ -281,7 +281,7 @@ class Matrix4Tests: XCTestCase {
     func testShearingXz() throws {
         let transform = Matrix4.shearing(0, 1, 0, 0, 0, 0)
         let p = Point(2, 3, 4)
-        let actualValue = transform.multiplyTuple(p)
+        let actualValue = transform.multiply(p)
         let expectedValue = Point(6, 3, 4)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
@@ -289,7 +289,7 @@ class Matrix4Tests: XCTestCase {
     func testShearingYx() throws {
         let transform = Matrix4.shearing(0, 0, 1, 0, 0, 0)
         let p = Point(2, 3, 4)
-        let actualValue = transform.multiplyTuple(p)
+        let actualValue = transform.multiply(p)
         let expectedValue = Point(2, 5, 4)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
@@ -297,7 +297,7 @@ class Matrix4Tests: XCTestCase {
     func testShearingYz() throws {
         let transform = Matrix4.shearing(0, 0, 0, 1, 0, 0)
         let p = Point(2, 3, 4)
-        let actualValue = transform.multiplyTuple(p)
+        let actualValue = transform.multiply(p)
         let expectedValue = Point(2, 7, 4)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
@@ -305,7 +305,7 @@ class Matrix4Tests: XCTestCase {
     func testShearingZx() throws {
         let transform = Matrix4.shearing(0, 0, 0, 0, 1, 0)
         let p = Point(2, 3, 4)
-        let actualValue = transform.multiplyTuple(p)
+        let actualValue = transform.multiply(p)
         let expectedValue = Point(2, 3, 6)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
@@ -313,7 +313,7 @@ class Matrix4Tests: XCTestCase {
     func testShearingZy() throws {
         let transform = Matrix4.shearing(0, 0, 0, 0, 0, 1)
         let p = Point(2, 3, 4)
-        let actualValue = transform.multiplyTuple(p)
+        let actualValue = transform.multiply(p)
         let expectedValue = Point(2, 3, 7)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
@@ -324,7 +324,7 @@ class Matrix4Tests: XCTestCase {
         let s = Matrix4.scaling(5, 5, 5)
         let t = Matrix4.translation(10, 5, 7)
         let fullTransform = t.multiplyMatrix(s).multiplyMatrix(rx)
-        let actualValue = fullTransform.multiplyTuple(p)
+        let actualValue = fullTransform.multiply(p)
         let expectedValue = Point(15, 0, 7)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }

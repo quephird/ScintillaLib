@@ -332,7 +332,7 @@ public struct Matrix4 {
         return m
     }
 
-    func multiplyTuple(_ vector: Vector) -> Vector {
+    func multiply(_ vector: Vector) -> Vector {
         var v = Vector(0, 0, 0)
         for r in 0...3 {
             v[r] = self[0, r]*vector.x + self[1, r]*vector.y + self[2, r]*vector.z
@@ -340,7 +340,7 @@ public struct Matrix4 {
         return v
     }
 
-    func multiplyTuple(_ point: Point) -> Point {
+    func multiply(_ point: Point) -> Point {
         var p = Point(0, 0, 0)
         for r in 0...3 {
             p[r] = self[0, r]*point.x + self[1, r]*point.y + self[2, r]*point.z + self[3, r]

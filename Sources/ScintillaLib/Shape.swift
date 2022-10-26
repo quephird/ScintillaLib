@@ -123,11 +123,11 @@ public class Shape {
         } else if case .csg(let csg) = parent {
             objectPoint = csg.worldToObject(worldPoint)
         }
-        return self.inverseTransform.multiplyTuple(objectPoint)
+        return self.inverseTransform.multiply(objectPoint)
     }
 
     func objectToWorld(_ objectNormal: Vector) -> Vector {
-        var worldNormal = self.inverseTransposeTransform.multiplyTuple(objectNormal)
+        var worldNormal = self.inverseTransposeTransform.multiply(objectNormal)
         worldNormal[3] = 0
         worldNormal = worldNormal.normalize()
 

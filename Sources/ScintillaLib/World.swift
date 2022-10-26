@@ -209,8 +209,8 @@ public class World {
         // Using the camera matrix, transform the canvas point and the origin,
         // and then compute the ray's direction vector.
         // (Remember that the canvas is at z=-1)
-        let pixel = self.camera.inverseViewTransform.multiplyTuple(Point(worldX, worldY, -1))
-        let origin = self.camera.inverseViewTransform.multiplyTuple(Point(0, 0, 0))
+        let pixel = self.camera.inverseViewTransform.multiply(Point(worldX, worldY, -1))
+        let origin = self.camera.inverseViewTransform.multiply(Point(0, 0, 0))
         let direction = pixel.subtract(origin).normalize()
 
         return Ray(origin, direction)

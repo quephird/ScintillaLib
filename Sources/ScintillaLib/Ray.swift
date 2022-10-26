@@ -22,8 +22,8 @@ public struct Ray {
 
     func transform(_ m: Matrix4) -> Ray {
         Ray(
-            m.multiplyTuple(self.origin),
-            m.multiplyTuple(self.direction)
+            m.multiply(self.origin),
+            m.multiply(self.direction)
         )
     }
 }
