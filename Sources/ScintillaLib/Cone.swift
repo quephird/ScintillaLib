@@ -129,19 +129,19 @@ public class Cone: Shape {
         return allIntersections
     }
 
-    override func localNormal(_ localPoint: Tuple4) -> Tuple4 {
+    override func localNormal(_ localPoint: Point) -> Vector {
         // Compute the square of the distance from the y axis
         let distance = localPoint[0]*localPoint[0] + localPoint[2]*localPoint[2]
         if distance < 1 && localPoint[1] >= self.maximum - EPSILON {
-            return vector(0, 1, 0)
+            return Vector(0, 1, 0)
         } else if distance < 1 && localPoint[1] <= self.minimum + EPSILON {
-            return vector(0, -1, 0)
+            return Vector(0, -1, 0)
         } else {
             var normalY = sqrt(localPoint[0]*localPoint[0] + localPoint[2]*localPoint[2])
             if localPoint[1] > 0 {
                 normalY = -normalY
             }
-            return vector(localPoint[0], normalY, localPoint[2])
+            return Vector(localPoint[0], normalY, localPoint[2])
         }
     }
 }

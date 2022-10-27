@@ -40,10 +40,10 @@ public class Prism: Shape {
 
         // Check sides of prism
         for (i, (x1, z1)) in self.xzPoints.enumerated() {
-            let cornerVertex = point(x1, yBase, z1)
+            let cornerVertex = Point(x1, yBase, z1)
             let (x2, z2) = self.xzPoints[(i+1)%self.xzPoints.count]
-            let bottomSide = vector(x2-x1, 0, z2-z1)
-            let leftSide = vector(0, yTop-yBase, 0)
+            let bottomSide = Vector(x2-x1, 0, z2-z1)
+            let leftSide = Vector(0, yTop-yBase, 0)
             if let t = checkRectangle(localRay, cornerVertex, bottomSide, leftSide) {
                 intersections.append(Intersection(t, self))
             }
@@ -73,13 +73,13 @@ public class Prism: Shape {
     // Only points that actually exist somewhere on the shape should ever be
     // passed in, so all we should have to do is figure out which side
     // or cap it exists on.
-    override func localNormal(_ localPoint: Tuple4) -> Tuple4 {
+    override func localNormal(_ localPoint: Point) -> Vector {
         // Check if the point resides on one of the sides
         for (i, (x1, z1)) in self.xzPoints.enumerated() {
             let (x2, z2) = self.xzPoints[(i+1)%self.xzPoints.count]
-            let corner = point(x1, yBase, z1)
-            let bottomSide = vector(x2-x1, 0, z2-z1)
-            let leftSide = vector(0, yTop-yBase, 0)
+            let corner = Point(x1, yBase, z1)
+            let bottomSide = Vector(x2-x1, 0, z2-z1)
+            let leftSide = Vector(0, yTop-yBase, 0)
             let pointToCorner = localPoint.subtract(corner)
             let normal = leftSide.cross(bottomSide).normalize()
             if abs(pointToCorner.dot(normal)) < EPSILON {
@@ -89,23 +89,23 @@ public class Prism: Shape {
 
         // Check if point is on the base
         if isInsidePolygon(localPoint, self.xzPoints, self.yBase) {
-            return vector(0, -1, 0)
+            return Vector(0, -1, 0)
         }
 
         // Check if point is on the top
         if isInsidePolygon(localPoint, self.xzPoints, self.yTop) {
-            return vector(0, 1, 0)
+            return Vector(0, 1, 0)
         }
 
         // We shouldn't ever get here
-        return vector(0, 0, 0)
+        return Vector(0, 0, 0)
     }
 }
 
 // Returns the t value for where the ray hits the rectangle
 // formed by the two sides and positioned at the corner passed in.
 // Method taken from https://stackoverflow.com/a/8862483
-func checkRectangle(_ ray: Ray, _ corner: Tuple4, _ side1: Tuple4, _ side2: Tuple4) -> Double? {
+func checkRectangle(_ ray: Ray, _ corner: Point, _ side1: Vector, _ side2: Vector) -> Double? {
     // Compute the normal to the rectangle by taking the cross product of the two sides
     let normal = side2.cross(side1).normalize()
 
@@ -142,15 +142,15 @@ func checkRectangle(_ ray: Ray, _ corner: Tuple4, _ side1: Tuple4, _ side2: Tupl
 // polygon formed by points made from the (x, y, z) tuples themselves
 // made with the xz-tuples passed in and the inbound y-coordinate fixed.
 // Method taken from https://stackoverflow.com/a/43813314
-func isInsidePolygon(_ localPoint: Tuple4, _ xzTuples: [(Double, Double)], _ y: Double) -> Bool {
+func isInsidePolygon(_ localPoint: Point, _ xzTuples: [(Double, Double)], _ y: Double) -> Bool {
     var totalAngle = 0.0
     let pointCount = xzTuples.count
     for (i, (x1, z1)) in xzTuples.enumerated() {
         let (x2, z2) = xzTuples[(i+1)%pointCount]
 
         // Compute the two vertices in focus for this iteration...
-        let vertex1 = point(x1, y, z1)
-        let vertex2 = point(x2, y, z2)
+        let vertex1 = Point(x1, y, z1)
+        let vertex2 = Point(x2, y, z2)
 
         // ... then form the two vectors from the local point to each vertex...
         let vector1 = vertex1.subtract(localPoint)
@@ -162,7 +162,7 @@ func isInsidePolygon(_ localPoint: Tuple4, _ xzTuples: [(Double, Double)], _ y: 
         // ... finally, we assign a direction of sorts to the angle
         // by checking to see if the cross product of the two vectors
         // points upward or downward.
-        if vector2.cross(vector1).dot(vector(0, 1, 0)) > 0.0 {
+        if vector2.cross(vector1).dot(Vector(0, 1, 0)) > 0.0 {
             totalAngle += angle
         } else {
             totalAngle -= angle

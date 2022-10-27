@@ -11,7 +11,7 @@ public class Sphere: Shape {
     override func localIntersect(_ localRay: Ray) -> [Intersection] {
         // The vector from the sphere's center, to the ray origin
         // remember: the sphere is centered at the world origin
-        let sphereToRay = localRay.origin.subtract(point(0, 0, 0))
+        let sphereToRay = localRay.origin.subtract(Point(0, 0, 0))
 
         let a = localRay.direction.dot(localRay.direction)
         let b = 2 * localRay.direction.dot(sphereToRay)
@@ -30,7 +30,7 @@ public class Sphere: Shape {
         }
     }
 
-    override func localNormal(_ localPoint: Tuple4) -> Tuple4 {
-        return localPoint.subtract(point(0, 0, 0))
+    override func localNormal(_ localPoint: Point) -> Vector {
+        return localPoint.subtract(Point(0, 0, 0))
     }
 }

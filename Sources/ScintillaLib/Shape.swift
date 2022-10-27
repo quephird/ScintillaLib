@@ -57,42 +57,42 @@ public class Shape {
 
     public func translate(_ x: Double, _ y: Double, _ z: Double) -> Self {
         self.transform = .translation(x, y, z)
-            .multiplyMatrix(self.transform)
+            .multiply(self.transform)
 
         return self
     }
 
     public func scale(_ x: Double, _ y: Double, _ z: Double) -> Self {
         self.transform = .scaling(x, y, z)
-            .multiplyMatrix(self.transform)
+            .multiply(self.transform)
 
         return self
     }
 
     public func rotateX(_ t: Double) -> Self {
         self.transform = .rotationX(t)
-            .multiplyMatrix(self.transform)
+            .multiply(self.transform)
 
         return self
     }
 
     public func rotateY(_ t: Double) -> Self {
         self.transform = .rotationY(t)
-            .multiplyMatrix(self.transform)
+            .multiply(self.transform)
 
         return self
     }
 
     public func rotateZ(_ t: Double) -> Self {
         self.transform = .rotationZ(t)
-            .multiplyMatrix(self.transform)
+            .multiply(self.transform)
 
         return self
     }
 
     public func shear(_ xy: Double, _ xz: Double, _ yx: Double, _ yz: Double, _ zx: Double, _ zy: Double) -> Self {
         self.transform = .shearing(xy, xz, yx, yz, zx, zy)
-            .multiplyMatrix(self.transform)
+            .multiply(self.transform)
 
         return self
     }
@@ -106,28 +106,28 @@ public class Shape {
         fatalError("Subclasses must override this method!")
     }
 
-    func normal(_ worldPoint: Tuple4) -> Tuple4 {
+    func normal(_ worldPoint: Point) -> Vector {
         let localPoint = self.worldToObject(worldPoint)
         let localNormal = self.localNormal(localPoint)
         return self.objectToWorld(localNormal)
     }
 
-    func localNormal(_ localPoint: Tuple4) -> Tuple4 {
+    func localNormal(_ localPoint: Point) -> Vector {
         fatalError("Subclasses must override this method!")
     }
 
-    func worldToObject(_ worldPoint: Tuple4) -> Tuple4 {
+    func worldToObject(_ worldPoint: Point) -> Point {
         var objectPoint = worldPoint
         if case .group(let group) = parent {
             objectPoint = group.worldToObject(worldPoint)
         } else if case .csg(let csg) = parent {
             objectPoint = csg.worldToObject(worldPoint)
         }
-        return self.inverseTransform.multiplyTuple(objectPoint)
+        return self.inverseTransform.multiply(objectPoint)
     }
 
-    func objectToWorld(_ objectNormal: Tuple4) -> Tuple4 {
-        var worldNormal = self.inverseTransposeTransform.multiplyTuple(objectNormal)
+    func objectToWorld(_ objectNormal: Vector) -> Vector {
+        var worldNormal = self.inverseTransposeTransform.multiply(objectNormal)
         worldNormal[3] = 0
         worldNormal = worldNormal.normalize()
 

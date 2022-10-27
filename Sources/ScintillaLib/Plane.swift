@@ -17,7 +17,7 @@ public class Plane: Shape {
         }
     }
 
-    override func localNormal(_ localPoint: Tuple4) -> Tuple4 {
-        return vector(0, 1, 0)
+    override func localNormal(_ localPoint: Point) -> Vector {
+        return Vector(0, 1, 0)
     }
 }

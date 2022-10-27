@@ -21,11 +21,14 @@ public class Torus: Shape {
         // Not doing so adds 1 to the product and throws off all subsequent
         // calculations. Ultimately, we need to improve the abstraction
         // for points and vectors.
-        let oDotO = localRay.origin[0]*localRay.origin[0] +
-                    localRay.origin[1]*localRay.origin[1] +
-                    localRay.origin[2]*localRay.origin[2]
+        let oDotO = localRay.origin.x*localRay.origin.x +
+                    localRay.origin.y*localRay.origin.y +
+                    localRay.origin.z*localRay.origin.z
         let dDotD = localRay.direction.dot(localRay.direction)
-        let oDotD = localRay.origin.dot(localRay.direction)
+        let oDotD = localRay.origin.x*localRay.direction.x +
+                    localRay.origin.y*localRay.direction.y +
+                    localRay.origin.z*localRay.direction.z
+
         let R2 = self.majorRadius*self.majorRadius
         let r2 = self.minorRadius*self.minorRadius
         let r2PlusR2 = R2 + r2
@@ -45,11 +48,13 @@ public class Torus: Shape {
             }
     }
 
-    override func localNormal(_ localPoint: Tuple4) -> Tuple4 {
+    override func localNormal(_ localPoint: Point) -> Vector {
         let r2PlusR2 = self.majorRadius*self.majorRadius + self.minorRadius*self.minorRadius
-        let pDotP = localPoint.dot(localPoint)
+        let pDotP = localPoint.x*localPoint.x +
+                    localPoint.y*localPoint.y +
+                    localPoint.z*localPoint.z
 
-        return vector(
+        return Vector(
             4.0 * localPoint[0] * (pDotP - r2PlusR2),
             4.0 * localPoint[1] * (pDotP - r2PlusR2) + 2.0 * self.majorRadius * self.majorRadius,
             4.0 * localPoint[2] * (pDotP - r2PlusR2)

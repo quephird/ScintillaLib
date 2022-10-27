@@ -13,9 +13,9 @@ class CylinderTests: XCTestCase {
         let cylinder = Cylinder()
 
         let testCases = [
-            (point(1, 0, 0), vector(0, 1, 0)),
-            (point(0, 0, 0), vector(0, 1, 0)),
-            (point(0, 0, -5), vector(1, 1, 1)),
+            (Point(1, 0, 0), Vector(0, 1, 0)),
+            (Point(0, 0, 0), Vector(0, 1, 0)),
+            (Point(0, 0, -5), Vector(1, 1, 1)),
         ]
 
         for (origin, direction) in testCases {
@@ -29,9 +29,9 @@ class CylinderTests: XCTestCase {
         let cylinder = Cylinder()
 
         let testCases = [
-            (point(1, 0, -5), vector(0, 0, 1), [5.0]),
-            (point(0, 0, -5), vector(0, 0, 1), [4.0, 6.0]),
-            (point(0.5, 0, -5), vector(0.1, 1, 1), [6.80798, 7.08872]),
+            (Point(1, 0, -5), Vector(0, 0, 1), [5.0]),
+            (Point(0, 0, -5), Vector(0, 0, 1), [4.0, 6.0]),
+            (Point(0.5, 0, -5), Vector(0.1, 1, 1), [6.80798, 7.08872]),
         ]
 
         for (origin, direction, expectedTs) in testCases {
@@ -52,11 +52,11 @@ class CylinderTests: XCTestCase {
         let cylinder = Cylinder(1, 2, true)
 
         let testCases = [
-            (point(0, 3, 0), vector(0, -1, 0), 2),
-            (point(0, 3, -2), vector(0, -1, 2), 2),
-            (point(0, 4, -2), vector(0, -1, 1), 2),
-            (point(0, 0, -2), vector(0, 1, 2), 2),
-            (point(0, -1, -2), vector(0, 1, 1), 2),
+            (Point(0, 3, 0), Vector(0, -1, 0), 2),
+            (Point(0, 3, -2), Vector(0, -1, 2), 2),
+            (Point(0, 4, -2), Vector(0, -1, 1), 2),
+            (Point(0, 0, -2), Vector(0, 1, 2), 2),
+            (Point(0, -1, -2), Vector(0, 1, 1), 2),
         ]
 
         for (origin, direction, expectedCount) in testCases {
@@ -70,12 +70,12 @@ class CylinderTests: XCTestCase {
         let cylinder = Cylinder(1, 2)
 
         let testCases = [
-            (point(0, 1.5, 0), vector(0.1, 1, 0), 0),
-            (point(0, 3, -5), vector(0, 0, 1), 0),
-            (point(0, 0, -5), vector(0, 0, 1), 0),
-            (point(0, 2, -5), vector(0, 0, 1), 0),
-            (point(0, 1, -5), vector(0, 0, 1), 0),
-            (point(0, 1.5, -2), vector(0, 0, 1), 2)
+            (Point(0, 1.5, 0), Vector(0.1, 1, 0), 0),
+            (Point(0, 3, -5), Vector(0, 0, 1), 0),
+            (Point(0, 0, -5), Vector(0, 0, 1), 0),
+            (Point(0, 2, -5), Vector(0, 0, 1), 0),
+            (Point(0, 1, -5), Vector(0, 0, 1), 0),
+            (Point(0, 1.5, -2), Vector(0, 0, 1), 2)
         ]
 
         for (origin, direction, expectedCount) in testCases {
@@ -89,10 +89,10 @@ class CylinderTests: XCTestCase {
         let cylinder = Cylinder()
 
         let testCases = [
-            (point(1, 0, 0), vector(1, 0, 0)),
-            (point(0, 5, -1), vector(0, 0, -1)),
-            (point(0, -2, 1), vector(0, 0, 1)),
-            (point(-1, 1, 0), vector(-1, 0, 0)),
+            (Point(1, 0, 0), Vector(1, 0, 0)),
+            (Point(0, 5, -1), Vector(0, 0, -1)),
+            (Point(0, -2, 1), Vector(0, 0, 1)),
+            (Point(-1, 1, 0), Vector(-1, 0, 0)),
         ]
 
         for (localPoint, expectedValue) in testCases {
@@ -105,12 +105,12 @@ class CylinderTests: XCTestCase {
         let cylinder = Cylinder(1, 2, true)
 
         let testCases = [
-            (point(0, 1, 0), vector(0, -1, 0)),
-            (point(0.5, 1, 0), vector(0, -1, 0)),
-            (point(0, 1, 0.5), vector(0, -1, 0)),
-            (point(0, 2, 0), vector(0, 1, 0)),
-            (point(0.5, 2, 0), vector(0, 1, 0)),
-            (point(0, 2, 0.5), vector(0, 1, 0)),
+            (Point(0, 1, 0), Vector(0, -1, 0)),
+            (Point(0.5, 1, 0), Vector(0, -1, 0)),
+            (Point(0, 1, 0.5), Vector(0, -1, 0)),
+            (Point(0, 2, 0), Vector(0, 1, 0)),
+            (Point(0.5, 2, 0), Vector(0, 1, 0)),
+            (Point(0, 2, 0.5), Vector(0, 1, 0)),
         ]
 
         for (localPoint, expectedValue) in testCases {

@@ -37,7 +37,7 @@ class CSGTests: XCTestCase {
         let s1 = Sphere()
         let s2 = Cube()
         let csg = CSG(.union, s1, s2)
-        let ray = Ray(point(0, 2, -5), vector(0, 0, 1))
+        let ray = Ray(Point(0, 2, -5), Vector(0, 0, 1))
         let allIntersections = csg.localIntersect(ray)
         XCTAssertTrue(allIntersections.isEmpty)
     }
@@ -47,7 +47,7 @@ class CSGTests: XCTestCase {
         let s2 = Sphere()
             .translate(0, 0, 0.5)
         let csg = CSG(.union, s1, s2)
-        let ray = Ray(point(0, 0, -5), vector(0, 0, 1))
+        let ray = Ray(Point(0, 0, -5), Vector(0, 0, 1))
         let allIntersections = csg.localIntersect(ray)
         XCTAssertEqual(allIntersections.count, 2)
         XCTAssertTrue(allIntersections[0].t.isAlmostEqual(4))

@@ -11,7 +11,7 @@ import XCTest
 class GroupTests: XCTestCase {
     func testLocalIntersectWithEmptyGroup() throws {
         let group = Group { }
-        let ray = Ray(point(0, 0, 0), vector(0, 0, 1))
+        let ray = Ray(Point(0, 0, 0), Vector(0, 0, 1))
         let allIntersections = group.localIntersect(ray)
         XCTAssertEqual(allIntersections.count, 0)
     }
@@ -28,7 +28,7 @@ class GroupTests: XCTestCase {
             s3
         }
 
-        let ray = Ray(point(0, 0, -5), vector(0, 0, 1))
+        let ray = Ray(Point(0, 0, -5), Vector(0, 0, 1))
         let allIntersections = group.localIntersect(ray)
         XCTAssertEqual(allIntersections.count, 4)
         XCTAssertEqual(allIntersections[0].shape.id, s2.id)
@@ -44,7 +44,7 @@ class GroupTests: XCTestCase {
         }
             .scale(2, 2, 2)
 
-        let ray = Ray(point(10, 0, -10), vector(0, 0, 1))
+        let ray = Ray(Point(10, 0, -10), Vector(0, 0, 1))
         let allIntersections = group.intersect(ray)
         XCTAssertEqual(allIntersections.count, 2)
     }

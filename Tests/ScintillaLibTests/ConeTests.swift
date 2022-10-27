@@ -13,9 +13,9 @@ class ConeTests: XCTestCase {
         let cone = Cone()
 
         let testCases = [
-            (point(0, 0, -5), vector(0, 0, 1), [5.0]),
-            (point(0, 0, -5), vector(1, 1, 1), [8.66025]),
-            (point(1, 1, -5), vector(-0.5, -1, 1), [4.55006, 49.44994]),
+            (Point(0, 0, -5), Vector(0, 0, 1), [5.0]),
+            (Point(0, 0, -5), Vector(1, 1, 1), [8.66025]),
+            (Point(1, 1, -5), Vector(-0.5, -1, 1), [4.55006, 49.44994]),
         ]
 
         for (origin, direction, expectedTs) in testCases {
@@ -34,7 +34,7 @@ class ConeTests: XCTestCase {
 
     func testLocalIntersectWithRayParallelToOneHalf() throws {
         let cone = Cone()
-        let ray = Ray(point(0, 0, -1), vector(0, 1, 1).normalize())
+        let ray = Ray(Point(0, 0, -1), Vector(0, 1, 1).normalize())
         let allIntersections = cone.localIntersect(ray)
         XCTAssertEqual(allIntersections.count, 1)
         XCTAssertTrue(allIntersections[0].t.isAlmostEqual(0.35355))
@@ -44,9 +44,9 @@ class ConeTests: XCTestCase {
         let cone = Cone(-0.5, 0.5, true)
 
         let testCases = [
-            (point(0, 0, -5), vector(0, 1, 0), 0),
-            (point(0, 0, -0.25), vector(0, 1, 1), 2),
-            (point(0, 0, -0.25), vector(0, 1, 0), 4),
+            (Point(0, 0, -5), Vector(0, 1, 0), 0),
+            (Point(0, 0, -0.25), Vector(0, 1, 1), 2),
+            (Point(0, 0, -0.25), Vector(0, 1, 0), 4),
         ]
 
         for (origin, direction, expectedCount) in testCases {
@@ -60,9 +60,9 @@ class ConeTests: XCTestCase {
         let cone = Cone()
 
         let testCases = [
-            (point(0, 0, 0), vector(0, 0, 0)),
-            (point(1, 1, 1), vector(1, -sqrt(2), 1)),
-            (point(-1, -1, 0), vector(-1, 1, 0)),
+            (Point(0, 0, 0), Vector(0, 0, 0)),
+            (Point(1, 1, 1), Vector(1, -sqrt(2), 1)),
+            (Point(-1, -1, 0), Vector(-1, 1, 0)),
         ]
 
         for (localPoint, expectedValue) in testCases {

@@ -60,8 +60,8 @@ public struct Intersection {
         } else {
             isInside = false
         }
-        let overPoint = point.add(normal.multiplyScalar(EPSILON))
-        let underPoint = point.subtract(normal.multiplyScalar(EPSILON))
+        let overPoint = point.add(normal.multiply(EPSILON))
+        let underPoint = point.subtract(normal.multiply(EPSILON))
         let reflected = ray.direction.reflect(normal)
         let (n1, n2) = self.computeRefractiveIndices(allIntersections)
 

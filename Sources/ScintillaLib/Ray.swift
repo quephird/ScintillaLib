@@ -8,22 +8,22 @@
 import Foundation
 
 public struct Ray {
-    var origin: Tuple4
-    var direction: Tuple4
+    var origin: Point
+    var direction: Vector
 
-    public init(_ origin: Tuple4, _ direction: Tuple4) {
+    public init(_ origin: Point, _ direction: Vector) {
         self.origin = origin
         self.direction = direction
     }
 
-    func position(_ t: Double) -> Tuple4 {
-        self.origin.add(self.direction.multiplyScalar(t))
+    func position(_ t: Double) -> Point {
+        self.origin.add(self.direction.multiply(t))
     }
 
     func transform(_ m: Matrix4) -> Ray {
         Ray(
-            m.multiplyTuple(self.origin),
-            m.multiplyTuple(self.direction)
+            m.multiply(self.origin),
+            m.multiply(self.direction)
         )
     }
 }
