@@ -5,6 +5,50 @@
 //  Created by Danielle Kefford on 10/30/22.
 //
 
+public typealias Point2D = (Double, Double)
+
+public class SurfaceOfRevolution: Shape {
+    var underlyingImplicitSurface: ImplicitSurface
+
+    // TODO: Add option for caps
+    public init(_ xyPoints: [Point2D]) {
+        let xs = xyPoints.map { point in
+            point.0
+        }
+        let ys = xyPoints.map { point in
+            point.1
+        }
+        let (xMin, yMin, zMin) = (-ys.max()!, xs.min()!, -ys.max()!)
+        let (xMax, yMax, zMax) = (ys.max()!, xs.max()!, ys.max()!)
+        let boundingBox = ((xMin, yMin, zMin), (xMax, yMax, zMax))
+
+        let matrix = makeCubicSplineMatrix(xyPoints)
+        let solution = solve(matrix)!
+        let coefficientsList: [CubicPolynomialCoefficients] = stride(from: 0, to: solution.count, by: 4).map {
+            let array = Array(solution[$0..<min($0 + 4, solution.count)])
+            return (array[0], array[1], array[2], array[3])
+        }
+        let g = makePiecewiseCubicSplineFunction(xyPoints, coefficientsList)!
+        func f(_ x: Double, _ y: Double, _ z: Double) -> Double {
+            x*x + z*z - g(y)
+        }
+        let underlyingImplicitSurface = ImplicitSurface(boundingBox, f)
+
+        self.underlyingImplicitSurface = underlyingImplicitSurface
+    }
+
+    override func localIntersect(_ localRay: Ray) -> [Intersection] {
+        let intersections = self.underlyingImplicitSurface.localIntersect(localRay)
+        return intersections.map { intersection in
+            return Intersection(intersection.t, self)
+        }
+    }
+
+    override func localNormal(_ localPoint: Point) -> Vector {
+        return self.underlyingImplicitSurface.localNormal(localPoint)
+    }
+}
+
 // This function takes an n ⨯ n+1 augmented matrix representing
 // a system of n equations with n unknowns, solves them using
 // Gaussian elimination, and returns the solution as an array
@@ -93,8 +137,6 @@ func solve(_ matrix: [[Double]]) -> [Double]? {
         return row.last!
     }
 }
-
-typealias Point2D = (Double, Double)
 
 // This function takes an array of xy-points, and constructs
 // an augmented matrix representing a set of linear equations
