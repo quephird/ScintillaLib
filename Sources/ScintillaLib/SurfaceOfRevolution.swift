@@ -1,5 +1,5 @@
 //
-//  CubicSpline.swift
+//  SurfaceOfRevolution.swift
 //  
 //
 //  Created by Danielle Kefford on 10/30/22.

@@ -1,5 +1,5 @@
 //
-//  CubicSplineTests.swift
+//  SurfaceOfRevolutionTests.swift
 //  
 //
 //  Created by Danielle Kefford on 10/30/22.
@@ -8,7 +8,7 @@
 import XCTest
 @testable import ScintillaLib
 
-class CubicSplineTests: XCTestCase {
+class SurfaceOfRevolutionTests: XCTestCase {
     func testSolveForInconsistentMatrixYieldsNoSolution() throws {
         let matrix = [
             [0.0, 1.0, -2.0, 0.0],
