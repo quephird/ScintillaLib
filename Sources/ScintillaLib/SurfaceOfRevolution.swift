@@ -7,28 +7,44 @@
 
 public typealias Point2D = (Double, Double)
 
+// This shape takes a set of points that lie in the yz-plane,
+// generates a piecewise-defined and continuous cubic spline
+// function that passes through all of those points, and creates
+// an `ImplicitSurface` shape that represents that curve rotated
+// about the y-axis. This function, called g(y) below, is then
+// incorporated into the one passed to the implicit surface,
+// namely, x² + z² - g(y). The implicit surface shape is then
+// subsequently used for all computations for ray intersections
+// and nomal vectors.
 public class SurfaceOfRevolution: Shape {
     var underlyingImplicitSurface: ImplicitSurface
 
     // TODO: Add option for caps
-    public init(_ xyPoints: [Point2D]) {
-        let xs = xyPoints.map { point in
+    public init(_ yzPoints: [Point2D]) {
+        let ys = yzPoints.map { point in
             point.0
         }
-        let ys = xyPoints.map { point in
+        let zs = yzPoints.map { point in
             point.1
         }
-        let (xMin, yMin, zMin) = (-ys.max()!, xs.min()!, -ys.max()!)
-        let (xMax, yMax, zMax) = (ys.max()!, xs.max()!, ys.max()!)
+
+        // Note that due to the symmetry of rotation, the minimum
+        // and maximum values for the x -coordinate are the same as
+        // those for the z-coordinate.
+        let (xMin, yMin, zMin) = (-zs.max()!, ys.min()!, -zs.max()!)
+        let (xMax, yMax, zMax) = (zs.max()!, ys.max()!, zs.max()!)
         let boundingBox = ((xMin, yMin, zMin), (xMax, yMax, zMax))
 
-        let matrix = makeCubicSplineMatrix(xyPoints)
+        // Note that we perform all these computations and make
+        // this shape here in the constructor so that it is only
+        // done once and then reused in all subsequent computations.
+        let matrix = makeCubicSplineMatrix(yzPoints)
         let solution = solve(matrix)!
         let coefficientsList: [CubicPolynomialCoefficients] = stride(from: 0, to: solution.count, by: 4).map {
             let array = Array(solution[$0..<min($0 + 4, solution.count)])
             return (array[0], array[1], array[2], array[3])
         }
-        let g = makePiecewiseCubicSplineFunction(xyPoints, coefficientsList)!
+        let g = makePiecewiseCubicSplineFunction(yzPoints, coefficientsList)!
         func f(_ x: Double, _ y: Double, _ z: Double) -> Double {
             x*x + z*z - g(y)
         }
@@ -39,6 +55,11 @@ public class SurfaceOfRevolution: Shape {
 
     override func localIntersect(_ localRay: Ray) -> [Intersection] {
         let intersections = self.underlyingImplicitSurface.localIntersect(localRay)
+        // We map over the intersections for the underlying shape
+        // so that the ones returned to the caller have a reference
+        // to _this_ shape and its material properties. Otherwise,
+        // we would send back the wrong shape and the default material,
+        // which is obviously undesireable.
         return intersections.map { intersection in
             return Intersection(intersection.t, self)
         }
