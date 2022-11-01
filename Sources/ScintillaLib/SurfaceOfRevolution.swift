@@ -215,24 +215,25 @@ func makeCubicSplineMatrix(_ xyPoints: [Point2D]) -> [[Double]] {
         matrix.append(row)
     }
 
-    // Form the equation representing:
+    // Form the 2 equations representing:
     //
     //     f₀′′(x₀) = 0
-    var row = Array(repeating: 0.0, count: columnCount)
-    let (x0, _) = xyPoints[0]
-    row[0] = 6.0*x0
-    row[1] = 2.0
-    matrix.append(row)
-
-    // Form the equation representing:
+    //     fₙ₋₁′′(xₙ) = 0
     //
-    //     fᵢ′′(xᵢ₊₁) = 0
-    var row2 = Array(repeating: 0.0, count: columnCount)
-    let (xn, _) = xyPoints[xyPoints.count-1]
-    row2[(xyPoints.count-2)*4] = 6.0*xn
-    row2[(xyPoints.count-2)*4+1] = 2.0
-    matrix.append(row2)
+    // ... where n represents the number of points passed in
+    for (pointIndex, functionIndex) in [(0, 0), (xyPoints.count-1, xyPoints.count-2)] {
+        var row = Array(repeating: 0.0, count: columnCount)
+        let (x, _) = xyPoints[pointIndex]
+        row[functionIndex*4] = 6.0*x
+        row[functionIndex*4+1] = 2.0
+        matrix.append(row)
+    }
 
+    // Return the matrix representing a system of equations of:
+    //
+    //     2n + (n-1) + (n-1) + 2 = 4n
+    //
+    // unknowns, a₀, b₀, c₀, d₀, a₁, b₁, c₁, d₁,... aₙ, bₙ, cₙ, dₙ
     return matrix
 }
 
