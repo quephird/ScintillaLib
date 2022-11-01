@@ -79,4 +79,24 @@ class SurfaceOfRevolutionTests: XCTestCase {
         XCTAssertTrue(f(3).isAlmostEqual(18.0))
         XCTAssertTrue(f(4).isAlmostEqual(16.0))
     }
+
+    func testLocalIntersectForSurfaceOfRevolution() throws {
+        let yzPoints = [(0.0, 2.0), (2.0, 1.0), (3.0, 0.5), (6.0, 0.5)]
+        let shape = SurfaceOfRevolution(yzPoints)
+        let ray = Ray(Point(0.0, 2.0, -2.0), Vector(0.0, 0.0, 1.0))
+
+        // NOTA BENE: Currenty, implicit surfaces only ever return one intersection.
+        let intersection = shape.localIntersect(ray).first!
+        XCTAssertTrue(intersection.t.isAlmostEqual(1.0))
+    }
+
+    func testLocalNormalForSurfaceOfRevolution() throws {
+        let yzPoints = [(0.0, 2.0), (2.0, 1.0), (3.0, 0.5), (6.0, 0.5)]
+        let shape = SurfaceOfRevolution(yzPoints)
+
+        let testPoint = Point(0.0, 2.0, -1.0)
+        let actualValue = shape.localNormal(testPoint)
+        let expectedValue = Vector(0.0, 0.26181, -0.96512)
+        XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
+    }
 }
