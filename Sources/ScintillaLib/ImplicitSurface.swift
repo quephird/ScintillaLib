@@ -5,6 +5,8 @@
 //  Created by Danielle Kefford on 10/1/22.
 //
 
+import Foundation
+
 public typealias SurfaceFunction = (Double, Double, Double) -> Double
 public typealias BoundingBox = ((Double, Double, Double), (Double, Double, Double))
 
@@ -52,27 +54,41 @@ public class ImplicitSurface: Shape {
         }
 
         // ... next we begin advancing from the nearer point of intersection
-        // and only continue through to the further one, computing a hit
+        // and continue through to the further one, computing a hit
         // using the bisection method.
         var t = tNearer
         let deltaT = (tFurther - tNearer)/Double(NUM_BOUNDING_BOX_SUBDIVSIONS)
         var tPrev = 0.0
+
+//        if (tNearer < 0.0) {
+//            print(tNearer)
+//            print(tFurther)
+//        }
+        var intersections: [Intersection] = []
+        var wasOutsideShape = ft(tPrev) > 0 ? true : false
         while t <= tFurther {
-            if ft(t) > 0 {
-                // If we're here, then we're outside the object and we should continue...
+            if (ft(t) > 0 && wasOutsideShape) || (ft(t) < 0 && !wasOutsideShape) {
+                // If we're here, then we haven't crossed a boundary, so we should continue...
                 tPrev = t
                 t += deltaT
             } else {
-                // ... but if we're here, then we're somewhere _inside_ the object,
-                // and we need to refine t.
+                // ... but if we're here, then we've either suddenly moved inside
+                // the object, or suddenly moved outside it, and we need to refine t.
                 var a = tPrev
                 var b = t
                 var iterations = 0
                 while iterations <= MAX_ITERATIONS_BISECTION {
                     t = (a+b)/2
                     let f = ft(t)
+//                    print("\(a), \(b), \(iterations)")
                     if abs(f) < DELTA {
-                        return [Intersection(t, self)]
+                        intersections.append(Intersection(t, self))
+                        wasOutsideShape = !wasOutsideShape
+                        break
+//                    } else if abs(a-b) < DELTA {
+////                        print("BOOM!")
+//                        t += deltaT
+//                        break
                     } else if f > 0 {
                         a = t
                     } else {
@@ -80,13 +96,19 @@ public class ImplicitSurface: Shape {
                     }
                     iterations += 1
                 }
+
                 // If we got here, then we failed to converge on a value for t,
                 // so for now assume that we have a miss
+                t += deltaT
                 break
             }
+            t += deltaT
         }
 
-        return []
+        if intersections.count > 1 {
+            print("I got here")
+        }
+        return intersections
     }
 
     override func localNormal(_ localPoint: Point) -> Vector {
