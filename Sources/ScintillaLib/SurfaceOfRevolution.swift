@@ -13,7 +13,7 @@ public typealias Point2D = (Double, Double)
 // an `ImplicitSurface` shape that represents that curve rotated
 // about the y-axis. This function, called g(y) below, is then
 // incorporated into the one passed to the implicit surface,
-// namely, x² + z² - g(y). The implicit surface shape is then
+// namely, x² + z² - g²(y). The implicit surface shape is then
 // subsequently used for all computations for ray intersections
 // and nomal vectors.
 public class SurfaceOfRevolution: Shape {
@@ -46,7 +46,7 @@ public class SurfaceOfRevolution: Shape {
         }
         let g = makePiecewiseCubicSplineFunction(yzPoints, coefficientsList)!
         func f(_ x: Double, _ y: Double, _ z: Double) -> Double {
-            x*x + z*z - g(y)
+            x*x + z*z - g(y)*g(y)
         }
         let underlyingImplicitSurface = ImplicitSurface(boundingBox, f)
 

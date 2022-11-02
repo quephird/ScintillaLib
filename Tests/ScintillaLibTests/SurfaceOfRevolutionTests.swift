@@ -90,13 +90,33 @@ class SurfaceOfRevolutionTests: XCTestCase {
         XCTAssertTrue(intersection.t.isAlmostEqual(1.0))
     }
 
-    func testLocalNormalForSurfaceOfRevolution() throws {
-        let yzPoints = [(0.0, 2.0), (2.0, 1.0), (3.0, 0.5), (6.0, 0.5)]
+    func testLocalNormalForSurfaceOfRevolutionForCylinderEquivalent() throws {
+        let yzPoints = [(0.0, 2.0), (1.0, 2.0), (2.0, 2.0)]
         let shape = SurfaceOfRevolution(yzPoints)
 
-        let testPoint = Point(0.0, 2.0, -1.0)
+        let testPoint = Point(0.0, 1.0, -2.0)
         let actualValue = shape.localNormal(testPoint)
-        let expectedValue = Vector(0.0, 0.26181, -0.96512)
+        let expectedValue = Vector(0.0, 0.0, -1.0)
+        XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
+    }
+
+    func testLocalNormalForSurfaceOfRevolutionForConeEquivalent() throws {
+        let yzPoints = [(0.0, 2.0), (1.0, 1.0), (2.0, 0.0)]
+        let shape = SurfaceOfRevolution(yzPoints)
+
+        let testPoint = Point(0.0, 1.0, -1.0)
+        let actualValue = shape.localNormal(testPoint)
+        let expectedValue = Vector(0.0, 0.70711, -0.70711)
+        XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
+    }
+
+    func testLocalNormalForSurfaceOfRevolutionForCurvedShape() throws {
+        let yzPoints = [(0.0, 1.0), (1.0, 2.0), (2.0, 1.0)]
+        let shape = SurfaceOfRevolution(yzPoints)
+
+        let testPoint = Point(0.0, 0.5, -1.6875)
+        let actualValue = shape.localNormal(testPoint)
+        let expectedValue = Vector(0.0, -0.74741, -0.66436)
         XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
     }
 }
