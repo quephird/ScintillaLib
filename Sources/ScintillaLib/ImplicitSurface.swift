@@ -59,16 +59,24 @@ public class ImplicitSurface: Shape {
         var t = tNearer
         let deltaT = (tFurther - tNearer)/Double(NUM_BOUNDING_BOX_SUBDIVSIONS)
         var tPrev = 0.0
-
-//        if (tNearer < 0.0) {
-//            print(tNearer)
-//            print(tFurther)
-//        }
         var intersections: [Intersection] = []
+
+        // Since we want to compute multiple intersections, we need to
+        // track when we cross the surface, not just when we're inside it.
+        // That is, if we begin outside the surface (f(t) > 0) and we
+        // encounter a hit, then we're now inside the surface (f(t) < 0),
+        // and the next hit will be when we go back _outside_ the surface.
+        // Conversely, if we begin _inside_ the surface and we encounter a hit,
+        // then we're now _outside_ the surface, and the next hit will be when
+        // we go back _inside_ the surface. And so we need to keep flipping
+        // `wasOutsideShape` accordingly, and our tests below need to consider
+        // both it _and_ the value of f(t).
         var wasOutsideShape = ft(tPrev) > 0 ? true : false
-        while t <= tFurther {
+
+    outerWhile: while t <= tFurther {
             if (ft(t) > 0 && wasOutsideShape) || (ft(t) < 0 && !wasOutsideShape) {
-                // If we're here, then we haven't crossed a boundary, so we should continue...
+                // If we're here, then we haven't crossed the surface from outside to inside,
+                // or vice versa, so we should continue searching...
                 tPrev = t
                 t += deltaT
             } else {
@@ -80,16 +88,14 @@ public class ImplicitSurface: Shape {
                 while iterations <= MAX_ITERATIONS_BISECTION {
                     t = (a+b)/2
                     let f = ft(t)
-//                    print("\(a), \(b), \(iterations)")
+
                     if abs(f) < DELTA {
                         intersections.append(Intersection(t, self))
+                        // Flip this variable since we now crossed a surface
                         wasOutsideShape = !wasOutsideShape
-                        break
-//                    } else if abs(a-b) < DELTA {
-////                        print("BOOM!")
-//                        t += deltaT
-//                        break
-                    } else if f > 0 {
+                        t += deltaT
+                        continue outerWhile
+                    } else if (f > 0 && wasOutsideShape) || (f < 0 && !wasOutsideShape) {
                         a = t
                     } else {
                         b = t
@@ -102,12 +108,8 @@ public class ImplicitSurface: Shape {
                 t += deltaT
                 break
             }
-            t += deltaT
         }
 
-        if intersections.count > 1 {
-            print("I got here")
-        }
         return intersections
     }
 
