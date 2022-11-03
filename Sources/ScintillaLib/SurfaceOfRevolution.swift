@@ -18,6 +18,8 @@ public typealias Point2D = (Double, Double)
 // and nomal vectors.
 public class SurfaceOfRevolution: Shape {
     var underlyingImplicitSurface: ImplicitSurface
+    var yBottom: Double
+    var yTop: Double
 
     // TODO: Add option for caps
     public init(_ yzPoints: [Point2D]) {
@@ -50,6 +52,8 @@ public class SurfaceOfRevolution: Shape {
         }
         let underlyingImplicitSurface = ImplicitSurface(boundingBox, f)
 
+        self.yBottom = yMin
+        self.yTop = yMax
         self.underlyingImplicitSurface = underlyingImplicitSurface
     }
 
@@ -59,9 +63,12 @@ public class SurfaceOfRevolution: Shape {
         // so that the ones returned to the caller have a reference
         // to _this_ shape and its material properties. Otherwise,
         // we would send back the wrong shape and the default material,
-        // which is obviously undesireable.
+        // which is obviously undesirable.
         return intersections.map { intersection in
             return Intersection(intersection.t, self)
+        }.filter { intersection in
+            let point = localRay.position(intersection.t)
+            return point.y <= self.yTop && point.y >= self.yBottom
         }
     }
 
