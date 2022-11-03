@@ -20,9 +20,15 @@ public class SurfaceOfRevolution: Shape {
     var underlyingImplicitSurface: ImplicitSurface
     var yBottom: Double
     var yTop: Double
+    var rBottom: Double
+    var rTop: Double
+    var isCapped: Bool
 
-    // TODO: Add option for caps
-    public init(_ yzPoints: [Point2D]) {
+    public convenience init(_ yzPoints: [Point2D]) {
+        self.init(yzPoints, false)
+    }
+
+    public init(_ yzPoints: [Point2D], _ isCapped: Bool) {
         let ys = yzPoints.map { point in
             point.0
         }
@@ -52,27 +58,65 @@ public class SurfaceOfRevolution: Shape {
         }
         let underlyingImplicitSurface = ImplicitSurface(boundingBox, f)
 
+        self.isCapped = isCapped
         self.yBottom = yMin
         self.yTop = yMax
+        self.rBottom = zs.first!
+        self.rTop = zs.last!
         self.underlyingImplicitSurface = underlyingImplicitSurface
     }
 
+    func localIntersectCaps(_ localRay: Ray) -> [Intersection] {
+        var intersections: [Intersection] = []
+
+        for (y, r) in [(yBottom, rBottom), (yTop, rTop)] {
+            let t = (y - localRay.origin.y) / localRay.direction.y
+            let x = localRay.origin.x + t * localRay.direction.x
+            let z = localRay.origin.z + t * localRay.direction.z
+            if (x*x + z*z) <= r*r {
+                intersections.append(Intersection(t, self))
+            }
+        }
+
+        return intersections
+    }
+
     override func localIntersect(_ localRay: Ray) -> [Intersection] {
-        let intersections = self.underlyingImplicitSurface.localIntersect(localRay)
+        var intersections: [Intersection] = []
+
+        if isCapped {
+            intersections.append(contentsOf: self.localIntersectCaps(localRay))
+        }
+
         // We map over the intersections for the underlying shape
         // so that the ones returned to the caller have a reference
         // to _this_ shape and its material properties. Otherwise,
         // we would send back the wrong shape and the default material,
         // which is obviously undesirable.
-        return intersections.map { intersection in
-            return Intersection(intersection.t, self)
-        }.filter { intersection in
-            let point = localRay.position(intersection.t)
-            return point.y <= self.yTop && point.y >= self.yBottom
-        }
+        let wallIntersections = self.underlyingImplicitSurface
+            .localIntersect(localRay)
+            .map { intersection in
+                return Intersection(intersection.t, self)
+            }.filter { intersection in
+                let point = localRay.position(intersection.t)
+                return point.y <= self.yTop && point.y >= self.yBottom
+            }
+
+        intersections.append(contentsOf: wallIntersections)
+
+        return intersections
     }
 
     override func localNormal(_ localPoint: Point) -> Vector {
+        if isCapped {
+            let (x, y, z) = (localPoint.x, localPoint.y, localPoint.z)
+            if abs(y - self.yBottom) < DELTA && (x*x + z*z) <= rBottom*rBottom {
+                return Vector(0.0, -1.0, 0.0)
+            } else if abs(y - self.yTop) < DELTA && (x*x + z*z) <= rTop*rTop {
+                return Vector(0.0, 1.0, 0.0)
+            }
+        }
+
         return self.underlyingImplicitSurface.localNormal(localPoint)
     }
 }
