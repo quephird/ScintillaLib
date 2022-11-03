@@ -83,10 +83,33 @@ class SurfaceOfRevolutionTests: XCTestCase {
     func testLocalIntersectForSurfaceOfRevolution() throws {
         let yzPoints = [(0.0, 2.0), (2.0, 1.5), (3.0, 0.5), (6.0, 0.5)]
         let shape = SurfaceOfRevolution(yzPoints)
-        let ray = Ray(Point(0.0, 2.0, -2.0), Vector(0.0, 0.0, 1.0))
 
-        let intersection = shape.localIntersect(ray).first!
-        XCTAssertTrue(intersection.t.isAlmostEqual(0.5))
+        let ray = Ray(Point(0.0, 2.0, -2.0), Vector(0.0, 0.0, 1.0))
+        let intersections = shape.localIntersect(ray)
+        XCTAssertEqual(intersections.count, 2)
+        XCTAssertTrue(intersections[0].t.isAlmostEqual(0.5))
+        XCTAssertTrue(intersections[1].t.isAlmostEqual(3.5))
+    }
+
+    func testLocalIntersectForSurfaceOfRevolutionHitsBothCaps() throws {
+        let yzPoints = [(0.0, 2.0), (1.0, 1.0), (2.0, 0.5)]
+        let shape = SurfaceOfRevolution(yzPoints, true)
+
+        let ray = Ray(Point(0.0, -1.0, 0.0), Vector(0.0, 1.0, 0.0))
+        let intersections = shape.localIntersect(ray)
+        XCTAssertTrue(intersections[0].t.isAlmostEqual(1.0))
+        XCTAssertTrue(intersections[1].t.isAlmostEqual(3.0))
+    }
+
+
+    func testLocalIntersectForSurfaceOfRevolutionHitsOneCapAndWall() throws {
+        let yzPoints = [(0.0, 2.0), (1.0, 1.0), (2.0, 0.5)]
+        let shape = SurfaceOfRevolution(yzPoints, true)
+
+        let ray = Ray(Point(-0.70711, -0.70711, 0.0), Vector(0.70711, 0.70711, 0.0))
+        let intersections = shape.localIntersect(ray)
+        XCTAssertTrue(intersections[0].t.isAlmostEqual(1.0))
+        XCTAssertTrue(intersections[1].t.isAlmostEqual(2.41421))
     }
 
     func testLocalNormalForSurfaceOfRevolutionForCylinderEquivalent() throws {
