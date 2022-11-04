@@ -15,7 +15,7 @@ public typealias Point2D = (Double, Double)
 // incorporated into the one passed to the implicit surface,
 // namely, x² + z² - g²(y). The implicit surface shape is then
 // subsequently used for all computations for ray intersections
-// and nomal vectors.
+// and normal vectors.
 public class SurfaceOfRevolution: Shape {
     var underlyingImplicitSurface: ImplicitSurface
     var yBottom: Double
@@ -146,7 +146,7 @@ func solve(_ matrix: [[Double]]) -> [Double]? {
         // Before we begin processing this row, we need to make sure
         // the current pivot value is not zero. If it is, then
         // we need to swap that row with one that has a non-zero value;
-        // if if does not, then this matrix represents a system of
+        // if it does not, then this matrix represents a system of
         // equations that is not solvable.
         if copy[i-1][i-1] == 0 {
             if let swapIndex = (i..<copy.count).first(where: { index in
