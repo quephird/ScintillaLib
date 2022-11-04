@@ -73,7 +73,10 @@ public class ImplicitSurface: Shape {
         // both it _and_ the value of f(t).
         var wasOutsideShape = ft(tPrev) > 0 ? true : false
 
-    outerWhile: while t <= tFurther {
+        // Note that we add `deltaT` below just to make sure that we don't exit
+        // the loop prematurely without getting that last hit if it's really close
+        // to the bounding box
+    outerWhile: while t <= tFurther + deltaT {
             if (ft(t) > 0 && wasOutsideShape) || (ft(t) < 0 && !wasOutsideShape) {
                 // If we're here, then we haven't crossed the surface from outside to inside,
                 // or vice versa, so we should continue searching...

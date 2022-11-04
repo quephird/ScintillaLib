@@ -42,7 +42,7 @@ This ray tracer allows you to describe and render scenes using a light source, a
 
 ## Shapes
 
-The following shapes are available:
+The following primitive shapes are available:
 
 | Shape | Defaults |
 | --- | --- |
@@ -155,6 +155,41 @@ struct PrismScene: ScintillaApp {
 ![](./images/Prism.png)
 
 For now, only line segments joining the vertices are supported; perhaps in the future Beziér curves can be. Nonetheless, both convex _and_ concave polygons are fully supported.
+
+## Surfaces of revolution
+
+Scintilla also makes available a surface-of-revolution shape. It takes up to two parameters:
+
+* An array of tuples of `Double`s representing the (y, z) coordinates of vertices of the curve to be revolved about the y-axis
+* A boolean value indicating whether or not caps at the top and bottom of the shape should be filled. The default value is `false`
+
+Upon rendering, Scintilla computes a piecewise-continuous cubic spline function connecting the vertices, and effectively rotates that curve around the y-axis. This shape is very useful for creating things like vases or other curvy objects, like the one shown below.
+
+```
+import Darwin
+import ScintillaLib
+
+@main
+struct SorScene: ScintillaApp {
+    var body = World {
+        PointLight(Point(-5, 5, -5))
+        Camera(400, 400, PI/3, .view(
+            Point(0, 7, -10),
+            Point(0, 2, 0),
+            Vector(0, 1, 0)))
+        SurfaceOfRevolution(
+            [(0.0, 2.0), (1.0, 2.0), (2.0, 1.0), (3.0, 0.5), (6.0, 0.5)]
+        )
+            .material(.solidColor(Color(0.5, 0.6, 0.8)))
+        Plane()
+            .material(.solidColor(.white))
+    }
+}
+```
+
+![](./images/Sor.png)
+
+As of this writing, only the cubic spline strategy is available for interpolating vertices.
 
 ## Materials
 
@@ -291,6 +326,8 @@ Sphere()
     }
 ```
 
+![](./images/CSG.png)
+
 ## Lights
 
 Scintilla currently supports two kinds of `Light`s: `PointLight` and `AreaLight`. `PointLight` minimally requires a position to be constructed and defaults to a white color if no other one is specified. Light rays emanate from a single point, the `PointLight`'s position, and are cast on the world.
@@ -425,9 +462,7 @@ Please note the following about the example above:
 * Your struct must conform to the `ScintallaApp` protocol
 * The struct must have the `body` property, which is of type `World`
 
-If you've done all that, you now have a bona fide application and should be able to run it through Xcode. And if all goes well, you should see the file `MyWorld.ppm` on your desktop and it should look like this:
-
-![](./images/MyWorld.png)
+If you've done all that, you now have a bona fide application and should be able to run it through Xcode. And if all goes well, you should see the file `MyWorld.ppm` on your desktop.
 
 You can also optionally render a scene with antialiasing. In the image above, you can see that the various edges of the object are pretty jagged and take away from the verisimilitude of the image. By adding a property modifier to the `World` object, `.antialiasing(true)`, we can improve its quality:
 
@@ -467,6 +502,8 @@ struct CSGExample: ScintillaApp {
 ... and below is the resultant image:
 
 ![](./images/Antialiasing.png)
+
+You should be able to see that it is far less "jaggy" than the orignal image shown further up in this README.
 
 Because rendering times are much slower with antialiasing turned out, you should make sure that the run configuration is set to Release in order to run Swift in the fastest fashion. To get there, go to Product -> Scheme -> Edit Scheme...
 
