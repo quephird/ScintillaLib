@@ -326,6 +326,8 @@ Sphere()
     }
 ```
 
+![](./images/CSG.png)
+
 ## Lights
 
 Scintilla currently supports two kinds of `Light`s: `PointLight` and `AreaLight`. `PointLight` minimally requires a position to be constructed and defaults to a white color if no other one is specified. Light rays emanate from a single point, the `PointLight`'s position, and are cast on the world.
@@ -460,9 +462,7 @@ Please note the following about the example above:
 * Your struct must conform to the `ScintallaApp` protocol
 * The struct must have the `body` property, which is of type `World`
 
-If you've done all that, you now have a bona fide application and should be able to run it through Xcode. And if all goes well, you should see the file `MyWorld.ppm` on your desktop and it should look like this:
-
-![](./images/MyWorld.png)
+If you've done all that, you now have a bona fide application and should be able to run it through Xcode. And if all goes well, you should see the file `MyWorld.ppm` on your desktop.
 
 You can also optionally render a scene with antialiasing. In the image above, you can see that the various edges of the object are pretty jagged and take away from the verisimilitude of the image. By adding a property modifier to the `World` object, `.antialiasing(true)`, we can improve its quality:
 
@@ -502,6 +502,8 @@ struct CSGExample: ScintillaApp {
 ... and below is the resultant image:
 
 ![](./images/Antialiasing.png)
+
+You should be able to see that it is far less "jaggy" than the orignal image shown further up in this README.
 
 Because rendering times are much slower with antialiasing turned out, you should make sure that the run configuration is set to Release in order to run Swift in the fastest fashion. To get there, go to Product -> Scheme -> Edit Scheme...
 
