@@ -51,4 +51,26 @@ class ImplicitSurfaceTests: XCTestCase {
         XCTAssert(intersections[2].t.isAlmostEqual(4.87005))
         XCTAssert(intersections[3].t.isAlmostEqual(5.76679))
     }
-}
+
+    func testLocalIntersectCylinderWithBoundingSphereShouldMiss() throws {
+        let boundingSphereCenter = (0.0, 0.0, 0.0)
+        let boundingSphereRadius = 1.0
+        let shape = ImplicitSurface(boundingSphereCenter, boundingSphereRadius) { x, y, z in
+            x*x + z*z - 1.0
+        }
+//        let ray = Ray(Point(0.8, 0.8, -2.0), Vector(0.0, 0.0, 1.0))
+        let ray = Ray(Point(0.2, 0.2, -2.0), Vector(0.0, 0.0, 1.0))
+        let intersections = shape.localIntersect(ray)
+        XCTAssertEqual(intersections.count, 0)
+    }
+
+    func testLocalIntersectCylinderWithBoundingBoxShouldHitTwice() throws {
+        let bottomLeftFront = (-1.1, -1.1, -1.1)
+        let topRightBack = (1.1, 1.1, 1.1)
+        let shape = ImplicitSurface(bottomLeftFront, topRightBack) { x, y, z in
+            x*x + z*z - 1.0
+        }
+        let ray = Ray(Point(0.8, 0.8, -2.0), Vector(0.0, 0.0, 1.0))
+        let intersections = shape.localIntersect(ray)
+        XCTAssertEqual(intersections.count, 0)
+    }}
