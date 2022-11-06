@@ -8,7 +8,7 @@
 import Foundation
 
 public typealias SurfaceFunction = (Double, Double, Double) -> Double
-public typealias BoundingBox = ((Double, Double, Double), (Double, Double, Double))
+public typealias Point3D = (Double, Double, Double)
 
 let DELTA = 0.0000000001
 let NUM_BOUNDING_BOX_SUBDIVSIONS = 100
@@ -16,19 +16,29 @@ let MAX_ITERATIONS_BISECTION = 100
 
 public class ImplicitSurface: Shape {
     var f: SurfaceFunction
-    var boundingBox: Cube = Cube()
+    var boundingShape: Shape
 
-    public init(_ f: @escaping SurfaceFunction) {
-        self.f = f
+    public convenience init(_ center: Point3D, _ radius: Double, _ f: @escaping SurfaceFunction) {
+        let (translateX, translateY, translateZ) = center
+        let boundingShape = Sphere()
+            .scale(radius, radius, radius)
+            .translate(translateX, translateY, translateZ)
+        self.init(boundingShape, f)
     }
 
-    public init(_ boundingBox: BoundingBox, _ f: @escaping SurfaceFunction) {
-        let ((xMin, yMin, zMin), (xMax, yMax, zMax)) = boundingBox
+    public convenience init(_ bottomFrontLeft: Point3D, _ topBackRight: Point3D, _ f: @escaping SurfaceFunction) {
+        let (xMin, yMin, zMin) = bottomFrontLeft
+        let (xMax, yMax, zMax) = topBackRight
         let (scaleX, scaleY, scaleZ) = ((xMax-xMin)/2, (yMax-yMin)/2, (zMax-zMin)/2)
         let (translateX, translateY, translateZ) = ((xMax+xMin)/2, (yMax+yMin)/2, (zMax+zMin)/2)
-        self.boundingBox = Cube()
+        let boundingShape = Cube()
             .scale(scaleX, scaleY, scaleZ)
             .translate(translateX, translateY, translateZ)
+        self.init(boundingShape, f)
+    }
+
+    public init(_ boundingShape: Shape, _ f: @escaping SurfaceFunction) {
+        self.boundingShape = boundingShape
         self.f = f
     }
 
@@ -36,7 +46,7 @@ public class ImplicitSurface: Shape {
         // First we check to see if the ray intersects the bounding box;
         // note that we need a pair of hits in order to construct a range
         // of values for t below...
-        let boundingBoxIntersections = self.boundingBox.intersect(localRay)
+        let boundingBoxIntersections = self.boundingShape.intersect(localRay)
         guard boundingBoxIntersections.count == 2 else {
             return []
         }

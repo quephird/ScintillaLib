@@ -41,7 +41,6 @@ public class SurfaceOfRevolution: Shape {
         // those for the z-coordinate.
         let (xMin, yMin, zMin) = (-zs.max()!, ys.min()!, -zs.max()!)
         let (xMax, yMax, zMax) = (zs.max()!, ys.max()!, zs.max()!)
-        let boundingBox = ((xMin, yMin, zMin), (xMax, yMax, zMax))
 
         // Note that we perform all these computations and make
         // this shape here in the constructor so that it is only
@@ -56,7 +55,7 @@ public class SurfaceOfRevolution: Shape {
         func f(_ x: Double, _ y: Double, _ z: Double) -> Double {
             x*x + z*z - g(y)*g(y)
         }
-        let underlyingImplicitSurface = ImplicitSurface(boundingBox, f)
+        let underlyingImplicitSurface = ImplicitSurface((xMin, yMin, zMin), (xMax, yMax, zMax), f)
 
         self.isCapped = isCapped
         self.yBottom = yMin
