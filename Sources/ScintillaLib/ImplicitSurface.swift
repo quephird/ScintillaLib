@@ -11,7 +11,7 @@ public typealias SurfaceFunction = (Double, Double, Double) -> Double
 public typealias Point3D = (Double, Double, Double)
 
 let DELTA = 0.0000000001
-let NUM_BOUNDING_BOX_SUBDIVSIONS = 100
+let NUM_BOUNDING_BOX_SUBDIVISIONS = 100
 let MAX_ITERATIONS_BISECTION = 100
 
 public class ImplicitSurface: Shape {
@@ -69,8 +69,8 @@ public class ImplicitSurface: Shape {
         // and continue through to the further one, computing a hit
         // using the bisection method.
         var t = tNearer
-        let deltaT = (tFurther - tNearer)/Double(NUM_BOUNDING_BOX_SUBDIVSIONS)
-        var tPrev = tNearer - deltaT
+        let deltaT = (tFurther - tNearer)/Double(NUM_BOUNDING_BOX_SUBDIVISIONS)
+        var tPrev = t - deltaT
         var intersections: [Intersection] = []
 
         // Since we want to compute multiple intersections, we need to
