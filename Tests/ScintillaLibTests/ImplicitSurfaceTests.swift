@@ -52,25 +52,47 @@ class ImplicitSurfaceTests: XCTestCase {
         XCTAssert(intersections[3].t.isAlmostEqual(5.76679))
     }
 
-    func testLocalIntersectCylinderWithBoundingSphereShouldMiss() throws {
-        let boundingSphereCenter = (0.0, 0.0, 0.0)
-        let boundingSphereRadius = 1.0
-        let shape = ImplicitSurface(boundingSphereCenter, boundingSphereRadius) { x, y, z in
+    func testLocalIntersectCylinderWithBoundingBoxShouldMiss() throws {
+        let bottomLeftFront = (-1.01, -1.01, -1.01)
+        let topRightBack = (1.01, 1.01, 1.01)
+        let shape = ImplicitSurface(bottomLeftFront, topRightBack) { x, y, z in
             x*x + z*z - 1.0
         }
-//        let ray = Ray(Point(0.8, 0.8, -2.0), Vector(0.0, 0.0, 1.0))
-        let ray = Ray(Point(0.2, 0.2, -2.0), Vector(0.0, 0.0, 1.0))
+        let ray = Ray(Point(0.0, 1.01, -2.0), Vector(0.0, 0.0, 1.0))
         let intersections = shape.localIntersect(ray)
         XCTAssertEqual(intersections.count, 0)
     }
 
     func testLocalIntersectCylinderWithBoundingBoxShouldHitTwice() throws {
-        let bottomLeftFront = (-1.1, -1.1, -1.1)
-        let topRightBack = (1.1, 1.1, 1.1)
+        let bottomLeftFront = (-1.01, -1.01, -1.01)
+        let topRightBack = (1.01, 1.01, 1.0)
         let shape = ImplicitSurface(bottomLeftFront, topRightBack) { x, y, z in
             x*x + z*z - 1.0
         }
-        let ray = Ray(Point(0.8, 0.8, -2.0), Vector(0.0, 0.0, 1.0))
+        let ray = Ray(Point(0.0, 0.99, -2.0), Vector(0.0, 0.0, 1.0))
+        let intersections = shape.localIntersect(ray)
+        XCTAssertEqual(intersections.count, 2)
+    }
+
+    func testLocalIntersectSphereWithBoundingSphereShouldMiss() throws {
+        let boundingSphereCenter = (0.0, 0.0, 0.0)
+        let boundingSphereRadius = 0.99
+        let shape = ImplicitSurface(boundingSphereCenter, boundingSphereRadius) { x, y, z in
+            x*x + y*y + z*z - 1.0
+        }
+        let ray = Ray(Point(0.7071, 0.7071, -2.0), Vector(0.0, 0.0, 1.0))
         let intersections = shape.localIntersect(ray)
         XCTAssertEqual(intersections.count, 0)
-    }}
+    }
+
+    func testLocalIntersectSphereWithBoundingSphereShouldHitTwice() throws {
+        let boundingSphereCenter = (0.0, 0.0, 0.0)
+        let boundingSphereRadius = 1.01
+        let shape = ImplicitSurface(boundingSphereCenter, boundingSphereRadius) { x, y, z in
+            x*x + y*y + z*z - 1.0
+        }
+        let ray = Ray(Point(0.7071, 0.7071, -2.0), Vector(0.0, 0.0, 1.0))
+        let intersections = shape.localIntersect(ray)
+        XCTAssertEqual(intersections.count, 2)
+    }
+}

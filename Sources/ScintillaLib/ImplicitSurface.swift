@@ -43,7 +43,7 @@ public class ImplicitSurface: Shape {
     }
 
     override func localIntersect(_ localRay: Ray) -> [Intersection] {
-        // First we check to see if the ray intersects the bounding box;
+        // First we check to see if the ray intersects the bounding shape;
         // note that we need a pair of hits in order to construct a range
         // of values for t below...
         let boundingBoxIntersections = self.boundingShape.intersect(localRay)
@@ -68,7 +68,7 @@ public class ImplicitSurface: Shape {
         // using the bisection method.
         var t = tNearer
         let deltaT = (tFurther - tNearer)/Double(NUM_BOUNDING_BOX_SUBDIVSIONS)
-        var tPrev = 0.0
+        var tPrev = tNearer - deltaT
         var intersections: [Intersection] = []
 
         // Since we want to compute multiple intersections, we need to
@@ -123,7 +123,13 @@ public class ImplicitSurface: Shape {
             }
         }
 
+        // Even though we check to see that the ray hits the bounding shape
+        // above, we still need to make sure that the t values for the
+        // intersections represent points that are actually inside it.
         return intersections
+            .filter { intersection in
+                return intersection.t >= tNearer && intersection.t <= tFurther
+            }
     }
 
     override func localNormal(_ localPoint: Point) -> Vector {
