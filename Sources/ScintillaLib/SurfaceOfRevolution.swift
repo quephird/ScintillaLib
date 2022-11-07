@@ -38,9 +38,12 @@ public class SurfaceOfRevolution: Shape {
 
         // Note that due to the symmetry of rotation, the minimum
         // and maximum values for the x -coordinate are the same as
-        // those for the z-coordinate.
-        let (xMin, yMin, zMin) = (-zs.max()!, ys.min()!, -zs.max()!)
-        let (xMax, yMax, zMax) = (zs.max()!, ys.max()!, zs.max()!)
+        // those for the z-coordinate. Also, the multipliers for the
+        // min and max x and z values is somewhat arbitrary just to
+        // insure that the bounding box isn't too small along those
+        // axes and result in clipping.
+        let (xMin, yMin, zMin) = (-zs.max()!*2.0, ys.min()!, -zs.max()!*2.0)
+        let (xMax, yMax, zMax) = (zs.max()!*2.0, ys.max()!, zs.max()!*2.0)
 
         // Note that we perform all these computations and make
         // this shape here in the constructor so that it is only
@@ -96,9 +99,6 @@ public class SurfaceOfRevolution: Shape {
             .localIntersect(localRay)
             .map { intersection in
                 return Intersection(intersection.t, self)
-            }.filter { intersection in
-                let point = localRay.position(intersection.t)
-                return point.y <= self.yTop && point.y >= self.yBottom
             }
 
         intersections.append(contentsOf: wallIntersections)
