@@ -92,7 +92,7 @@ Since it is not possible to compute the bounds of an arbitrary choice of F, Scin
 x² + y² + z² + sin(4x) + sin(4y) + sin(4z) = 1
 </p>
 
-```
+```swift
 import Darwin
 import ScintillaLib
 
@@ -116,7 +116,39 @@ struct MyWorld: ScintillaApp {
 
 ![](./images/ImplicitSurface.png)
 
-Otherwise, they can be used just like any other primitive shape; they can be translated, scaled, and rotated, and all of their material properties work the same way as well.
+You can also specify a bounding sphere by passing in a 3-tuple representing the center of the sphere, and a single double value representing its radius. This can be useful for implicit surfaces like the Barth sextic which has spherical symmetry.
+
+<p align="center">
+4(φ²x² - y²)(φ²y² - z²)(φ²z² - x²) - (1 + 2φ)(x² + y² + z² - 1)² = 0
+</p>
+
+
+```swift
+import Darwin
+import ScintillaLib
+
+let φ: Double = 1.61833987
+
+@main
+struct MyImplicitSurface: ScintillaApp {
+    var body: World {
+        PointLight(Point(-5, 5, -5))
+        Camera(400, 400, PI/3, .view(
+            Point(0, 0, -5),
+            Point(0, 0, 0),
+            Vector(0, 1, 0)))
+        ImplicitSurface((0.0, 0.0, 0.0), 2.0) { x, y, z in
+            4.0*(φ*φ*x*x-y*y)*(φ*φ*y*y-z*z)*(φ*φ*z*z-x*x) - (1.0+2.0*φ)*(x*x+y*y+z*z-1.0)*(x*x+y*y+z*z-1.0)
+        }
+            .material(.solidColor(Color(0.4, 0.5, 0.7)))
+    }
+}
+
+```
+![](./images/Barth.png)
+
+
+Implicit surfaces can be used just like any other primitive shape; they can be translated, scaled, and rotated, and all of their material properties work the same way as well.
 
 ## Prisms
 
@@ -128,7 +160,7 @@ Another `Shape` type that is available in Scintilla is the `Prism` object. To us
 
 The shape is extruded along the y-axis starting from the base y-value to the top one. Here is an example of a star-based prism:
 
-```
+```swift
 import Darwin
 import ScintillaLib
 
@@ -165,7 +197,7 @@ Scintilla also makes available a surface-of-revolution shape. It takes up to two
 
 Upon rendering, Scintilla computes a piecewise-continuous cubic spline function connecting the vertices, and effectively rotates that curve around the y-axis. This shape is very useful for creating things like vases or other curvy objects, like the one shown below.
 
-```
+```swift
 import Darwin
 import ScintillaLib
 
@@ -368,7 +400,31 @@ A scene rendered with a point light:
 
 ![](./images/PointLight.png)
 
-A scene rendered with an area light with 10 subdivisions along both dimensions:
+A scene rendered with an area light at the same position as the point light above, but with 10 subdivisions along two dimensions:
+
+```swift
+import Darwin
+import ScintillaLib
+
+@main
+struct MyWorld: ScintillaApp {
+    var body: World {
+        AreaLight(
+            Point(-5, 5, -5),
+            Vector(2, 0, 0), 10,
+            Vector(0, 2, 0), 10)
+        Camera(400, 400, PI/3, .view(
+            Point(0, 2, -5),
+            Point(0, 1, 0),
+            Vector(0, 1, 0)))
+        Sphere()
+            .translate(0, 1, 0)
+            .material(.solidColor(Color(1, 0, 0)))
+        Plane()
+            .material(.solidColor(.white))
+    }
+}
+```
 
 ![](./images/AreaLight.png)
 
