@@ -116,7 +116,7 @@ struct MyWorld: ScintillaApp {
 
 ![](./images/ImplicitSurface.png)
 
-You can also specify a bounding sphere by passing in a 3-tuple representing the center of the sphere, and a single double value representing its radius. This can be useful for implicit surfaces like the Barth sextic which has spherical symmetry.
+You can also specify a bounding sphere by passing in a 3-tuple representing the center of the sphere, and a single double value representing its radius. This can be useful for implicit surfaces which have spherical symmetry, such as the  Barth sextic below. (φ is the golden ratio, 1.61833987...)
 
 <p align="center">
 4(φ²x² - y²)(φ²y² - z²)(φ²z² - x²) - (1 + 2φ)(x² + y² + z² - 1)² = 0
@@ -155,7 +155,7 @@ Implicit surfaces can be used just like any other primitive shape; they can be t
 Superellisoids are a family of surfaces with a wide range of diversity of shapes, governed by two parameters, `e` and `n` in the following equation:
 
 <p align="center">
-(|x|<sup>2/e</sup> + |y|<sup>2/e</sup>)<sup>e/n</sup> + z<sup>2/n</sup> = 0
+(|x|<sup>2/e</sup> + |y|<sup>2/e</sup>)<sup>e/n</sup> + z<sup>2/n</sup> = 1
 </p>
 
 Below is a rendering of an array of superellipsoids, each with a distinct combination of values for `e` and `n`:
