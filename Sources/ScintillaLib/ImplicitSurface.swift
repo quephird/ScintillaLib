@@ -11,7 +11,7 @@ public typealias SurfaceFunction = (Double, Double, Double) -> Double
 public typealias Point3D = (Double, Double, Double)
 
 let DELTA = 0.0000000001
-let NUM_BOUNDING_BOX_SUBDIVSIONS = 100
+let NUM_BOUNDING_BOX_SUBDIVISIONS = 100
 let MAX_ITERATIONS_BISECTION = 100
 
 public class ImplicitSurface: Shape {
@@ -51,7 +51,9 @@ public class ImplicitSurface: Shape {
             return []
         }
         let tNearer = boundingBoxIntersections[0].t
-        let tFurther = boundingBoxIntersections[1].t
+        // We add a little bit below in the rare case that both t values
+        // are the same value and we don't end up in an endless while loop below.
+        let tFurther = boundingBoxIntersections[1].t + EPSILON
 
         // ... then we substitute in the components of the inbound ray
         // to convert f(x, y, z) into F(t), a function solely dependent on t...
@@ -67,8 +69,8 @@ public class ImplicitSurface: Shape {
         // and continue through to the further one, computing a hit
         // using the bisection method.
         var t = tNearer
-        let deltaT = (tFurther - tNearer)/Double(NUM_BOUNDING_BOX_SUBDIVSIONS)
-        var tPrev = tNearer - deltaT
+        let deltaT = (tFurther - tNearer)/Double(NUM_BOUNDING_BOX_SUBDIVISIONS)
+        var tPrev = t - deltaT
         var intersections: [Intersection] = []
 
         // Since we want to compute multiple intersections, we need to
@@ -104,8 +106,11 @@ public class ImplicitSurface: Shape {
 
                     if abs(f) < DELTA {
                         intersections.append(Intersection(t, self))
-                        // Flip this variable since we now crossed a surface
+                        // Flip this variable since we just crossed a surface
                         wasOutsideShape = !wasOutsideShape
+                        // We need to advance tPrev as well to avoid capturing the
+                        // same intersections over and over again.
+                        tPrev = t
                         t += deltaT
                         continue outerWhile
                     } else if (f > 0 && wasOutsideShape) || (f < 0 && !wasOutsideShape) {

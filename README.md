@@ -38,9 +38,9 @@ struct QuickStart: ScintillaApp {
 
 # Features
 
-This ray tracer allows you to describe and render scenes using a light source, a camera, and a collection of shapes, each shape having an associated material. Shapes can then be combined with each other using constructive solid geometry.
+Scintilla allows you to describe and render scenes using a light source, a camera, and a collection of shapes, each shape having an associated material. Shapes can then be combined with each other using constructive solid geometry. Below is a discussion on each of these features.
 
-## Shapes
+## Primitive shapes
 
 The following primitive shapes are available:
 
@@ -149,6 +149,44 @@ struct MyImplicitSurface: ScintillaApp {
 
 
 Implicit surfaces can be used just like any other primitive shape; they can be translated, scaled, and rotated, and all of their material properties work the same way as well.
+
+## Superellipsoids
+
+Superellisoids are a family of surfaces with a wide range of diversity of shapes, governed by two parameters, `e` and `n` in the following equation:
+
+<p align="center">
+(|x|<sup>2/e</sup> + |y|<sup>2/e</sup>)<sup>e/n</sup> + z<sup>2/n</sup> = 0
+</p>
+
+Below is a rendering of an array of superellipsoids, each with a distinct combination of values for `e` and `n`:
+
+```swift
+import Darwin
+import ScintillaLib
+
+@main
+struct SuperellipsoidScene: ScintillaApp {
+    var body: World = World {
+        PointLight(Point(0, 5, -5))
+        Camera(400, 400, PI/3, .view(
+            Point(0, 0, -12),
+            Point(0, 0, 0),
+            Vector(0, 1, 0)))
+        for (i, e) in [0.25, 0.5, 1.0, 2.0, 2.5].enumerated() {
+            for (j, n) in [0.25, 0.5, 1.0, 2.0, 2.5].enumerated() {
+                Superellipsoid(e, n)
+                    .material(.solidColor(Color((Double(i)+1.0)/5.0, (Double(j)+1.0)/5.0, 0.2)))
+                    .translate(2.5*(Double(i)-2.0), 2.5*(Double(j)-2.0), 0.0)
+            }
+        }
+    }
+}
+```
+
+They too are used just like any of the primitive shapes.
+
+
+![](./images/Superellipsoids.png)
 
 ## Prisms
 
