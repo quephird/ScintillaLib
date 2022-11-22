@@ -17,6 +17,16 @@ public struct Camera {
     var halfHeight: Double
     var pixelSize: Double
 
+    public init(_ horizontalSize: Int,
+                _ verticalSize: Int,
+                _ fieldOfView: Double,
+                _ from: Point,
+                _ to: Point,
+                _ up: Vector) {
+        let viewTransform = Matrix4.view(from, to, up)
+        self.init(horizontalSize, verticalSize, fieldOfView, viewTransform)
+    }
+
     public init(_ horizontalSize: Int, _ verticalSize: Int, _ fieldOfView: Double, _ viewTransform: Matrix4) {
         self.horizontalSize = horizontalSize
         self.verticalSize = verticalSize
