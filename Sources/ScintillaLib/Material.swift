@@ -59,6 +59,10 @@ public class Material {
         return Material(.pattern(pattern))
     }
 
+    public static func colorFunction(_ colorFunction: ColorFunction) -> Material {
+        return Material(.colorFunction(colorFunction))
+    }
+
     public func ambient(_ ambient: Double) -> Self {
         self.ambient = ambient
 
@@ -109,6 +113,8 @@ public class Material {
             effectiveColor = color.hadamard(light.color)
         case .pattern(let pattern):
             effectiveColor = pattern.colorAt(object, point)
+        case .colorFunction(let colorFunction):
+            effectiveColor = colorFunction.colorAt(object, point)
         }
 
         // Compute the ambient contribution
