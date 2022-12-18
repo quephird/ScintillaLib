@@ -59,8 +59,8 @@ public class Material {
         return Material(.pattern(pattern))
     }
 
-    public static func colorFunction(_ colorFunction: ColorFunction) -> Material {
-        return Material(.colorFunction(colorFunction))
+    public static func colorFunction(_ colorFunction: @escaping ColorFunctionType) -> Material {
+        return Material(.colorFunction(ColorFunction(colorFunction)))
     }
 
     public func ambient(_ ambient: Double) -> Self {
