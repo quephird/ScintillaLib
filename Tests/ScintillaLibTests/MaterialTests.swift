@@ -100,7 +100,7 @@ class MaterialTests: XCTestCase {
     func testLightUsesIntensityToAttenuateColor() throws {
         let light = PointLight(Point(0, 0, -10))
         let shape = Sphere()
-            .material(.solidColor(.white)
+            .material(.solidColor(1, 1, 1)
                 .ambient(0.1)
                 .diffuse(0.9)
                 .specular(0.0)
@@ -127,7 +127,7 @@ class MaterialTests: XCTestCase {
             Vector(1, 0, 0), 2,
             Vector(0, 1, 0), 2,
             NoJitter())
-        let material: Material = .solidColor(.white)
+        let material: Material = .solidColor(1, 1, 1)
             .ambient(0.1)
             .diffuse(0.9)
             .specular(0.0)
