@@ -10,7 +10,7 @@ import XCTest
 
 class MaterialTests: XCTestCase {
     func testLightingEyeBetweenLightAndSurface() throws {
-        let m = Material.basicMaterial()
+        let m = SolidColor.basicMaterial()
         let shape = Sphere().material(m)
         let position = Point(0, 0, 0)
         let eye = Vector(0, 0, -1)
@@ -22,7 +22,7 @@ class MaterialTests: XCTestCase {
     }
 
     func testLightingEyeOffsetFortyFiveDegrees() throws {
-        let m = Material.basicMaterial()
+        let m = SolidColor.basicMaterial()
         let shape = Sphere().material(m)
         let position = Point(0, 0, 0)
         let eye = Vector(0, sqrt(2)/2, -sqrt(2)/2)
@@ -34,7 +34,7 @@ class MaterialTests: XCTestCase {
     }
 
     func testLightingLightOffsetFortyFiveDegrees() throws {
-        let m = Material.basicMaterial()
+        let m = SolidColor.basicMaterial()
         let shape = Sphere().material(m)
         let position = Point(0, 0, 0)
         let eye = Vector(0, 0, -1)
@@ -46,7 +46,7 @@ class MaterialTests: XCTestCase {
     }
 
     func testLightingEyeInPathOfReflectionVector() throws {
-        let m = Material.basicMaterial()
+        let m = SolidColor.basicMaterial()
         let shape = Sphere().material(m)
         let position = Point(0, 0, 0)
         let eye = Vector(0, -sqrt(2)/2, -sqrt(2)/2)
@@ -58,7 +58,7 @@ class MaterialTests: XCTestCase {
     }
 
     func testLightingLightBehindSurface() throws {
-        let m = Material.basicMaterial()
+        let m = SolidColor.basicMaterial()
         let shape = Sphere().material(m)
         let position = Point(0, 0, 0)
         let eye = Vector(0, 0, -1)
@@ -74,7 +74,7 @@ class MaterialTests: XCTestCase {
         let position = Point(0, 0, 0)
         let eye = Vector(0, 0, -1)
         let normal = Vector(0, 0, -1)
-        let material = Material.basicMaterial()
+        let material = SolidColor.basicMaterial()
         let shape = Sphere().material(material)
         let actualValue = material.lighting(light, shape, position, eye, normal, 0.0)
         let expectedValue = Color(0.1, 0.1, 0.1)
@@ -82,8 +82,11 @@ class MaterialTests: XCTestCase {
     }
 
     func testLightingWithPattern() throws {
-        let striped = Striped(Color(1, 1, 1), Color(0, 0, 0), .identity)
-        let material = Material(.pattern(striped), 1.0, 0.0, 0.0, 200, 0.0, 0.0, 0.0)
+        let material = Striped(Color(1, 1, 1), Color(0, 0, 0), .identity)
+            .ambient(1.0)
+            .diffuse(0.0)
+            .specular(0.0)
+            .refractive(0.0)
         let shape = Sphere().material(material)
         let eye = Vector(0, 0, -1)
         let normal = Vector(0, 0, -1)

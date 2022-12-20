@@ -7,15 +7,24 @@
 
 public typealias ColorFunctionType = (Double, Double, Double) -> (Double, Double, Double)
 
-public struct ColorFunction {
+public struct ColorFunction: Material {
     var transform: Matrix4
     var inverseTransform: Matrix4
     var colorFunction: ColorFunctionType
+    public var properties = MaterialProperties()
 
     public init(_ colorFunction: @escaping ColorFunctionType) {
         self.colorFunction = colorFunction
         self.transform = .identity
         self.inverseTransform = transform.inverse()
+    }
+
+    public func copy() -> ColorFunction {
+        var copy = ColorFunction(self.colorFunction)
+        copy.transform = self.transform
+        copy.inverseTransform = self.inverseTransform
+        copy.properties = self.properties
+        return copy
     }
 
     public func transform(_ transform: Matrix4) -> Self {
@@ -25,7 +34,7 @@ public struct ColorFunction {
         return copy
     }
 
-    func colorAt( _ object: Shape, _ worldPoint: Point) -> Color {
+    public func colorAt( _ object: Shape, _ worldPoint: Point) -> Color {
         let objectPoint = object.inverseTransform.multiply(worldPoint)
         let colorFunctionPoint = self.inverseTransform.multiply(objectPoint)
         return self.colorAt(colorFunctionPoint)

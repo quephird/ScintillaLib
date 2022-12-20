@@ -91,7 +91,7 @@ public class World {
         let reflectedColor = self.reflectedColorAt(computations, remainingCalls)
         let refractedColor = self.refractedColorAt(computations, remainingCalls)
 
-        if material.reflective > 0 && material.transparency > 0 {
+        if material.properties.reflective > 0 && material.properties.transparency > 0 {
             let reflectance = self.schlickReflectance(computations)
             return surfaceColor
                 .add(reflectedColor.multiplyScalar(reflectance))
@@ -104,18 +104,18 @@ public class World {
     func reflectedColorAt(_ computations: Computations, _ remainingCalls: Int) -> Color {
         if remainingCalls == 0 {
             return .black
-        } else if computations.object.material.reflective == 0 {
+        } else if computations.object.material.properties.reflective == 0 {
             return .black
         } else {
             let reflected = Ray(computations.overPoint, computations.reflected)
-            return self.colorAt(reflected, remainingCalls-1).multiplyScalar(computations.object.material.reflective)
+            return self.colorAt(reflected, remainingCalls-1).multiplyScalar(computations.object.material.properties.reflective)
         }
     }
 
     func refractedColorAt(_ computations: Computations, _ remainingCalls: Int) -> Color {
         if remainingCalls == 0 {
             return .black
-        } else if computations.object.material.transparency == 0 {
+        } else if computations.object.material.properties.transparency == 0 {
             return .black
         } else {
             // Find the ratio of first index of refraction to the second.
@@ -145,7 +145,7 @@ public class World {
                 // Find the color of the refracted ray, making sure to multiply
                 // by the transparency value to account for any opacity
                 return self.colorAt(refracted, remainingCalls - 1)
-                    .multiplyScalar(computations.object.material.transparency)
+                    .multiplyScalar(computations.object.material.properties.transparency)
             }
         }
     }

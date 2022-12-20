@@ -23,7 +23,7 @@ public struct Intersection {
         for intersection in allIntersections {
             if intersection.t == self.t {
                 if let lastContainer = containers.last {
-                    n1 = lastContainer.material.refractive
+                    n1 = lastContainer.material.properties.refractive
                 } else {
                     n1 = 1.0
                 }
@@ -39,7 +39,7 @@ public struct Intersection {
 
             if intersection.t == self.t {
                 if let lastContainer = containers.last {
-                    n2 = lastContainer.material.refractive
+                    n2 = lastContainer.material.properties.refractive
                 } else {
                     n2 = 1.0
                 }
