@@ -48,8 +48,8 @@ extension Material where Self == SolidColor {
         return SolidColor(1, 1, 1)
     }
 
-    public static func solidColor(_ color: SolidColor) -> Self {
-        return color
+    public static func solidColor(_ r: Double, _ g: Double, _ b: Double) -> Self {
+        return SolidColor(r, b, g)
     }
 }
 
