@@ -14,7 +14,7 @@ public struct ColorFunction: Material {
     var colorSpace: ColorSpace
     public var properties = MaterialProperties()
 
-    public init(_ colorFunction: @escaping ColorFunctionType, _ colorSpace: ColorSpace = .rgb) {
+    public init(_ colorSpace: ColorSpace = .rgb, _ colorFunction: @escaping ColorFunctionType) {
         self.colorFunction = colorFunction
         self.transform = .identity
         self.inverseTransform = transform.inverse()
@@ -22,7 +22,7 @@ public struct ColorFunction: Material {
     }
 
     public func copy() -> ColorFunction {
-        var copy = ColorFunction(self.colorFunction)
+        var copy = ColorFunction(self.colorSpace, self.colorFunction)
         copy.transform = self.transform
         copy.inverseTransform = self.inverseTransform
         copy.properties = self.properties
@@ -44,12 +44,6 @@ public struct ColorFunction: Material {
 
     func colorAt(_ point: Tuple4) -> Color {
         let (component1, component2, component3) = colorFunction(point.x, point.y, point.z)
-        switch colorSpace {
-        case .rgb:
-            return Color(component1, component2, component3)
-        case .hsl:
-            let (r, g, b) = Color.toRgb(component1, component2, component3)
-            return Color(r, g, b)
-        }
+        return colorSpace.makeColor(component1, component2, component3)
     }
 }
