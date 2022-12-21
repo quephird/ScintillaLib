@@ -7,8 +7,7 @@
 
 import Foundation
 
-public class Material {
-    var colorStrategy: ColorStrategy
+public struct MaterialProperties {
     var ambient: Double
     var diffuse: Double
     var specular: Double
@@ -17,16 +16,15 @@ public class Material {
     var transparency: Double
     var refractive: Double
 
-    let defaultAmbient = 0.1
-    let defaultDiffuse = 0.9
-    let defaultSpecular = 0.9
-    let defaultShininess = 200.0
-    let defaultReflective = 0.0
-    let defaultTransparency = 0.0
-    let defaultRefractive = 1.0
+    public static let defaultAmbient = 0.1
+    public static let defaultDiffuse = 0.9
+    public static let defaultSpecular = 0.9
+    public static let defaultShininess = 200.0
+    public static let defaultReflective = 0.0
+    public static let defaultTransparency = 0.0
+    public static let defaultRefractive = 1.0
 
-    public init(_ colorStrategy: ColorStrategy, _ ambient: Double, _ diffuse: Double, _ specular: Double, _ shininess: Double, _ reflective: Double, _ transparency: Double, _ refractive: Double) {
-        self.colorStrategy = colorStrategy
+    public init(_ ambient: Double = Self.defaultAmbient, _ diffuse: Double = Self.defaultDiffuse, _ specular: Double = Self.defaultSpecular, _ shininess: Double = Self.defaultShininess, _ reflective: Double = Self.defaultReflective, _ transparency: Double = Self.defaultTransparency, _ refractive: Double = Self.defaultRefractive) {
         self.ambient = ambient
         self.diffuse = diffuse
         self.specular = specular
@@ -36,83 +34,87 @@ public class Material {
         self.refractive = refractive
     }
 
-    public init(_ colorStrategy: ColorStrategy) {
-        self.colorStrategy = colorStrategy
-        self.ambient = defaultAmbient
-        self.diffuse = defaultDiffuse
-        self.specular = defaultSpecular
-        self.shininess = defaultShininess
-        self.reflective = defaultReflective
-        self.transparency = defaultTransparency
-        self.refractive = defaultRefractive
+}
+
+//public class Material {
+public protocol Material {
+    func copy() -> Self
+    func colorAt(_ object: Shape, _ worldPoint: Point) -> Color
+    var properties: MaterialProperties { get set }
+}
+
+extension Material where Self == SolidColor {
+    public static func basicMaterial() -> Self {
+        return SolidColor(1, 1, 1)
     }
 
-    public static func basicMaterial() -> Material {
-        return Material(ColorStrategy.solidColor(Color(1, 1, 1)), 0.1, 0.9, 0.9, 200.0, 0.0, 0.0, 1.0)
+    public static func solidColor(_ r: Double, _ g: Double, _ b: Double) -> Self {
+        return SolidColor(r, b, g)
     }
+}
 
-    public static func solidColor(_ color: Color) -> Material {
-        return Material(.solidColor(color))
+extension Material where Self == Pattern {
+    public static func pattern(_ pattern: Pattern) -> Self {
+        return pattern
     }
+}
 
-    public static func pattern(_ pattern: Pattern) -> Material {
-        return Material(.pattern(pattern))
+extension Material where Self == ColorFunction {
+    public static func colorFunction(_ colorFunction: @escaping ColorFunctionType) -> Self {
+        return ColorFunction(colorFunction)
+    }
+}
+
+extension Material {
+    func modifyingProperties(_ body: (inout MaterialProperties) -> Void) -> Self {
+        var copy = self
+        body(&copy.properties)
+        return copy
     }
 
     public func ambient(_ ambient: Double) -> Self {
-        self.ambient = ambient
-
-        return self
+        return modifyingProperties { $0.ambient = ambient }
     }
 
     public func diffuse(_ diffuse: Double) -> Self {
-        self.diffuse = diffuse
-
-        return self
+        return modifyingProperties { $0.diffuse = diffuse }
     }
 
     public func specular(_ specular: Double) -> Self {
-        self.specular = specular
-
-        return self
+        return modifyingProperties { $0.specular = specular }
     }
 
     public func shininess(_ shininess: Double) -> Self {
-        self.shininess = shininess
-
-        return self
+        return modifyingProperties { $0.shininess = shininess }
     }
 
     public func reflective(_ reflective: Double) -> Self {
-        self.reflective = reflective
-
-        return self
+        return modifyingProperties { $0.reflective = reflective }
     }
 
     public func transparency(_ transparency: Double) -> Self {
-        self.transparency = transparency
-
-        return self
+        return modifyingProperties { $0.transparency = transparency }
     }
 
     public func refractive(_ refractive: Double) -> Self {
-        self.refractive = refractive
-
-        return self
+        return modifyingProperties { $0.refractive = refractive }
     }
 
     func lighting(_ light: Light, _ object: Shape, _ point: Point, _ eye: Vector, _ normal: Vector, _ intensity: Double) -> Color {
         // Combine the surface color with the light's color/intensity
-        var effectiveColor: Color
-        switch self.colorStrategy {
-        case .solidColor(let color):
-            effectiveColor = color.hadamard(light.color)
-        case .pattern(let pattern):
-            effectiveColor = pattern.colorAt(object, point)
-        }
+        var effectiveColor: Color = colorAt(object, point)
+//        switch self.colorStrategy {
+//        case .solidColor(let color):
+//            effectiveColor = color
+//        case .pattern(let pattern):
+//            effectiveColor = pattern.colorAt(object, point)
+//        case .colorFunction(let colorFunction):
+//            effectiveColor = colorFunction.colorAt(object, point)
+//        }
+        effectiveColor = effectiveColor.hadamard(light.color)
 
         // Compute the ambient contribution
-        let ambient = effectiveColor.multiplyScalar(self.ambient)
+        let ambient = effectiveColor.multiplyScalar(self.properties.ambient)
 
         switch light {
         case let pointLight as PointLight:
@@ -164,7 +166,7 @@ public class Material {
             specular = .black
         } else {
             // Compute the diffuse contribution
-            diffuse = effectiveColor.multiplyScalar(self.diffuse * lightDotNormal)
+            diffuse = effectiveColor.multiplyScalar(self.properties.diffuse * lightDotNormal)
 
             // reflect_dot_eye represents the cosine of the angle between the
             // reflection vector and the eye vector. A negative number means the
@@ -176,8 +178,8 @@ public class Material {
                 specular = .black
             } else {
                 // Compute the specular contribution
-                let factor = pow(reflectDotEye, self.shininess)
-                specular = lightColor.multiplyScalar(self.specular * factor)
+                let factor = pow(reflectDotEye, self.properties.shininess)
+                specular = lightColor.multiplyScalar(self.properties.specular * factor)
             }
         }
         diffuse = diffuse.multiplyScalar(intensity)

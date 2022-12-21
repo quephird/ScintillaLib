@@ -21,7 +21,7 @@ func testWorld() -> World {
             Point(0, 0, 0),
             Vector(0, 1, 0)))
         Sphere()
-            .material(.solidColor(Color(0.8, 1.0, 0.6))
+            .material(SolidColor(0.8, 1.0, 0.6)
                 .ambient(0.1)
                 .diffuse(0.7)
                 .specular(0.2)
@@ -176,7 +176,7 @@ class WorldTests: XCTestCase {
                 Point(0, 0, 0),
                 Vector(0, 1, 0)))
             Sphere()
-                .material(.solidColor(Color(0.8, 1.0, 0.6))
+                .material(SolidColor(0.8, 1.0, 0.6)
                     .ambient(0.1)
                     .diffuse(0.7)
                     .specular(0.2)
@@ -212,7 +212,7 @@ class WorldTests: XCTestCase {
                 Point(0, 0, 0),
                 Vector(0, 1, 0)))
             Sphere()
-                .material(.solidColor(Color(0.8, 1.0, 0.6))
+                .material(SolidColor(0.8, 1.0, 0.6)
                     .ambient(0.1)
                     .diffuse(0.7)
                     .specular(0.2)
@@ -238,7 +238,7 @@ class WorldTests: XCTestCase {
     func testReflectedColorForNonreflectiveMaterial() {
         let world = testWorld()
         let secondShape = world.objects[1]
-        secondShape.material.ambient = 1
+        secondShape.material.properties.ambient = 1
 
         let ray = Ray(Point(0, 0, 0), Vector(0, 0, 1))
         let intersection = Intersection(1, secondShape)
@@ -315,9 +315,9 @@ class WorldTests: XCTestCase {
     func testRefractedColorAtMaximumRecursiveDepth() throws {
         let world = testWorld()
         let firstShape = world.objects[0]
-        let material = Material.basicMaterial()
-        material.transparency = 1.0
-        material.refractive = 1.5
+        let material = SolidColor.basicMaterial()
+            .transparency(1.0)
+            .refractive(1.5)
         firstShape.material = material
         let ray = Ray(Point(0, 0, -5), Vector(0, 0, 1))
         let allIntersections = [
@@ -333,9 +333,9 @@ class WorldTests: XCTestCase {
     func testRefractedColorUnderTotalInternalReflection() throws {
         let world = testWorld()
         let firstShape = world.objects[0]
-        let material = Material.basicMaterial()
-        material.transparency = 1.0
-        material.refractive = 1.5
+        let material = SolidColor.basicMaterial()
+            .transparency(1.0)
+            .refractive(1.5)
         firstShape.material = material
         let ray = Ray(Point(0, 0, sqrt(2)/2), Vector(0, 1, 0))
         let allIntersections = [
@@ -349,9 +349,9 @@ class WorldTests: XCTestCase {
     }
 
     func testRefractedColorWithRefractedRay() throws {
-        class Test: ScintillaLib.Pattern {
-            override init(_ transform: Matrix4) {
-                super.init(transform)
+        class TestPattern: ScintillaLib.Pattern {
+            override init(_ transform: Matrix4, _ properties: MaterialProperties = MaterialProperties()) {
+                super.init(transform, properties)
             }
 
             override func colorAt(_ patternPoint: Tuple4) -> Color {
@@ -361,15 +361,14 @@ class WorldTests: XCTestCase {
 
         let world = testWorld()
         let shapeA = world.objects[0]
-        let materialA = Material.basicMaterial()
-        materialA.colorStrategy = .pattern(Test(.identity))
-        materialA.ambient = 1.0
+        let materialA = TestPattern(.identity)
+            .ambient(1.0)
         shapeA.material = materialA
 
         let shapeB = world.objects[1]
-        let materialB = Material.basicMaterial()
-        materialB.transparency = 1.0
-        materialB.refractive = 1.5
+        let materialB = SolidColor.basicMaterial()
+            .transparency(1.0)
+            .refractive(1.5)
         shapeB.material = materialB
 
         let ray = Ray(Point(0, 0, 0.1), Vector(0, 1, 0))
@@ -393,7 +392,7 @@ class WorldTests: XCTestCase {
                 .refractive(1.5))
             .translate(0, -1, 0)
         let ball = Sphere()
-            .material(.solidColor(Color(1, 0, 0))
+            .material(SolidColor(1, 0, 0)
                 .ambient(0.5))
             .translate(0, -3.5, -0.5)
         world.objects.append(contentsOf: [floor, ball])
@@ -408,7 +407,9 @@ class WorldTests: XCTestCase {
     }
 
     func testSchlickReflectanceForTotalInternalReflection() throws {
-        let glass = Material(.solidColor(.white), 0.1, 0.9, 0.9, 200, 0.0, 1.0, 1.5)
+        let glass = SolidColor(1.0, 1.0, 1.0)
+            .transparency(1.0)
+            .refractive(1.5)
         let glassySphere = Sphere().material(glass)
         let world = World {
             PointLight(Point(-10, 10, -10))
@@ -431,7 +432,9 @@ class WorldTests: XCTestCase {
     }
 
     func testSchlickReflectanceForPerpendicularRay() throws {
-        let glass = Material(.solidColor(.white), 0.1, 0.9, 0.9, 200, 0.0, 1.0, 1.5)
+        let glass = SolidColor(1.0, 1.0, 1.0)
+            .transparency(1.0)
+            .refractive(1.5)
         let glassySphere = Sphere().material(glass)
         let world = World {
             PointLight(Point(-10, 10, -10))
@@ -454,7 +457,9 @@ class WorldTests: XCTestCase {
     }
 
     func testSchlickReflectanceForSmallAngleAndN2GreaterThanN1() throws {
-        let glass = Material(.solidColor(.white), 0.1, 0.9, 0.9, 200, 0.0, 1.0, 1.5)
+        let glass = SolidColor(1.0, 1.0, 1.0)
+            .transparency(1.0)
+            .refractive(1.5)
         let glassySphere = Sphere().material(glass)
         let world = World {
             PointLight(Point(-10, 10, -10))
@@ -484,7 +489,7 @@ class WorldTests: XCTestCase {
             .translate(0, -1, 0)
 
         let ball = Sphere()
-            .material(.solidColor(Color(1, 0, 0))
+            .material(SolidColor(1, 0, 0)
                 .ambient(0.5))
             .translate(0, -3.5, -0.5)
 

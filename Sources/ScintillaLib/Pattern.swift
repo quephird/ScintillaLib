@@ -7,16 +7,21 @@
 
 import Foundation
 
-public class Pattern {
+public class Pattern: Material {
     var transform: Matrix4
     var inverseTransform: Matrix4
+    public var properties = MaterialProperties()
 
-    public init(_ transform: Matrix4) {
+    public init(_ transform: Matrix4, _ properties: MaterialProperties) {
         self.transform = transform
         self.inverseTransform = transform.inverse()
     }
 
-    func colorAt( _ object: Shape, _ worldPoint: Point) -> Color {
+    public func copy() -> Self {
+        fatalError("Subclasses must override this method!")
+    }
+
+    public func colorAt( _ object: Shape, _ worldPoint: Point) -> Color {
         let objectPoint = object.inverseTransform.multiply(worldPoint)
         let patternPoint = self.inverseTransform.multiply(objectPoint)
         return self.colorAt(patternPoint)
@@ -27,14 +32,18 @@ public class Pattern {
     }
 }
 
-public class Striped: Pattern {
+final public class Striped: Pattern {
     var firstColor: Color
     var secondColor: Color
 
-    public init(_ firstColor: Color, _ secondColor: Color, _ transform: Matrix4) {
+    public init(_ firstColor: Color, _ secondColor: Color, _ transform: Matrix4, properties: MaterialProperties = MaterialProperties()) {
         self.firstColor = firstColor
         self.secondColor = secondColor
-        super.init(transform)
+        super.init(transform, properties)
+    }
+
+    public override func copy() -> Self {
+        return .init(firstColor, secondColor, transform, properties: properties)
     }
 
     override func colorAt(_ patternPoint: Tuple4) -> Color {
@@ -46,14 +55,18 @@ public class Striped: Pattern {
     }
 }
 
-public class Checkered2D: Pattern {
+final public class Checkered2D: Pattern {
     var firstColor: Color
     var secondColor: Color
 
-    public init(_ firstColor: Color, _ secondColor: Color, _ transform: Matrix4) {
+    public init(_ firstColor: Color, _ secondColor: Color, _ transform: Matrix4, properties: MaterialProperties = MaterialProperties()) {
         self.firstColor = firstColor
         self.secondColor = secondColor
-        super.init(transform)
+        super.init(transform, properties)
+    }
+
+    public override func copy() -> Self {
+        return .init(firstColor, secondColor, transform, properties: properties)
     }
 
     override func colorAt(_ patternPoint: Tuple4) -> Color {
@@ -65,14 +78,18 @@ public class Checkered2D: Pattern {
     }
 }
 
-public class Checkered3D: Pattern {
+final public class Checkered3D: Pattern {
     var firstColor: Color
     var secondColor: Color
 
-    public init(_ firstColor: Color, _ secondColor: Color, _ transform: Matrix4) {
+    public init(_ firstColor: Color, _ secondColor: Color, _ transform: Matrix4, properties: MaterialProperties = MaterialProperties()) {
         self.firstColor = firstColor
         self.secondColor = secondColor
-        super.init(transform)
+        super.init(transform, properties)
+    }
+
+    public override func copy() -> Self {
+        return .init(firstColor, secondColor, transform, properties: properties)
     }
 
     override func colorAt(_ patternPoint: Tuple4) -> Color {
@@ -84,14 +101,18 @@ public class Checkered3D: Pattern {
     }
 }
 
-public class Gradient: Pattern {
+final public class Gradient: Pattern {
     var firstColor: Color
     var secondColor: Color
 
-    public init(_ firstColor: Color, _ secondColor: Color, _ transform: Matrix4) {
+    public init(_ firstColor: Color, _ secondColor: Color, _ transform: Matrix4, properties: MaterialProperties = MaterialProperties()) {
         self.firstColor = firstColor
         self.secondColor = secondColor
-        super.init(transform)
+        super.init(transform, properties)
+    }
+
+    public override func copy() -> Self {
+        return .init(firstColor, secondColor, transform, properties: properties)
     }
 
     override func colorAt(_ patternPoint: Tuple4) -> Color {
