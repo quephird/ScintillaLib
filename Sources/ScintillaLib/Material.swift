@@ -60,8 +60,8 @@ extension Material where Self == Pattern {
 }
 
 extension Material where Self == ColorFunction {
-    public static func colorFunction(_ colorFunction: @escaping ColorFunctionType) -> Self {
-        return ColorFunction(colorFunction)
+    public static func colorFunction(_ colorFunction: @escaping ColorFunctionType, _ colorSpace: ColorSpace = .rgb) -> Self {
+        return ColorFunction(colorFunction, colorSpace)
     }
 }
 

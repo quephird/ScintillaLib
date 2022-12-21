@@ -11,12 +11,14 @@ public struct ColorFunction: Material {
     var transform: Matrix4
     var inverseTransform: Matrix4
     var colorFunction: ColorFunctionType
+    var colorSpace: ColorSpace
     public var properties = MaterialProperties()
 
-    public init(_ colorFunction: @escaping ColorFunctionType) {
+    public init(_ colorFunction: @escaping ColorFunctionType, _ colorSpace: ColorSpace = .rgb) {
         self.colorFunction = colorFunction
         self.transform = .identity
         self.inverseTransform = transform.inverse()
+        self.colorSpace = colorSpace
     }
 
     public func copy() -> ColorFunction {
@@ -41,7 +43,13 @@ public struct ColorFunction: Material {
     }
 
     func colorAt(_ point: Tuple4) -> Color {
-        let (r, g, b) = colorFunction(point.x, point.y, point.z)
-        return Color(r, g, b)
+        let (component1, component2, component3) = colorFunction(point.x, point.y, point.z)
+        switch colorSpace {
+        case .rgb:
+            return Color(component1, component2, component3)
+        case .hsl:
+            let (r, g, b) = Color.toRgb(component1, component2, component3)
+            return Color(r, g, b)
+        }
     }
 }
