@@ -36,7 +36,6 @@ public struct MaterialProperties {
 
 }
 
-//public class Material {
 public protocol Material {
     func copy() -> Self
     func colorAt(_ object: Shape, _ worldPoint: Point) -> Color
@@ -48,8 +47,8 @@ extension Material where Self == SolidColor {
         return SolidColor(1, 1, 1)
     }
 
-    public static func solidColor(_ r: Double, _ g: Double, _ b: Double) -> Self {
-        return SolidColor(r, b, g)
+    public static func solidColor(_ r: Double, _ g: Double, _ b: Double, _ colorSpace: ColorSpace = .rgb) -> Self {
+        return SolidColor(r, g, b, colorSpace)
     }
 }
 
@@ -60,8 +59,8 @@ extension Material where Self == Pattern {
 }
 
 extension Material where Self == ColorFunction {
-    public static func colorFunction(_ colorFunction: @escaping ColorFunctionType) -> Self {
-        return ColorFunction(colorFunction)
+    public static func colorFunction(_ colorSpace: ColorSpace = .rgb, _ colorFunction: @escaping ColorFunctionType) -> Self {
+        return ColorFunction(colorSpace, colorFunction)
     }
 }
 
@@ -103,14 +102,6 @@ extension Material {
     func lighting(_ light: Light, _ object: Shape, _ point: Point, _ eye: Vector, _ normal: Vector, _ intensity: Double) -> Color {
         // Combine the surface color with the light's color/intensity
         var effectiveColor: Color = colorAt(object, point)
-//        switch self.colorStrategy {
-//        case .solidColor(let color):
-//            effectiveColor = color
-//        case .pattern(let pattern):
-//            effectiveColor = pattern.colorAt(object, point)
-//        case .colorFunction(let colorFunction):
-//            effectiveColor = colorFunction.colorAt(object, point)
-//        }
         effectiveColor = effectiveColor.hadamard(light.color)
 
         // Compute the ambient contribution

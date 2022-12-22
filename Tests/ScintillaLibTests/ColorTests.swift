@@ -34,4 +34,21 @@ class ColorTests: XCTestCase {
         let expectedValue = Color(0.9, 0.2, 0.04)
         XCTAssert(c1.hadamard(c2).isAlmostEqual(expectedValue))
     }
+
+    func testFromHsl() throws {
+        for ((h, s, l), (r, g, b)) in [
+            ((0.0, 1.0, 0.5), (1.0, 0.0, 0.0)), // Red
+            ((1.0/12.0, 1.0, 0.5), (1.0, 0.5, 0.0)), // Orange
+            ((1.0/6.0, 1.0, 0.5), (1.0, 1.0, 0.0)), // Yellow
+            ((1.0/3.0, 1.0, 0.5), (0.0, 1.0, 0.0)), // Green
+            ((2.0/3.0, 1.0, 0.5), (0.0, 0.0, 1.0)), // Blue
+            ((0.833333, 1.0, 0.5), (1.0, 0.0, 1.0)), // Magenta
+            ((0.0, 0.0, 0.0), (0.0, 0.0, 0.0)), // Black
+            ((0.0, 0.0, 1.0), (1.0, 1.0, 1.0)), // White
+        ] {
+            let actualValue = Color.fromHsl(h, s, l)
+            let expectedValue = Color(r, g, b)
+            XCTAssert(actualValue.isAlmostEqual(expectedValue))
+        }
+    }
 }

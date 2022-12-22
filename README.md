@@ -337,6 +337,28 @@ Cube()
 
 ![](images/ColorFunction.png)
 
+Colors can be expressed in both RGB and HSL color spaces. By default, colors are constructed in the RGB color space; if you want to use the HSL space for a material with a solid color, you can pass in the `.hsl` enum case like in the following:
+
+```swift
+Sphere()
+    .translate(0, 1, 0)
+    .material(.solidColor(0.5, 1.0, 0.5, .hsl))
+```
+
+![](images/SolidColorHsl.png)
+
+You can also use the HSL color space for a material that uses a color function, like this:
+
+```swift
+Sphere()
+    .material(.colorFunction(.hsl) { x, y, z in
+        ((atan(z/x)+PI/2.0)/PI, 1.0, 0.5)
+    })
+
+```
+
+![](images/ColorFunctionHsl.png)
+
 ## Constructive solid geometry
 
 There are three supported operations for combining various shapes:
