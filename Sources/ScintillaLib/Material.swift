@@ -36,7 +36,6 @@ public struct MaterialProperties {
 
 }
 
-//public class Material {
 public protocol Material {
     func copy() -> Self
     func colorAt(_ object: Shape, _ worldPoint: Point) -> Color
@@ -48,8 +47,8 @@ extension Material where Self == SolidColor {
         return SolidColor(1, 1, 1)
     }
 
-    public static func solidColor(_ r: Double, _ g: Double, _ b: Double) -> Self {
-        return SolidColor(r, g, b)
+    public static func solidColor(_ r: Double, _ g: Double, _ b: Double, _ colorSpace: ColorSpace = .rgb) -> Self {
+        return SolidColor(r, g, b, colorSpace)
     }
 }
 

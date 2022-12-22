@@ -9,11 +9,13 @@ public struct SolidColor: Material {
     var color: Color
     public var properties = MaterialProperties()
 
-    public static let white = SolidColor(1.0, 1.0, 1.0)
-    public static let black = SolidColor(0.0, 0.0, 0.0)
-
-    public init(_ r: Double, _ g: Double, _ b: Double, properties: MaterialProperties = MaterialProperties()) {
-        self.color = Color(r, g, b)
+    public init(
+        _ component1: Double,
+        _ component2: Double,
+        _ component3: Double,
+        _ colorSpace: ColorSpace = .rgb,
+        _ properties: MaterialProperties = MaterialProperties()) {
+        self.color = colorSpace.makeColor(component1, component2, component3)
     }
 
     public func colorAt(_ object: Shape, _ worldPoint: Point) -> Color {
@@ -21,6 +23,6 @@ public struct SolidColor: Material {
     }
 
     public func copy() -> SolidColor {
-        SolidColor(self.color.r, self.color.g, self.color.b, properties: self.properties)
+        SolidColor(self.color.r, self.color.g, self.color.b, .rgb, self.properties)
     }
 }
