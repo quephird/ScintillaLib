@@ -11,6 +11,7 @@ public enum ColorSpace {
     case rgb
     case hsl
 
+    // All three components are expected to lie in the range [0, 1] in both color spaces
     func makeColor(_ component1: Double, _ component2: Double, _ component3: Double) -> Color {
         switch self {
         case .rgb:
@@ -36,7 +37,7 @@ public enum ColorSpace {
                 (r, g, b) = (0.0, x, c)
             } else if H < 5 {
                 (r, g, b) = (x, 0.0, c)
-            } else if H < 6 {
+            } else if H <= 6 {
                 (r, g, b) = (c, 0.0, x)
             }
 
@@ -53,12 +54,14 @@ public struct Color {
     public static let white = Color(1.0, 1.0, 1.0)
     public static let black = Color(0.0, 0.0, 0.0)
 
+    // All three components are expected to lie in the range [0, 1]
     public init(_ r: Double, _ g: Double, _ b: Double) {
         self.r = r
         self.g = g
         self.b = b
     }
 
+    // All three components are expected to lie in the range [0, 1]
     static func fromHsl(_ h: Double, _ s: Double, _ l: Double) -> Self {
         return ColorSpace.hsl.makeColor(h, s, l)
     }
