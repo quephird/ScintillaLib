@@ -20,11 +20,11 @@ import ScintillaLib
 @main
 struct QuickStart: ScintillaApp {
     var body = World {
-        PointLight(point(-10, 10, -10))
+        PointLight(Point(-10, 10, -10))
         Camera(400, 400, PI/3, .view(
-            point(0, 2, -2),
-            point(0, 0, 0),
-            vector(0, 1, 0)))
+            Point(0, 2, -2),
+            Point(0, 0, 0),
+            Vector(0, 1, 0)))
         Sphere()
             .material(.solidColor(1, 0, 0))
     }
@@ -99,14 +99,14 @@ import ScintillaLib
 @main
 struct MyWorld: ScintillaApp {
     var body = World {
-        PointLight(point(-10, 10, -10))
+        PointLight(Point(-10, 10, -10))
         Camera(400, 400, PI/3, .view(
-            point(0, 0, -5),
-            point(0, 0, 0),
-            vector(0, 1, 0)))
-        ImplicitSurface(((-2, -2, -2), (2, 2, 2))) { x, y, z in
+            Point(0, 0, -5),
+            Point(0, 0, 0),
+            Vector(0, 1, 0)))
+        ImplicitSurface((-2, -2, -2), (2, 2, 2), { x, y, z in
             x*x + y*y + z*z + sin(4*x) + sin(4*y) + sin(4*z) - 1
-        }
+        })
             .material(.solidColor(0.2, 1, 0.5))
     }
 }
