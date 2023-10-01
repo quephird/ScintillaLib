@@ -140,7 +140,7 @@ struct MyImplicitSurface: ScintillaApp {
         ImplicitSurface((0.0, 0.0, 0.0), 2.0) { x, y, z in
             4.0*(φ*φ*x*x-y*y)*(φ*φ*y*y-z*z)*(φ*φ*z*z-x*x) - (1.0+2.0*φ)*(x*x+y*y+z*z-1.0)*(x*x+y*y+z*z-1.0)
         }
-            .material(.solidColor(0.4, 0.5, 0.7))
+            .material(.solidColor(0.9, 0.9, 0.0))
     }
 }
 

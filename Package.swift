@@ -39,5 +39,9 @@ let package = Package(
             name: "Blob",
             dependencies: ["ScintillaLib"],
             path: "Examples/Blob"),
+        .executableTarget(
+            name: "BarthSextic",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/BarthSextic"),
     ]
 )
