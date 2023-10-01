@@ -161,7 +161,6 @@ Superellisoids are a family of surfaces with a wide range of diversity of shapes
 Below is a rendering of an array of superellipsoids, each with a distinct combination of values for `e` and `n`:
 
 ```swift
-import Darwin
 import ScintillaLib
 
 @main

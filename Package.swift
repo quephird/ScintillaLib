@@ -43,5 +43,9 @@ let package = Package(
             name: "BarthSextic",
             dependencies: ["ScintillaLib"],
             path: "Examples/BarthSextic"),
+        .executableTarget(
+            name: "Superellipsoids",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/Superellipsoids"),
     ]
 )
