@@ -51,5 +51,9 @@ let package = Package(
             name: "StarPrism",
             dependencies: ["ScintillaLib"],
             path: "Examples/StarPrism"),
+        .executableTarget(
+            name: "Vase",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/Vase"),
     ]
 )

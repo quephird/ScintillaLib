@@ -234,7 +234,6 @@ Scintilla also makes available a surface-of-revolution shape. It takes up to two
 Upon rendering, Scintilla computes a piecewise-continuous cubic spline function connecting the vertices, and effectively rotates that curve around the y-axis. This shape is very useful for creating things like vases or other curvy objects, like the one shown below.
 
 ```swift
-import Darwin
 import ScintillaLib
 
 @main
