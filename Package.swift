@@ -55,5 +55,9 @@ let package = Package(
             name: "Vase",
             dependencies: ["ScintillaLib"],
             path: "Examples/Vase"),
+        .executableTarget(
+            name: "RainbowBall",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/RainbowBall"),
     ]
 )
