@@ -198,17 +198,16 @@ Another `Shape` type that is available in Scintilla is the `Prism` object. To us
 The shape is extruded along the y-axis starting from the base y-value to the top one. Here is an example of a star-based prism:
 
 ```swift
-import Darwin
 import ScintillaLib
 
 @main
 struct PrismScene: ScintillaApp {
     var body: World {
-        PointLight(point(-5, 5, -5))
+        PointLight(Point(-5, 5, -5))
         Camera(400, 400, PI/3, .view(
-            point(0, 5, -5),
-            point(0, 1, 0),
-            vector(0, 1, 0)))
+            Point(0, 5, -5),
+            Point(0, 1, 0),
+            Vector(0, 1, 0)))
         Prism(
             0.0, 2.0,
             [(1.0, 0.0), (1.5, 0.5), (0.5, 0.5), (0.0, 1.0), (-0.5, 0.5),

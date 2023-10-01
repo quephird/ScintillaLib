@@ -47,5 +47,9 @@ let package = Package(
             name: "Superellipsoids",
             dependencies: ["ScintillaLib"],
             path: "Examples/Superellipsoids"),
+        .executableTarget(
+            name: "StarPrism",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/StarPrism"),
     ]
 )
