@@ -16,13 +16,56 @@ let package = Package(
         // .package(url: /* package url */, from: "1.0.0"),
     ],
     targets: [
-        // Targets are the basic building blocks of a package. A target can define a module or a test suite.
-        // Targets can depend on other targets in this package, and on products in packages this package depends on.
+        // Core library.
         .target(
             name: "ScintillaLib",
             dependencies: []),
+
+        // Tests
         .testTarget(
             name: "ScintillaLibTests",
             dependencies: ["ScintillaLib"]),
+
+        // Examples
+        .executableTarget(
+            name: "QuickStart",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/QuickStart"),
+        .executableTarget(
+            name: "Die",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/Die"),
+        .executableTarget(
+            name: "Blob",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/Blob"),
+        .executableTarget(
+            name: "BarthSextic",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/BarthSextic"),
+        .executableTarget(
+            name: "Superellipsoids",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/Superellipsoids"),
+        .executableTarget(
+            name: "StarPrism",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/StarPrism"),
+        .executableTarget(
+            name: "Vase",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/Vase"),
+        .executableTarget(
+            name: "RainbowBall",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/RainbowBall"),
+        .executableTarget(
+            name: "HollowedSphere",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/HollowedSphere"),
+        .executableTarget(
+            name: "BallWithAreaLight",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/BallWithAreaLight"),
     ]
 )

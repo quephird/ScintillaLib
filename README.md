@@ -20,11 +20,11 @@ import ScintillaLib
 @main
 struct QuickStart: ScintillaApp {
     var body = World {
-        PointLight(point(-10, 10, -10))
+        PointLight(Point(-10, 10, -10))
         Camera(400, 400, PI/3, .view(
-            point(0, 2, -2),
-            point(0, 0, 0),
-            vector(0, 1, 0)))
+            Point(0, 2, -2),
+            Point(0, 0, 0),
+            Vector(0, 1, 0)))
         Sphere()
             .material(.solidColor(1, 0, 0))
     }
@@ -99,14 +99,14 @@ import ScintillaLib
 @main
 struct MyWorld: ScintillaApp {
     var body = World {
-        PointLight(point(-10, 10, -10))
+        PointLight(Point(-10, 10, -10))
         Camera(400, 400, PI/3, .view(
-            point(0, 0, -5),
-            point(0, 0, 0),
-            vector(0, 1, 0)))
-        ImplicitSurface(((-2, -2, -2), (2, 2, 2))) { x, y, z in
+            Point(0, 0, -5),
+            Point(0, 0, 0),
+            Vector(0, 1, 0)))
+        ImplicitSurface((-2, -2, -2), (2, 2, 2), { x, y, z in
             x*x + y*y + z*z + sin(4*x) + sin(4*y) + sin(4*z) - 1
-        }
+        })
             .material(.solidColor(0.2, 1, 0.5))
     }
 }
@@ -140,7 +140,7 @@ struct MyImplicitSurface: ScintillaApp {
         ImplicitSurface((0.0, 0.0, 0.0), 2.0) { x, y, z in
             4.0*(φ*φ*x*x-y*y)*(φ*φ*y*y-z*z)*(φ*φ*z*z-x*x) - (1.0+2.0*φ)*(x*x+y*y+z*z-1.0)*(x*x+y*y+z*z-1.0)
         }
-            .material(.solidColor(0.4, 0.5, 0.7))
+            .material(.solidColor(0.9, 0.9, 0.0))
     }
 }
 
@@ -161,7 +161,6 @@ Superellisoids are a family of surfaces with a wide range of diversity of shapes
 Below is a rendering of an array of superellipsoids, each with a distinct combination of values for `e` and `n`:
 
 ```swift
-import Darwin
 import ScintillaLib
 
 @main
@@ -199,17 +198,16 @@ Another `Shape` type that is available in Scintilla is the `Prism` object. To us
 The shape is extruded along the y-axis starting from the base y-value to the top one. Here is an example of a star-based prism:
 
 ```swift
-import Darwin
 import ScintillaLib
 
 @main
 struct PrismScene: ScintillaApp {
     var body: World {
-        PointLight(point(-5, 5, -5))
+        PointLight(Point(-5, 5, -5))
         Camera(400, 400, PI/3, .view(
-            point(0, 5, -5),
-            point(0, 1, 0),
-            vector(0, 1, 0)))
+            Point(0, 5, -5),
+            Point(0, 1, 0),
+            Vector(0, 1, 0)))
         Prism(
             0.0, 2.0,
             [(1.0, 0.0), (1.5, 0.5), (0.5, 0.5), (0.0, 1.0), (-0.5, 0.5),
@@ -236,7 +234,6 @@ Scintilla also makes available a surface-of-revolution shape. It takes up to two
 Upon rendering, Scintilla computes a piecewise-continuous cubic spline function connecting the vertices, and effectively rotates that curve around the y-axis. This shape is very useful for creating things like vases or other curvy objects, like the one shown below.
 
 ```swift
-import Darwin
 import ScintillaLib
 
 @main
@@ -490,7 +487,6 @@ A scene rendered with a point light:
 A scene rendered with an area light at the same position as the point light above, but with 10 subdivisions along two dimensions:
 
 ```swift
-import Darwin
 import ScintillaLib
 
 @main
@@ -539,11 +535,11 @@ Lights and shapes are discussed above. A `Camera` takes the following four argum
 
 ```swift
 World {
-    PointLight(point(-10, 10, -10))
+    PointLight(Point(-10, 10, -10))
     Camera(800, 600, PI/3, .view(
-        point(0, 3, -5),
-        point(0, 0, 0),
-        vector(0, 1, 0)))
+        Point(0, 3, -5),
+        Point(0, 0, 0),
+        Vector(0, 1, 0)))
     Sphere()
         .material(.solidColor(1, 0, 0))
         .translate(-2, 0, 0)
@@ -572,11 +568,11 @@ import ScintillaLib
 @main
 struct MyWorld: ScintillaApp {
     var body = World {
-        PointLight(point(-10, 10, -10))
+        PointLight(Point(-10, 10, -10))
         Camera(800, 600, PI/3, .view(
-            point(0, 1, -2),
-            point(0, 0, 0),
-            vector(0, 1, 0)))
+            Point(0, 1, -2),
+            Point(0, 0, 0),
+            Vector(0, 1, 0)))
         Sphere()
             .material(.solidColor(0, 0, 1))
             .intersection {
@@ -615,11 +611,11 @@ import ScintillaLib
 @main
 struct CSGExample: ScintillaApp {
     var body = World {
-        PointLight(point(-10, 10, -10))
+        PointLight(Point(-10, 10, -10))
         Camera(400, 400, PI/3, .view(
-            point(0, 1.5, -2),
-            point(0, 0, 0),
-            vector(0, 1, 0)))
+            Point(0, 1.5, -2),
+            Point(0, 0, 0),
+            Vector(0, 1, 0)))
         Sphere()
             .material(.solidColor(0, 0, 1))
             .intersection {
@@ -657,6 +653,10 @@ Because rendering times are much slower with antialiasing turned out, you should
 You can have multiple scenes in a single project by adding new targets via File -> New -> Target... Just make sure that ScintillaLib is included as a library in the target; go to the project navigator, click on the project name, then the target name in the editor pane, then the General tab.
 
 ![](./images/Libraries.png)
+
+## Examples
+
+You will find quite a few example scenes in the top-level `Examples` folder of this repo. You should be able to run them directly in Xcode after after cloning and opening this repo.
 
 ## Relevant links
 
