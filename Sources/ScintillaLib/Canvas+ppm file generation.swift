@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CoreImage
+import Cocoa
 
 let MAX_PPM_LINE_WIDTH = 70
 
@@ -109,5 +109,10 @@ public extension Canvas {
                               shouldInterpolate: true,
                               intent: CGColorRenderingIntent.defaultIntent)!
         return cgImage
+    }
+
+    func toNSImage() -> NSImage {
+        let cgImage = self.toCGImage()
+        return NSImage(cgImage: cgImage, size: .init(width: self.width, height: self.height))
     }
 }
