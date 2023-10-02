@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreImage
 
 let MAX_PPM_LINE_WIDTH = 70
 
@@ -83,5 +84,30 @@ public extension Canvas {
         } catch {
             print("Could not save to file")
         }
+    }
+
+    func toCGImage() -> CGImage {
+        let height = self.height
+        let width = self.width
+        let numComponents = 3
+        let numBytes = height * width * numComponents
+        let pixelData = self.pixels.flatMap { color in
+            color.toBytes()
+        }
+        let colorspace = CGColorSpaceCreateDeviceRGB()
+        let rgbData = CFDataCreate(nil, pixelData, numBytes)!
+        let provider = CGDataProvider(data: rgbData)!
+        let cgImage = CGImage(width: width,
+                              height: height,
+                              bitsPerComponent: 8,
+                              bitsPerPixel: 8 * numComponents,
+                              bytesPerRow: width * numComponents,
+                              space: colorspace,
+                              bitmapInfo: CGBitmapInfo(rawValue: 0),
+                              provider: provider,
+                              decode: nil,
+                              shouldInterpolate: true,
+                              intent: CGColorRenderingIntent.defaultIntent)!
+        return cgImage
     }
 }
