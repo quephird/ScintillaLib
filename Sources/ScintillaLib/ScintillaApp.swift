@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Cocoa
 
 public protocol ScintillaApp {
     @WorldBuilder var body: World { get }
@@ -18,8 +19,22 @@ extension ScintillaApp {
         let instance = Self()
         let instanceBody = instance.body
         let canvas = instanceBody.render()
+        let cgImage = canvas.toCGImage()
 
-        let outputFilename = String(describing: self) + ".ppm"
-        canvas.save(to: outputFilename)
+        let ciContext = CIContext()
+        let ciImage = CIImage(cgImage: cgImage)
+        let outputFilename = String(describing: self) + ".png"
+        let fileUrl = FileManager.default.urls(
+            for: .desktopDirectory,
+            in: .userDomainMask).first!.appendingPathComponent(outputFilename)
+        do {
+            try ciContext.writePNGRepresentation(
+                of: ciImage,
+                to: fileUrl,
+                format: .RGBA8,
+                colorSpace: ciImage.colorSpace!)
+        } catch {
+            print(error)
+        }
     }
 }
