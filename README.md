@@ -654,6 +654,10 @@ You can have multiple scenes in a single project by adding new targets via File 
 
 ![](./images/Libraries.png)
 
+## Examples
+
+You will find quite a few example scenes in the top-level `Examples` folder of this repo. You should be able to run them directly in Xcode after after cloning and opening this repo.
+
 ## Relevant links
 
 * The Ray Tracer Challenge by Jamis Buck  
