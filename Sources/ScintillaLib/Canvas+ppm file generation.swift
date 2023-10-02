@@ -86,6 +86,7 @@ public extension Canvas {
         }
     }
 
+    // Adapted from https://stackoverflow.com/questions/30958427/pixel-array-to-uiimage-in-swift
     func toCGImage() -> CGImage {
         let height = self.height
         let width = self.width

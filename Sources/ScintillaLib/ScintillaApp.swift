@@ -19,8 +19,9 @@ extension ScintillaApp {
         let instance = Self()
         let instanceBody = instance.body
         let canvas = instanceBody.render()
-        let cgImage = canvas.toCGImage()
 
+        // Adapted from https://stackoverflow.com/questions/1320988/saving-cgimageref-to-a-png-file
+        let cgImage = canvas.toCGImage()
         let ciContext = CIContext()
         let ciImage = CIImage(cgImage: cgImage)
         let outputFilename = String(describing: self) + ".png"
