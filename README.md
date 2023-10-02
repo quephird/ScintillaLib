@@ -535,11 +535,11 @@ Lights and shapes are discussed above. A `Camera` takes the following four argum
 
 ```swift
 World {
-    PointLight(point(-10, 10, -10))
+    PointLight(Point(-10, 10, -10))
     Camera(800, 600, PI/3, .view(
-        point(0, 3, -5),
-        point(0, 0, 0),
-        vector(0, 1, 0)))
+        Point(0, 3, -5),
+        Point(0, 0, 0),
+        Vector(0, 1, 0)))
     Sphere()
         .material(.solidColor(1, 0, 0))
         .translate(-2, 0, 0)
@@ -568,11 +568,11 @@ import ScintillaLib
 @main
 struct MyWorld: ScintillaApp {
     var body = World {
-        PointLight(point(-10, 10, -10))
+        PointLight(Point(-10, 10, -10))
         Camera(800, 600, PI/3, .view(
-            point(0, 1, -2),
-            point(0, 0, 0),
-            vector(0, 1, 0)))
+            Point(0, 1, -2),
+            Point(0, 0, 0),
+            Vector(0, 1, 0)))
         Sphere()
             .material(.solidColor(0, 0, 1))
             .intersection {
@@ -611,11 +611,11 @@ import ScintillaLib
 @main
 struct CSGExample: ScintillaApp {
     var body = World {
-        PointLight(point(-10, 10, -10))
+        PointLight(Point(-10, 10, -10))
         Camera(400, 400, PI/3, .view(
-            point(0, 1.5, -2),
-            point(0, 0, 0),
-            vector(0, 1, 0)))
+            Point(0, 1.5, -2),
+            Point(0, 0, 0),
+            Vector(0, 1, 0)))
         Sphere()
             .material(.solidColor(0, 0, 1))
             .intersection {
