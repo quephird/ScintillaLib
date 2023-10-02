@@ -63,5 +63,9 @@ let package = Package(
             name: "HollowedSphere",
             dependencies: ["ScintillaLib"],
             path: "Examples/HollowedSphere"),
+        .executableTarget(
+            name: "BallWithAreaLight",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/BallWithAreaLight"),
     ]
 )

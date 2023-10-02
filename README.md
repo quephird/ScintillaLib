@@ -487,7 +487,6 @@ A scene rendered with a point light:
 A scene rendered with an area light at the same position as the point light above, but with 10 subdivisions along two dimensions:
 
 ```swift
-import Darwin
 import ScintillaLib
 
 @main
