@@ -77,17 +77,8 @@ public extension Canvas {
         return ppm
     }
 
-    func save(to fileName: String) {
-        let filePath = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first!.appendingPathComponent(fileName)
-        do {
-            try self.toPPM().write(to: filePath, atomically: true, encoding: .utf8)
-        } catch {
-            print("Could not save to file")
-        }
-    }
-
-    // Adapted from https://stackoverflow.com/questions/30958427/pixel-array-to-uiimage-in-swift
     func toCGImage() -> CGImage {
+        // Adapted from https://stackoverflow.com/questions/30958427/pixel-array-to-uiimage-in-swift
         let height = self.height
         let width = self.width
         let numComponents = 3
@@ -115,5 +106,25 @@ public extension Canvas {
     func toNSImage() -> NSImage {
         let cgImage = self.toCGImage()
         return NSImage(cgImage: cgImage, size: .init(width: self.width, height: self.height))
+    }
+
+    func save(to fileName: String) {
+        // Adapted from https://stackoverflow.com/questions/1320988/saving-cgimageref-to-a-png-file
+        let cgImage = self.toCGImage()
+        let ciContext = CIContext()
+        let ciImage = CIImage(cgImage: cgImage)
+        // TODO: Clean this up a little bit
+        let fileUrl = FileManager.default.urls(
+            for: .desktopDirectory,
+            in: .userDomainMask).first!.appendingPathComponent(fileName)
+        do {
+            try ciContext.writePNGRepresentation(
+                of: ciImage,
+                to: fileUrl,
+                format: .RGBA8,
+                colorSpace: ciImage.colorSpace!)
+        } catch {
+            print(error)
+        }
     }
 }
