@@ -113,17 +113,22 @@ public extension Canvas {
         let cgImage = self.toCGImage()
         let ciContext = CIContext()
         let ciImage = CIImage(cgImage: cgImage)
-        // TODO: Clean this up a little bit
-        let fileUrl = FileManager.default.urls(
-            for: .desktopDirectory,
-            in: .userDomainMask).first!.appendingPathComponent(fileName)
+
         do {
+            let desktopDirectoryUrl = try FileManager.default.url(
+                for: .desktopDirectory,
+                in: .userDomainMask,
+                appropriateFor: nil,
+                create: false)
+            let fileUrl = desktopDirectoryUrl.appendingPathComponent(fileName)
+
             try ciContext.writePNGRepresentation(
                 of: ciImage,
                 to: fileUrl,
                 format: .RGBA8,
                 colorSpace: ciImage.colorSpace!)
         } catch {
+            // TODO: Need better error handling here
             print(error)
         }
     }
