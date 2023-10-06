@@ -8,7 +8,7 @@
 import SwiftUI
 import ScintillaLib
 
-@available(macOS 11.0, *)
+@available(macOS 12.0, *)
 @main
 struct Main: ScintillaApp {
     @WorldBuilder var world: World {

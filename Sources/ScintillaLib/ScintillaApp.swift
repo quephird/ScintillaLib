@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  ScintillaApp.swift
+//
 //
 //  Created by Danielle Kefford on 9/24/22.
 //
@@ -30,15 +30,3 @@ import SwiftUI
 public protocol ScintillaApp: App {
     @WorldBuilder var world: World { get }
 }
-
-//@available(macOS 11.0, *)
-//extension ScintillaApp {
-//    var body: some Scene {
-//        WindowGroup {
-//            ScintillaView(world: world)
-//                .onDisappear {
-//                    exit(0)
-//                }
-//        }
-//    }
-//}

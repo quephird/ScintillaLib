@@ -1,15 +1,15 @@
 //
-//  File.swift
-//  
+//  ScintillaView.swift
+//
 //
 //  Created by Danielle Kefford on 10/5/23.
 //
 
 import SwiftUI
 
-@available(macOS 10.15, *)
+@available(macOS 12.0, *)
 public struct ScintillaView: View {
-    @State private var image: Image?
+    @State private var nsImage: NSImage?
 
     @WorldBuilder var world: World
 
@@ -19,17 +19,18 @@ public struct ScintillaView: View {
 
     public var body: some View {
         VStack {
-            image?
-                .resizable()
-                .scaledToFit()
+            if let nsImage = self.nsImage {
+                Image(nsImage: nsImage)
+            } else {
+                Text("Rendering...")
+            }
+        }.task {
+            await self.renderImage()
         }
-        .onAppear(perform: loadImage)
     }
 
-    func loadImage() {
-        print("Rendering...")
+    func renderImage() async {
         let canvas = world.render()
-        print("Done!!!")
-        image = Image(nsImage: canvas.toNSImage())
+        self.nsImage = canvas.toNSImage()
     }
 }
