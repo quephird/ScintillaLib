@@ -7,7 +7,7 @@
 
 import ScintillaLib
 
-@main
+//@main
 struct BallWithAreaLight: ScintillaApp {
     var body: World {
         AreaLight(
