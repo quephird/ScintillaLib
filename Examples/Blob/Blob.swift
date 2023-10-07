@@ -8,9 +8,10 @@
 import Darwin
 import ScintillaLib
 
+@available(macOS 12.0, *)
 @main
 struct Blob: ScintillaApp {
-    var body = World {
+    var world = World {
         PointLight(Point(-10, 10, -10))
         Camera(400, 400, PI/3, .view(
             Point(0, 0, -5),

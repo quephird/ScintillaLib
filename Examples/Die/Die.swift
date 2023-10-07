@@ -7,9 +7,10 @@
 
 import ScintillaLib
 
+@available(macOS 12.0, *)
 @main
 struct Die: ScintillaApp {
-    var body: World {
+    var world: World {
         let orange: Material = .solidColor(1, 0.5, 0)
             .reflective(0.2)
 
