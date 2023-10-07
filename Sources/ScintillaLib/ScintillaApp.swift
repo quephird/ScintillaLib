@@ -26,7 +26,19 @@
 
 import SwiftUI
 
-@available(macOS 11.0, *)
+@available(macOS 12.0, *)
 public protocol ScintillaApp: App {
     @WorldBuilder var world: World { get }
+}
+
+@available(macOS 12.0, *)
+public extension ScintillaApp {
+    var body: some Scene {
+        WindowGroup {
+            ScintillaView(world: world)
+                .onDisappear {
+                    exit(0)
+                }
+        }
+    }
 }

@@ -26,13 +26,4 @@ struct Main: ScintillaApp {
         Plane()
             .material(.solidColor(1, 1, 1))
     }
-
-    var body: some Scene {
-        WindowGroup {
-            ScintillaView(world: world)
-                .onDisappear {
-                    exit(0)
-                }
-        }
-    }
 }
