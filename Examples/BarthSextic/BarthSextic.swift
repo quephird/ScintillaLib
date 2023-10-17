@@ -10,9 +10,10 @@ import ScintillaLib
 
 let φ: Double = 1.61833987
 
+@available(macOS 12.0, *)
 @main
 struct BarthSextic: ScintillaApp {
-    var body: World {
+    var world: World {
         PointLight(Point(-5, 5, -5))
         Camera(400, 400, PI/3, .view(
             Point(0, 0, -5),

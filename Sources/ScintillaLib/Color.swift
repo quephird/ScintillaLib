@@ -88,8 +88,8 @@ public struct Color {
 
     func isAlmostEqual(_ to: Self) -> Bool {
         self.r.isAlmostEqual(to.r) &&
-            self.g.isAlmostEqual(to.g) &&
-            self.b.isAlmostEqual(to.b)
+        self.g.isAlmostEqual(to.g) &&
+        self.b.isAlmostEqual(to.b)
     }
 
     func clampAndScale(_ component: Double) -> Int {
@@ -108,5 +108,11 @@ public struct Color {
 
     func toPpm() -> (Int, Int, Int) {
         (clampAndScale(self.r), clampAndScale(self.g), clampAndScale(self.b))
+    }
+
+    func toBytes() -> [UInt8] {
+        [UInt8(clampAndScale(self.r)),
+         UInt8(clampAndScale(self.g)),
+         UInt8(clampAndScale(self.b))]
     }
 }

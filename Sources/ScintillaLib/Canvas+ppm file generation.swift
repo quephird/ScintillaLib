@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Cocoa
 
 let MAX_PPM_LINE_WIDTH = 70
 
@@ -76,12 +77,59 @@ public extension Canvas {
         return ppm
     }
 
+    func toCGImage() -> CGImage {
+        // Adapted from https://stackoverflow.com/questions/30958427/pixel-array-to-uiimage-in-swift
+        let height = self.height
+        let width = self.width
+        let numComponents = 3
+        let numBytes = height * width * numComponents
+        let pixelData = self.pixels.flatMap { color in
+            color.toBytes()
+        }
+        let colorspace = CGColorSpaceCreateDeviceRGB()
+        let rgbData = CFDataCreate(nil, pixelData, numBytes)!
+        let provider = CGDataProvider(data: rgbData)!
+        let cgImage = CGImage(width: width,
+                              height: height,
+                              bitsPerComponent: 8,
+                              bitsPerPixel: 8 * numComponents,
+                              bytesPerRow: width * numComponents,
+                              space: colorspace,
+                              bitmapInfo: CGBitmapInfo(rawValue: 0),
+                              provider: provider,
+                              decode: nil,
+                              shouldInterpolate: true,
+                              intent: CGColorRenderingIntent.defaultIntent)!
+        return cgImage
+    }
+
+    func toNSImage() -> NSImage {
+        let cgImage = self.toCGImage()
+        return NSImage(cgImage: cgImage, size: .init(width: self.width, height: self.height))
+    }
+
     func save(to fileName: String) {
-        let filePath = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first!.appendingPathComponent(fileName)
+        // Adapted from https://stackoverflow.com/questions/1320988/saving-cgimageref-to-a-png-file
+        let cgImage = self.toCGImage()
+        let ciContext = CIContext()
+        let ciImage = CIImage(cgImage: cgImage)
+
         do {
-            try self.toPPM().write(to: filePath, atomically: true, encoding: .utf8)
+            let desktopDirectoryUrl = try FileManager.default.url(
+                for: .desktopDirectory,
+                in: .userDomainMask,
+                appropriateFor: nil,
+                create: false)
+            let fileUrl = desktopDirectoryUrl.appendingPathComponent(fileName)
+
+            try ciContext.writePNGRepresentation(
+                of: ciImage,
+                to: fileUrl,
+                format: .RGBA8,
+                colorSpace: ciImage.colorSpace!)
         } catch {
-            print("Could not save to file")
+            // TODO: Need better error handling here
+            print(error)
         }
     }
 }

@@ -19,7 +19,7 @@ import ScintillaLib
 
 @main
 struct QuickStart: ScintillaApp {
-    var body = World {
+    var world = World {
         PointLight(Point(-10, 10, -10))
         Camera(400, 400, PI/3, .view(
             Point(0, 2, -2),
@@ -32,9 +32,12 @@ struct QuickStart: ScintillaApp {
 ```
 
 * Ensure that the project builds via Product -> Build
-* Run the project and observe that a new file, `QuickStart.ppm`, now exists on your desktop, and that opening it up results in an image that looks like this:
+* Run the project and observe that a window pops open with an image that looks like this:
 
 ![](./images/QuickStart.png)
+
+* Also observe that a new file, `QuickStart.png`, now exists on your desktop
+
 
 # Features
 
@@ -98,7 +101,7 @@ import ScintillaLib
 
 @main
 struct MyWorld: ScintillaApp {
-    var body = World {
+    var world = World {
         PointLight(Point(-10, 10, -10))
         Camera(400, 400, PI/3, .view(
             Point(0, 0, -5),
@@ -131,7 +134,7 @@ let φ: Double = 1.61833987
 
 @main
 struct MyImplicitSurface: ScintillaApp {
-    var body: World {
+    var world: World {
         PointLight(Point(-5, 5, -5))
         Camera(400, 400, PI/3, .view(
             Point(0, 0, -5),
@@ -165,7 +168,7 @@ import ScintillaLib
 
 @main
 struct SuperellipsoidScene: ScintillaApp {
-    var body: World = World {
+    var world: World = World {
         PointLight(Point(0, 5, -5))
         Camera(400, 400, PI/3, .view(
             Point(0, 0, -12),
@@ -202,7 +205,7 @@ import ScintillaLib
 
 @main
 struct PrismScene: ScintillaApp {
-    var body: World {
+    var world: World {
         PointLight(Point(-5, 5, -5))
         Camera(400, 400, PI/3, .view(
             Point(0, 5, -5),
@@ -238,7 +241,7 @@ import ScintillaLib
 
 @main
 struct SorScene: ScintillaApp {
-    var body = World {
+    var world = World {
         PointLight(Point(-5, 5, -5))
         Camera(400, 400, PI/3, .view(
             Point(0, 7, -10),
@@ -491,7 +494,7 @@ import ScintillaLib
 
 @main
 struct MyWorld: ScintillaApp {
-    var body: World {
+    var world: World {
         AreaLight(
             Point(-5, 5, -5),
             Vector(2, 0, 0), 10,
@@ -567,7 +570,7 @@ import ScintillaLib
 
 @main
 struct MyWorld: ScintillaApp {
-    var body = World {
+    var world = World {
         PointLight(Point(-10, 10, -10))
         Camera(800, 600, PI/3, .view(
             Point(0, 1, -2),
@@ -599,9 +602,9 @@ Please note the following about the example above:
 * You must `import ScintillaLib`
 * You need to annotate the struct with `@main`
 * Your struct must conform to the `ScintallaApp` protocol
-* The struct must have the `body` property, which is of type `World`
+* The struct must have the `world` property, which is of type `World`
 
-If you've done all that, you now have a bona fide application and should be able to run it through Xcode. And if all goes well, you should see the file `MyWorld.ppm` on your desktop.
+If you've done all that, you now have a bona fide application and should be able to run it through Xcode. And if all goes well, you should see a window open with the rendered image, and the file `MyWorld.png` on your desktop.
 
 You can also optionally render a scene with antialiasing. In the image above, you can see that the various edges of the object are pretty jagged and take away from the verisimilitude of the image. By adding a property modifier to the `World` object, `.antialiasing(true)`, we can improve its quality:
 
@@ -610,7 +613,7 @@ import ScintillaLib
 
 @main
 struct CSGExample: ScintillaApp {
-    var body = World {
+    var world = World {
         PointLight(Point(-10, 10, -10))
         Camera(400, 400, PI/3, .view(
             Point(0, 1.5, -2),
