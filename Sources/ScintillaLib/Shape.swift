@@ -112,7 +112,7 @@ public class Shape {
         return self.objectToWorld(localNormal)
     }
 
-    func localNormal(_ localPoint: Point) -> Vector {
+    func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         fatalError("Subclasses must override this method!")
     }
 

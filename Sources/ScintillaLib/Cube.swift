@@ -47,7 +47,7 @@ public class Cube: Shape {
         }
     }
 
-    override func localNormal(_ localPoint: Point) -> Vector {
+    override func localNormal(_ localPoint: Point, _ uv: UV) -> Vector {
         let maxComponent = max(abs(localPoint[0]), abs(localPoint[1]), abs(localPoint[2]))
 
         if maxComponent == abs(localPoint[0]) {

@@ -30,7 +30,7 @@ public class Sphere: Shape {
         }
     }
 
-    override func localNormal(_ localPoint: Point) -> Vector {
+    override func localNormal(_ localPoint: Point, _ uv: UV) -> Vector {
         return localPoint.subtract(Point(0, 0, 0))
     }
 }

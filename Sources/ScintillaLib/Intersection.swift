@@ -10,10 +10,16 @@ import Foundation
 public struct Intersection {
     var t: Double
     var shape: Shape
+    var uv: UV
 
     init(_ t: Double, _ shape: Shape) {
+        self.init(t, .none, shape)
+    }
+
+    init(_ t: Double, _ uv: UV, _ shape: Shape) {
         self.t = t
         self.shape = shape
+        self.uv = uv
     }
 
     func computeRefractiveIndices(_ allIntersections: [Intersection]) -> (Double, Double) {

@@ -125,7 +125,7 @@ public class Cylinder: Shape {
         return allIntersections
     }
 
-    override func localNormal(_ localPoint: Point) -> Vector {
+    override func localNormal(_ localPoint: Point, _ uv: UV) -> Vector {
         // Compute the square of the distance from the y axis
         let distance = localPoint[0]*localPoint[0] + localPoint[2]*localPoint[2]
         if distance < 1 && localPoint[1] >= self.maximum - EPSILON {

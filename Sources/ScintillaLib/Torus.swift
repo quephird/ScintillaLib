@@ -48,7 +48,7 @@ public class Torus: Shape {
             }
     }
 
-    override func localNormal(_ localPoint: Point) -> Vector {
+    override func localNormal(_ localPoint: Point, _ uv: UV) -> Vector {
         let r2PlusR2 = self.majorRadius*self.majorRadius + self.minorRadius*self.minorRadius
         let pDotP = localPoint.x*localPoint.x +
                     localPoint.y*localPoint.y +

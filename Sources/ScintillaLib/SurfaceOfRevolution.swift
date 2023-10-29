@@ -106,7 +106,7 @@ public class SurfaceOfRevolution: Shape {
         return intersections
     }
 
-    override func localNormal(_ localPoint: Point) -> Vector {
+    override func localNormal(_ localPoint: Point, _ uv: UV) -> Vector {
         if isCapped {
             let (x, y, z) = (localPoint.x, localPoint.y, localPoint.z)
             if abs(y - self.yBottom) < DELTA && (x*x + z*z) <= rBottom*rBottom {
@@ -116,7 +116,7 @@ public class SurfaceOfRevolution: Shape {
             }
         }
 
-        return self.underlyingImplicitSurface.localNormal(localPoint)
+        return self.underlyingImplicitSurface.localNormal(localPoint, uv)
     }
 }
 
