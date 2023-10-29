@@ -115,7 +115,7 @@ public class Cone: Shape {
         }
     }
 
-    override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
         var allIntersections: [Intersection] = []
         let wallIntersections = self.localIntersectWall(localRay)
         let capIntersections = self.localIntersectCaps(localRay)
@@ -129,7 +129,7 @@ public class Cone: Shape {
         return allIntersections
     }
 
-    override func localNormal(_ localPoint: Point, _ uv: UV) -> Vector {
+    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         // Compute the square of the distance from the y axis
         let distance = localPoint[0]*localPoint[0] + localPoint[2]*localPoint[2]
         if distance < 1 && localPoint[1] >= self.maximum - EPSILON {

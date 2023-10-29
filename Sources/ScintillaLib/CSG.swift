@@ -40,7 +40,7 @@ public class CSG: Shape {
         }
     }
 
-    func filterIntersections(_ allIntersections: [Intersection]) -> [Intersection] {
+    @_spi(Testing) public func filterIntersections(_ allIntersections: [Intersection]) -> [Intersection] {
         // Begin outside of both children
         var leftHit = false
         var insideLeft = false
@@ -69,7 +69,7 @@ public class CSG: Shape {
         return filteredIntersections
     }
 
-    override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
         let leftIntersections = self.left.intersect(localRay)
         let rightIntersections = self.right.intersect(localRay)
 

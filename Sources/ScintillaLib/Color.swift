@@ -62,31 +62,31 @@ public struct Color {
     }
 
     // All three components are expected to lie in the range [0, 1]
-    static func fromHsl(_ h: Double, _ s: Double, _ l: Double) -> Self {
+    @_spi(Testing) public static func fromHsl(_ h: Double, _ s: Double, _ l: Double) -> Self {
         return ColorSpace.hsl.makeColor(h, s, l)
     }
 
-    func add(_ other: Self) -> Self {
+    @_spi(Testing) public func add(_ other: Self) -> Self {
         Color(self.r+other.r, self.g+other.g, self.b+other.b)
     }
 
-    func subtract(_ other: Self) -> Self {
+    @_spi(Testing) public func subtract(_ other: Self) -> Self {
         Color(self.r-other.r, self.g-other.g, self.b-other.b)
     }
 
-    func multiplyScalar(_ scalar: Double) -> Self {
+    @_spi(Testing) public func multiplyScalar(_ scalar: Double) -> Self {
         Color(self.r*scalar, self.g*scalar, self.b*scalar)
     }
 
-    func divideScalar(_ scalar: Double) -> Self {
+    @_spi(Testing) public func divideScalar(_ scalar: Double) -> Self {
         return self.multiplyScalar(1.0/scalar)
     }
 
-    func hadamard(_ other: Self) -> Self {
+    @_spi(Testing) public func hadamard(_ other: Self) -> Self {
         Color(self.r*other.r, self.g*other.g, self.b*other.b)
     }
 
-    func isAlmostEqual(_ to: Self) -> Bool {
+    @_spi(Testing) public func isAlmostEqual(_ to: Self) -> Bool {
         self.r.isAlmostEqual(to.r) &&
         self.g.isAlmostEqual(to.g) &&
         self.b.isAlmostEqual(to.b)

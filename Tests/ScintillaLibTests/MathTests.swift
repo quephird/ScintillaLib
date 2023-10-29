@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import ScintillaLib
+@_spi(Testing) import ScintillaLib
 
 class MathTests: XCTestCase {
     func areAlmostEqual(_ roots1: [Double], _ roots2: [Double]) -> Bool {

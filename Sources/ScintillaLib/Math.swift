@@ -19,7 +19,7 @@ func cbrt(_ n: Double) -> Double {
     }
 }
 
-func solveQuadratic(_ a: Double, _ b: Double, _ c: Double) -> [Double] {
+@_spi(Testing) public func solveQuadratic(_ a: Double, _ b: Double, _ c: Double) -> [Double] {
     let discriminant = b*b - 4*a*c
 
     if isAlmostZero(discriminant) {
@@ -37,7 +37,7 @@ func solveQuadratic(_ a: Double, _ b: Double, _ c: Double) -> [Double] {
     }
 }
 
-func solveCubic(_ c3: Double, _ c2: Double, _ c1: Double, _ c0: Double) -> [Double] {
+@_spi(Testing) public func solveCubic(_ c3: Double, _ c2: Double, _ c1: Double, _ c0: Double) -> [Double] {
     // First put the cubic in the form:
     //
     //     x³ + ax² + bx + c
@@ -84,7 +84,7 @@ func solveCubic(_ c3: Double, _ c2: Double, _ c1: Double, _ c0: Double) -> [Doub
     }
 }
 
-func solveQuartic(_ c4: Double, _ c3: Double, _ c2: Double, _ c1: Double, _ c0: Double) -> [Double] {
+@_spi(Testing) public func solveQuartic(_ c4: Double, _ c3: Double, _ c2: Double, _ c1: Double, _ c0: Double) -> [Double] {
     // First put the quartic in the form:
     //
     //     x⁴ + ax³ + bx² + cx + d

@@ -15,7 +15,7 @@ public struct Camera {
     var inverseViewTransform: Matrix4
     var halfWidth: Double
     var halfHeight: Double
-    var pixelSize: Double
+    @_spi(Testing) public var pixelSize: Double
 
     public init(_ horizontalSize: Int,
                 _ verticalSize: Int,

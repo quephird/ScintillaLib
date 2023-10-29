@@ -8,15 +8,15 @@
 import Foundation
 
 public struct Intersection {
-    var t: Double
-    var shape: Shape
-    var uv: UV
+    @_spi(Testing) public var t: Double
+    @_spi(Testing) public var shape: Shape
+    @_spi(Testing) public var uv: UV
 
-    init(_ t: Double, _ shape: Shape) {
+    @_spi(Testing) public init(_ t: Double, _ shape: Shape) {
         self.init(t, .none, shape)
     }
 
-    init(_ t: Double, _ uv: UV, _ shape: Shape) {
+    @_spi(Testing) public init(_ t: Double, _ uv: UV, _ shape: Shape) {
         self.t = t
         self.shape = shape
         self.uv = uv
@@ -55,7 +55,7 @@ public struct Intersection {
         return (n1, n2)
     }
 
-    func prepareComputations(_ ray: Ray, _ allIntersections: [Intersection]) -> Computations {
+    @_spi(Testing) public func prepareComputations(_ ray: Ray, _ allIntersections: [Intersection]) -> Computations {
         let point = ray.position(self.t)
         let eye = ray.direction.negate()
         var normal = self.shape.normal(point)
@@ -87,7 +87,7 @@ public struct Intersection {
     }
 }
 
-func hit(_ intersections: [Intersection], includeOnlyShadowingObjects: Bool = false) -> Optional<Intersection> {
+@_spi(Testing) public func hit(_ intersections: [Intersection], includeOnlyShadowingObjects: Bool = false) -> Optional<Intersection> {
     return intersections
         .sorted(by: { i1, i2 in
             i1.t < i2.t

@@ -18,7 +18,7 @@ public class Group: Shape {
         }
     }
 
-    override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
         var allIntersections: [Intersection] = []
 
         for child in children {
@@ -32,7 +32,7 @@ public class Group: Shape {
         return allIntersections
     }
 
-    override func localNormal(_ localPoint: Point, _ uv: UV) -> Vector {
+    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         return Vector(0, 0, 1)
     }
 

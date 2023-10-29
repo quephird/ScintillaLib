@@ -29,7 +29,7 @@ public class Cube: Shape {
         }
     }
 
-    override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
         let (xTMin, xTMax) = self.checkAxis(localRay.origin[0], localRay.direction[0])
         let (yTMin, yTMax) = self.checkAxis(localRay.origin[1], localRay.direction[1])
         let (zTMin, zTMax) = self.checkAxis(localRay.origin[2], localRay.direction[2])
@@ -47,7 +47,7 @@ public class Cube: Shape {
         }
     }
 
-    override func localNormal(_ localPoint: Point, _ uv: UV) -> Vector {
+    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         let maxComponent = max(abs(localPoint[0]), abs(localPoint[1]), abs(localPoint[2]))
 
         if maxComponent == abs(localPoint[0]) {

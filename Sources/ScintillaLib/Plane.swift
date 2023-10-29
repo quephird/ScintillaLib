@@ -8,7 +8,7 @@
 import Foundation
 
 public class Plane: Shape {
-    override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
         if abs(localRay.direction[1]) < EPSILON {
             return []
         } else {
@@ -17,7 +17,7 @@ public class Plane: Shape {
         }
     }
 
-    override func localNormal(_ localPoint: Point, _ uv: UV) -> Vector {
+    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         return Vector(0, 1, 0)
     }
 }

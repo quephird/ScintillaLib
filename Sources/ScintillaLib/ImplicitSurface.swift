@@ -42,7 +42,7 @@ public class ImplicitSurface: Shape {
         self.f = f
     }
 
-    override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
         // First we check to see if the ray intersects the bounding shape;
         // note that we need a pair of hits in order to construct a range
         // of values for t below...
@@ -137,7 +137,7 @@ public class ImplicitSurface: Shape {
             }
     }
 
-    override func localNormal(_ localPoint: Point, _ uv: UV) -> Vector {
+    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         // We take an approach below in approximating ∂F/∂x, ∂F/∂y, and ∂F/∂z
         // by computing the simple derivative using a very small value for Δx,
         // Δy, and Δz, respectively.

@@ -11,7 +11,7 @@ import Cocoa
 let MAX_PPM_LINE_WIDTH = 70
 
 public extension Canvas {
-    internal func ppmHeader() -> String {
+    @_spi(Testing) func ppmHeader() -> String {
         "P3\n\(width) \(height)\n255"
     }
 
@@ -69,7 +69,7 @@ public extension Canvas {
         return body
     }
 
-    internal func toPPM() -> String {
+    @_spi(Testing) func toPPM() -> String {
         var ppm = ""
         ppm.append(self.ppmHeader())
         ppm.append("\n")

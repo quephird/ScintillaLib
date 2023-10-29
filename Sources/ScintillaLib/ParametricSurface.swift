@@ -11,7 +11,7 @@ public typealias ParametricFunction = (Double, Double) -> Double
 // TODO: Think about having the user pass values in for them
 let UV_SUBDIVISIONS = 20
 
-enum UV {
+@_spi(Testing) public enum UV {
     case none
     case value(Double, Double)
 }
@@ -148,7 +148,7 @@ public class ParametricSurface: Shape {
         }
     }
 
-    override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
         // First we check to see if the ray intersects the bounding shape;
         // note that we need a pair of hits in order to construct a range
         // of values for t below...
@@ -190,7 +190,7 @@ public class ParametricSurface: Shape {
         }
     }
 
-    override func localNormal(_ localPoint: Point, _ uv: UV) -> Vector {
+    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV) -> Vector {
         switch uv {
         case .value(let u, let v):
             let gradFxu = (fx(u + DELTA, v) - fx(u, v))/DELTA

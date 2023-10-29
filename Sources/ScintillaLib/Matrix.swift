@@ -10,7 +10,7 @@ public struct Matrix2 {
         Double, Double
         )
 
-    init(
+    @_spi(Testing) public init(
         _ x0: Double, _ y0: Double,
         _ x1: Double, _ y1: Double) {
         self.data = (x0, y0, x1, y1)
@@ -39,11 +39,11 @@ public struct Matrix2 {
         }
     }
 
-    func determinant() -> Double {
+    @_spi(Testing) public func determinant() -> Double {
         self[0, 0]*self[1, 1] - self[0, 1]*self[1, 0]
     }
 
-    func isAlmostEqual(_ other: Matrix2) -> Bool {
+    @_spi(Testing) public func isAlmostEqual(_ other: Matrix2) -> Bool {
         for j in 0...1 {
             for i in 0...1 {
                 if !self[i, j].isAlmostEqual(other[i, j]) {
@@ -62,7 +62,7 @@ public struct Matrix3 {
         Double, Double, Double
         )
 
-    init(
+    @_spi(Testing) public init(
         _ x0: Double, _ y0: Double, _ z0: Double,
         _ x1: Double, _ y1: Double, _ z1: Double,
         _ x2: Double, _ y2: Double, _ z2: Double) {
@@ -102,7 +102,7 @@ public struct Matrix3 {
         }
     }
 
-    func submatrix(_ row: Int, _ column: Int) -> Matrix2 {
+    @_spi(Testing) public func submatrix(_ row: Int, _ column: Int) -> Matrix2 {
         var m = Matrix2(
             0, 0,
             0, 0
@@ -126,11 +126,11 @@ public struct Matrix3 {
         return m
     }
 
-    func minor(_ row: Int, _ column: Int) -> Double {
+    @_spi(Testing) public func minor(_ row: Int, _ column: Int) -> Double {
         self.submatrix(row, column).determinant()
     }
 
-    func cofactor(_ row: Int, _ column: Int) -> Double {
+    @_spi(Testing) public func cofactor(_ row: Int, _ column: Int) -> Double {
         var coefficient = 1.0
         if (row + column)%2 != 0 {
             coefficient = -1.0
@@ -139,7 +139,7 @@ public struct Matrix3 {
         return coefficient*minor
     }
 
-    func determinant() -> Double {
+    @_spi(Testing) public func determinant() -> Double {
         var d = 0.0
         for i in 0...2 {
             d += self.cofactor(0, i)*self[i, 0]
@@ -147,7 +147,7 @@ public struct Matrix3 {
         return d
     }
 
-    func isAlmostEqual(_ other: Matrix3) -> Bool {
+    @_spi(Testing) public func isAlmostEqual(_ other: Matrix3) -> Bool {
         for j in 0...2 {
             for i in 0...2 {
                 if !self[i, j].isAlmostEqual(other[i, j]) {
@@ -174,7 +174,7 @@ public struct Matrix4 {
         0, 0, 0, 1
     )
 
-    init(
+    @_spi(Testing) public init(
         _ x0: Double, _ y0: Double, _ z0: Double, _ w0: Double,
         _ x1: Double, _ y1: Double, _ z1: Double, _ w1: Double,
         _ x2: Double, _ y2: Double, _ z2: Double, _ w2: Double,
@@ -303,7 +303,7 @@ public struct Matrix4 {
         }
     }
 
-    func isAlmostEqual(_ other: Matrix4) -> Bool {
+    @_spi(Testing) public func isAlmostEqual(_ other: Matrix4) -> Bool {
         for j in 0...3 {
             for i in 0...3 {
                 if !self[i, j].isAlmostEqual(other[i, j]) {
@@ -314,7 +314,7 @@ public struct Matrix4 {
         return true
     }
 
-    func multiply(_ other: Matrix4) -> Matrix4 {
+    @_spi(Testing) public func multiply(_ other: Matrix4) -> Matrix4 {
         var m = Matrix4(
             0, 0, 0, 0,
             0, 0, 0, 0,
@@ -332,7 +332,7 @@ public struct Matrix4 {
         return m
     }
 
-    func multiply(_ vector: Vector) -> Vector {
+    @_spi(Testing) public func multiply(_ vector: Vector) -> Vector {
         var v = Vector(0, 0, 0)
         for r in 0...3 {
             v[r] = self[0, r]*vector.x + self[1, r]*vector.y + self[2, r]*vector.z
@@ -340,7 +340,7 @@ public struct Matrix4 {
         return v
     }
 
-    func multiply(_ point: Point) -> Point {
+    @_spi(Testing) public func multiply(_ point: Point) -> Point {
         var p = Point(0, 0, 0)
         for r in 0...3 {
             p[r] = self[0, r]*point.x + self[1, r]*point.y + self[2, r]*point.z + self[3, r]
@@ -348,7 +348,7 @@ public struct Matrix4 {
         return p
     }
 
-    func transpose() -> Matrix4 {
+    @_spi(Testing) public func transpose() -> Matrix4 {
         var m = Matrix4(
             0, 0, 0, 0,
             0, 0, 0, 0,
@@ -363,7 +363,7 @@ public struct Matrix4 {
         return m
     }
 
-    func submatrix(_ row: Int, _ column: Int) -> Matrix3 {
+    @_spi(Testing) public func submatrix(_ row: Int, _ column: Int) -> Matrix3 {
         var m = Matrix3(
             0, 0, 0,
             0, 0, 0,
@@ -401,7 +401,7 @@ public struct Matrix4 {
         return coefficient*minor
     }
 
-    func determinant() -> Double {
+    @_spi(Testing) public func determinant() -> Double {
         var d = 0.0
         for i in 0...3 {
             d += self.cofactor(0, i)*self[i, 0]
@@ -409,7 +409,7 @@ public struct Matrix4 {
         return d
     }
 
-    func inverse() -> Matrix4 {
+    @_spi(Testing) public func inverse() -> Matrix4 {
         let d = self.determinant()
         var m = Matrix4(
             0, 0, 0, 0,

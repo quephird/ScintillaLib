@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import ScintillaLib
+@_spi(Testing) import ScintillaLib
 
 let testCamera = Camera(800, 600, PI/3, .view(
     Point(0, 1, -1),
