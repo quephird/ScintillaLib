@@ -20,9 +20,12 @@ struct SphereTheHardWay: ScintillaApp {
         ParametricSurface(
             (-2, -2, -2), (2, 2, 2),
             (0, PI), (0, 2*PI),
-            { (θ, ϕ) in cos(θ)*sin(ϕ) },
-            { (θ, ϕ) in sin(θ)*sin(ϕ) },
-            { (θ, ϕ) in cos(ϕ) })
+//            { (θ, ϕ) in cos(θ)*sin(ϕ) },
+//            { (θ, ϕ) in sin(θ)*sin(ϕ) },
+//            { (θ, ϕ) in cos(ϕ) })
+            { (θ, ϕ) in (2 + cos(θ))*cos(ϕ) },
+            { (θ, ϕ) in (2 + cos(θ))*sin(ϕ) },
+            { (θ, ϕ) in 2 + sin(ϕ) })
             .material(.solidColor(0.2, 1, 0.5))
     }
 }
