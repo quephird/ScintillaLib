@@ -101,7 +101,12 @@ public struct Color {
         } else {
             var cTemp = component*255
             cTemp.round()
-            c = Int(cTemp)
+            // TODO: Why are color components coming in as NaN only some of the time?
+            if cTemp.isNaN {
+                c = 255
+            } else {
+                c = Int(cTemp)
+            }
         }
         return c
     }

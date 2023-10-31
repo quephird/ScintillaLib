@@ -170,6 +170,24 @@ public class ParametricSurface: Shape {
                 let uv3 = points[i+1, j+1]
                 let uv4 = points[i, j+1]
 
+//                let xMin = min(uv1.x, uv2.x, uv3.x, uv4.x)
+//                let xMax = max(uv1.x, uv2.x, uv3.x, uv4.x)
+//                let yMin = min(uv1.y, uv2.y, uv3.y, uv4.y)
+//                let yMax = max(uv1.y, uv2.y, uv3.y, uv4.y)
+//                let zMin = min(uv1.z, uv2.z, uv3.z, uv4.z)
+//                let zMax = max(uv1.z, uv2.z, uv3.z, uv4.z)
+//
+//                let (scaleX, scaleY, scaleZ) = ((xMax-xMin)/2, (yMax-yMin)/2, (zMax-zMin)/2)
+//                let (translateX, translateY, translateZ) = ((xMax+xMin)/2, (yMax+yMin)/2, (zMax+zMin)/2)
+//                let box = Cube()
+//                    .scale(scaleX, scaleY, scaleZ)
+//                    .translate(translateX, translateY, translateZ)
+//
+//                let boxIntersections = box.intersect(localRay)
+//                if let hit = boxIntersections.first {
+//                    tuvs.append((hit.t, uStart + Double(i)*deltaU, vStart + Double(j)*deltaV))
+//                }
+
                 for (p1, p2, p3) in [(uv1, uv2, uv3), (uv2, uv3, uv4), (uv3, uv4, uv1), (uv4, uv1, uv2)] {
                     if let t = checkTriangle(localRay, p1, p2, p3) {
                         // For now return the t for the first triangle hit
@@ -209,24 +227,24 @@ public class ParametricSurface: Shape {
         }
     }
 
-    func checkUVRectangle(_ us: (Double, Double), _ vs: (Double, Double), _ localRay: Ray) -> Double? {
-        let uv1 = Point(fx(us.0, vs.0), fy(us.0, vs.0), fz(us.0, vs.0))
-        let uv2 = Point(fx(us.1, vs.0), fy(us.1, vs.0), fz(us.1, vs.0))
-        let uv3 = Point(fx(us.1, vs.1), fy(us.1, vs.1), fz(us.1, vs.1))
-        let uv4 = Point(fx(us.0, vs.1), fy(us.0, vs.1), fz(us.0, vs.1))
-
-        // We need to check all four possible triangles because the xyz-points
-        // corresponding with the four combinations of uv-values don't necessarily
-        // form a convex quadrilateral nor all exist within the same plane.
-        for (p1, p2, p3) in [(uv1, uv2, uv3), (uv2, uv3, uv4), (uv3, uv4, uv1), (uv4, uv1, uv2)] {
-            if let t = checkTriangle(localRay, p1, p2, p3) {
-                // For now return the t for the first triangle hit
-                return t
-            }
-        }
-
-        return nil
-    }
+//    func checkUVRectangle(_ us: (Double, Double), _ vs: (Double, Double), _ localRay: Ray) -> Double? {
+//        let uv1 = Point(fx(us.0, vs.0), fy(us.0, vs.0), fz(us.0, vs.0))
+//        let uv2 = Point(fx(us.1, vs.0), fy(us.1, vs.0), fz(us.1, vs.0))
+//        let uv3 = Point(fx(us.1, vs.1), fy(us.1, vs.1), fz(us.1, vs.1))
+//        let uv4 = Point(fx(us.0, vs.1), fy(us.0, vs.1), fz(us.0, vs.1))
+//
+//        // We need to check all four possible triangles because the xyz-points
+//        // corresponding with the four combinations of uv-values don't necessarily
+//        // form a convex quadrilateral nor all exist within the same plane.
+//        for (p1, p2, p3) in [(uv1, uv2, uv3), (uv2, uv3, uv4), (uv3, uv4, uv1), (uv4, uv1, uv2)] {
+//            if let t = checkTriangle(localRay, p1, p2, p3) {
+//                // For now return the t for the first triangle hit
+//                return t
+//            }
+//        }
+//
+//        return nil
+//    }
 }
 
 // This function checks to see if the ray intersects the triangle

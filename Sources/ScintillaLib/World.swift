@@ -158,7 +158,11 @@ public class World {
             return .black
         case .some(let intersection):
             let computations = intersection.prepareComputations(ray, allIntersections)
-            return self.shadeHit(computations, remainingCalls)
+            let color = self.shadeHit(computations, remainingCalls)
+            if color.r.isNaN {
+                print("I am here")
+            }
+            return color
         }
     }
 

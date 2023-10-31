@@ -58,7 +58,7 @@ public struct Intersection {
     @_spi(Testing) public func prepareComputations(_ ray: Ray, _ allIntersections: [Intersection]) -> Computations {
         let point = ray.position(self.t)
         let eye = ray.direction.negate()
-        var normal = self.shape.normal(point)
+        var normal = self.shape.normal(point, self.uv)
         let isInside: Bool
         if normal.dot(eye) < 0 {
             isInside = true
@@ -69,6 +69,9 @@ public struct Intersection {
         let overPoint = point.add(normal.multiply(EPSILON))
         let underPoint = point.subtract(normal.multiply(EPSILON))
         let reflected = ray.direction.reflect(normal)
+        if reflected.x.isNaN {
+            print("I am here")
+        }
         let (n1, n2) = self.computeRefractiveIndices(allIntersections)
 
         return Computations(
