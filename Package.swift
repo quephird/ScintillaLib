@@ -67,5 +67,9 @@ let package = Package(
             name: "BallWithAreaLight",
             dependencies: ["ScintillaLib"],
             path: "Examples/BallWithAreaLight"),
+        .executableTarget(
+            name: "HappyHalloween",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/HappyHalloween"),
     ]
 )
