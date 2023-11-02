@@ -9,7 +9,15 @@ import Darwin
 import ScintillaLib
 
 func pumpkin(x: Double, y: Double, z: Double) -> Double {
-    y*y + (x*x + z*z - 1.0)*(1.0 - 0.5*exp(-10.0*(x*x + z*z))) + 0.02*pow(sin(20.0*atan(x/(sqrt(x*x + z*z) + z))), 20.0)
+    y*y +
+    (x*x + z*z - 1.0)*(1.0 - 0.5*exp(-10.0*(x*x + z*z))) + // Pinches the shape at the poles
+    0.02*pow(sin(20.0*atan(x/(sqrt(x*x + z*z) + z))), 20.0) // Adds flattened periodic ribbing on the surface
+}
+
+func stem(x: Double, y: Double, z: Double) -> Double {
+    (x*x + z*z) +
+    5.0*y*(1.0 - exp(-(x*x + z*z))) - // Adds vertical taper
+    0.2*sin(5.0*atan2(x, z)) - 1 // Adds periodic ribbing on the surface
 }
 
 @available(macOS 12.0, *)
@@ -27,19 +35,19 @@ struct HappyHalloween: ScintillaApp {
             .material(.solidColor(1.0, 0.5, 0.0))
             .scale(2.0, 1.5, 2.0)
             .difference {
-                Prism(-1.0, 1.5, [(0.0, 0.5), (-0.25, 0), (0.25, 0.0)])
+                Prism(-1.0, 1.5, [(0.0, 0.5), (-0.25, 0), (0.25, 0.0)]) // Right eye
                     .material(.solidColor(1.0, 0.8, 0.0))
                     .rotateX(-PI/2.0)
                     .translate(-0.5, 0.4, -1.5)
-                Prism(-1.0, 1.5, [(0.0, 0.5), (-0.25, 0), (0.25, 0.0)])
+                Prism(-1.0, 1.5, [(0.0, 0.5), (-0.25, 0), (0.25, 0.0)]) // Left eye
                     .material(.solidColor(1.0, 0.8, 0.0))
                     .rotateX(-PI/2.0)
                     .translate(0.5, 0.4, -1.5)
-                Prism(-1.0, 1.5, [(0.0, 0.25), (-0.1, 0), (0.1, 0.0)])
+                Prism(-1.0, 1.5, [(0.0, 0.25), (-0.1, 0), (0.1, 0.0)]) // Nose
                     .material(.solidColor(1.0, 0.8, 0.0))
                     .rotateX(-PI/2.0)
                     .translate(0.0, 0.3, -1.5)
-                Prism(-1.0, 1.5, [(-0.75, 0.0), (-0.5, -0.25),
+                Prism(-1.0, 1.5, [(-0.75, 0.0), (-0.5, -0.25), // Mouth
                                  (-0.4, -0.25), (-0.4, -0.15), (-0.3, -0.15), (-0.3, -0.25),
                                  (0.5, -0.25), (0.75, 0.0),
                                  (0.4, 0.0), (0.4, -0.1), (0.3, -0.1), (0.3, 0.0)])
@@ -47,7 +55,9 @@ struct HappyHalloween: ScintillaApp {
                     .rotateX(-PI/2.0)
                     .translate(0.0, 0.1, -1.7)
             }
-        Cylinder(0.0, 1.0, true)
+        ImplicitSurface((-1.5, 0, -1.5), (1.5, 1, 1.5)) { x, y, z in
+            stem(x: x, y: y, z: z)
+        }
             .material(.solidColor(0.9, 0.9, 0.7))
             .scale(0.2, 1.0, 0.2)
             .rotateX(0.1)
