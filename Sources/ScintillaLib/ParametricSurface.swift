@@ -191,12 +191,10 @@ public class ParametricSurface: Shape {
                 for (p1, p2, p3) in [(uv1, uv2, uv3), (uv2, uv3, uv4), (uv3, uv4, uv1), (uv4, uv1, uv2)] {
                     if let t = checkTriangle(localRay, p1, p2, p3) {
                         // For now return the t for the first triangle hit
-                        if tuvs.isEmpty {
-                            tuvs.append((t, uStart + Double(i)*deltaU, vStart + Double(j)*deltaV))
-                        } else if !tuvs.contains(where: { (existingT, _, _) in
+                        if tuvs.isEmpty || !tuvs.contains(where: { (existingT, _, _) in
                             return t.isAlmostEqual(existingT)
                         }) {
-                            tuvs.append((t, uStart + Double(i)*deltaU, vStart + Double(j)*deltaV))
+                            tuvs.append((t, uStart + (Double(i)+0.5)*deltaU, vStart + (Double(j)+0.5)*deltaV))
                         }
                     }
                 }
