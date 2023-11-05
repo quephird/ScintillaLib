@@ -9,7 +9,7 @@ public typealias ParametricFunction = (Double, Double) -> Double
 
 // TODO: Think about separate values for subdividing u and v
 // TODO: Think about having the user pass values in for them
-let UV_SUBDIVISIONS = 20
+let UV_SUBDIVISIONS = 10
 
 @_spi(Testing) public enum UV {
     case none
@@ -148,6 +148,55 @@ public class ParametricSurface: Shape {
         }
     }
 
+    func getIntersections(_ localRay: Ray, level: Int, uRange: (Double, Double), vRange: (Double, Double)) -> [Intersection] {
+        let (uStart, uEnd) = uRange
+        let (vStart, vEnd) = vRange
+        let deltaU = (uEnd - uStart)/Double(UV_SUBDIVISIONS)
+        let deltaV = (vEnd - vStart)/Double(UV_SUBDIVISIONS)
+
+        var intersections: [Intersection] = []
+
+        let points = PointSet(columns: UV_SUBDIVISIONS + 1, rows: UV_SUBDIVISIONS + 1) { i, j in
+            let u = uStart + Double(i)*deltaU
+            let v = vStart + Double(j)*deltaV
+            return Point(fx(u, v), fy(u, v), fz(u, v))
+        }
+
+        for i in 0..<UV_SUBDIVISIONS {
+            for j in 0..<UV_SUBDIVISIONS {
+                let uv1 = points[i, j]
+                let uv2 = points[i+1, j]
+                let uv3 = points[i+1, j+1]
+                let uv4 = points[i, j+1]
+
+                // We need to check all four possible triangles because the xyz-points
+                // corresponding with the four combinations of uv-values don't necessarily
+                // form a convex quadrilateral nor all exist within the same plane.
+                for (p1, p2, p3) in [(uv1, uv2, uv3), (uv2, uv3, uv4), (uv1, uv2, uv4), (uv1, uv3, uv4)] {
+                    if let t = checkTriangle(localRay, p1, p2, p3) {
+                        if level == 0 {
+                            if intersections.isEmpty || !intersections.contains(where: { intersection in
+                                return t.isAlmostEqual(intersection.t)
+                            }) {
+                                let u = uStart + (Double(i)+0.5)*deltaU
+                                let v = vStart + (Double(j)+0.5)*deltaV
+                                let newIntersection = Intersection(t, .value(u, v), self)
+                                intersections.append(newIntersection)
+                            }
+                        } else {
+                            let newURange = (uStart + Double(i)*deltaU, uStart + Double(i+1)*deltaU)
+                            let newVRange = (vStart + Double(j)*deltaV, vStart + Double(j+1)*deltaV)
+                            let newIntersections = getIntersections(localRay, level: level-1, uRange: newURange, vRange: newVRange)
+                            intersections.append(contentsOf: newIntersections)
+                        }
+                    }
+                }
+            }
+        }
+
+        return intersections
+    }
+
     @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
         // First we check to see if the ray intersects the bounding shape;
         // note that we need a pair of hits in order to construct a range
@@ -157,53 +206,10 @@ public class ParametricSurface: Shape {
             return []
         }
 
-        let (uStart, uEnd) = uRange
-        let (vStart, vEnd) = vRange
-        let deltaU = (uEnd - uStart)/Double(UV_SUBDIVISIONS)
-        let deltaV = (vEnd - vStart)/Double(UV_SUBDIVISIONS)
-
-        var tuvs: [(Double, Double, Double)] = []
-        for i in 0..<UV_SUBDIVISIONS {
-            for j in 0..<UV_SUBDIVISIONS {
-                let uv1 = points[i, j]
-                let uv2 = points[i+1, j]
-                let uv3 = points[i+1, j+1]
-                let uv4 = points[i, j+1]
-
-//                let xMin = min(uv1.x, uv2.x, uv3.x, uv4.x)
-//                let xMax = max(uv1.x, uv2.x, uv3.x, uv4.x)
-//                let yMin = min(uv1.y, uv2.y, uv3.y, uv4.y)
-//                let yMax = max(uv1.y, uv2.y, uv3.y, uv4.y)
-//                let zMin = min(uv1.z, uv2.z, uv3.z, uv4.z)
-//                let zMax = max(uv1.z, uv2.z, uv3.z, uv4.z)
-//
-//                let (scaleX, scaleY, scaleZ) = ((xMax-xMin)/2, (yMax-yMin)/2, (zMax-zMin)/2)
-//                let (translateX, translateY, translateZ) = ((xMax+xMin)/2, (yMax+yMin)/2, (zMax+zMin)/2)
-//                let box = Cube()
-//                    .scale(scaleX, scaleY, scaleZ)
-//                    .translate(translateX, translateY, translateZ)
-//
-//                let boxIntersections = box.intersect(localRay)
-//                if let hit = boxIntersections.first {
-//                    tuvs.append((hit.t, uStart + Double(i)*deltaU, vStart + Double(j)*deltaV))
-//                }
-
-                for (p1, p2, p3) in [(uv1, uv2, uv3), (uv2, uv3, uv4), (uv3, uv4, uv1), (uv4, uv1, uv2)] {
-                    if let t = checkTriangle(localRay, p1, p2, p3) {
-                        // For now return the t for the first triangle hit
-                        if tuvs.isEmpty || !tuvs.contains(where: { (existingT, _, _) in
-                            return t.isAlmostEqual(existingT)
-                        }) {
-                            tuvs.append((t, uStart + (Double(i)+0.5)*deltaU, vStart + (Double(j)+0.5)*deltaV))
-                        }
-                    }
-                }
-            }
-        }
-
-        return tuvs.map { (t, u, v) in
-            Intersection(t, .value(u, v), self)
-        }
+        let intersections = getIntersections(localRay, level: 1, uRange: uRange, vRange: vRange)
+        return intersections.sorted(by: { (i1, i2) in
+            i1.t < i2.t
+        })
     }
 
     @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV) -> Vector {
@@ -224,25 +230,6 @@ public class ParametricSurface: Shape {
             fatalError("Whoops... you need to pass in a uv pair!")
         }
     }
-
-//    func checkUVRectangle(_ us: (Double, Double), _ vs: (Double, Double), _ localRay: Ray) -> Double? {
-//        let uv1 = Point(fx(us.0, vs.0), fy(us.0, vs.0), fz(us.0, vs.0))
-//        let uv2 = Point(fx(us.1, vs.0), fy(us.1, vs.0), fz(us.1, vs.0))
-//        let uv3 = Point(fx(us.1, vs.1), fy(us.1, vs.1), fz(us.1, vs.1))
-//        let uv4 = Point(fx(us.0, vs.1), fy(us.0, vs.1), fz(us.0, vs.1))
-//
-//        // We need to check all four possible triangles because the xyz-points
-//        // corresponding with the four combinations of uv-values don't necessarily
-//        // form a convex quadrilateral nor all exist within the same plane.
-//        for (p1, p2, p3) in [(uv1, uv2, uv3), (uv2, uv3, uv4), (uv3, uv4, uv1), (uv4, uv1, uv2)] {
-//            if let t = checkTriangle(localRay, p1, p2, p3) {
-//                // For now return the t for the first triangle hit
-//                return t
-//            }
-//        }
-//
-//        return nil
-//    }
 }
 
 // This function checks to see if the ray intersects the triangle
