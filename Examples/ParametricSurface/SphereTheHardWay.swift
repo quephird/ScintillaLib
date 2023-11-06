@@ -14,16 +14,16 @@ struct SphereTheHardWay: ScintillaApp {
     var world = World {
         PointLight(Point(-10, 10, -10))
         Camera(400, 400, PI/3, .view(
-            Point(-2, 0, -2),
+            Point(0, 0, -7),
             Point(0, 0, 0),
             Vector(0, 1, 0)))
         ParametricSurface(
-//            (-4, -4, -1), (4, 4, 1),
-            (-1, -1, -1), (1, 1, 1),
+            (-4, -4, -1), (4, 4, 1),
+//            (-1, -1, -1), (1, 1, 1),
             (-PI, PI), (0, 2*PI),
-            { (θ, ϕ) in cos(θ)*sin(ϕ) },
-            { (θ, ϕ) in sin(θ)*sin(ϕ) },
-            { (θ, ϕ) in cos(ϕ) })
+            { (u, v) in cos(u)*sin(v) },
+            { (u, v) in sin(u)*sin(v) },
+            { (u, v) in cos(v) })
 //            { (θ, ϕ) in 3*cos(θ)*sin(ϕ) },
 //            { (θ, ϕ) in sin(θ)*sin(ϕ) },
 //            { (θ, ϕ) in 2*cos(ϕ) })

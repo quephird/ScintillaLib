@@ -5,11 +5,14 @@
 //  Created by Danielle Kefford on 10/29/23.
 //
 
+import Darwin
+
 public typealias ParametricFunction = (Double, Double) -> Double
 
 // TODO: Think about separate values for subdividing u and v
 // TODO: Think about having the user pass values in for them
 let UV_SUBDIVISIONS = 10
+let MAX_RECURSIONS = 30
 
 @_spi(Testing) public enum UV {
     case none
@@ -148,55 +151,6 @@ public class ParametricSurface: Shape {
         }
     }
 
-    func getIntersections(_ localRay: Ray, level: Int, uRange: (Double, Double), vRange: (Double, Double)) -> [Intersection] {
-        let (uStart, uEnd) = uRange
-        let (vStart, vEnd) = vRange
-        let deltaU = (uEnd - uStart)/Double(UV_SUBDIVISIONS)
-        let deltaV = (vEnd - vStart)/Double(UV_SUBDIVISIONS)
-
-        var intersections: [Intersection] = []
-
-        let points = PointSet(columns: UV_SUBDIVISIONS + 1, rows: UV_SUBDIVISIONS + 1) { i, j in
-            let u = uStart + Double(i)*deltaU
-            let v = vStart + Double(j)*deltaV
-            return Point(fx(u, v), fy(u, v), fz(u, v))
-        }
-
-        for i in 0..<UV_SUBDIVISIONS {
-            for j in 0..<UV_SUBDIVISIONS {
-                let uv1 = points[i, j]
-                let uv2 = points[i+1, j]
-                let uv3 = points[i+1, j+1]
-                let uv4 = points[i, j+1]
-
-                // We need to check all four possible triangles because the xyz-points
-                // corresponding with the four combinations of uv-values don't necessarily
-                // form a convex quadrilateral nor all exist within the same plane.
-                for (p1, p2, p3) in [(uv1, uv2, uv3), (uv2, uv3, uv4), (uv1, uv2, uv4), (uv1, uv3, uv4)] {
-                    if let t = checkTriangle(localRay, p1, p2, p3) {
-                        if level == 0 {
-                            if intersections.isEmpty || !intersections.contains(where: { intersection in
-                                return t.isAlmostEqual(intersection.t)
-                            }) {
-                                let u = uStart + (Double(i)+0.5)*deltaU
-                                let v = vStart + (Double(j)+0.5)*deltaV
-                                let newIntersection = Intersection(t, .value(u, v), self)
-                                intersections.append(newIntersection)
-                            }
-                        } else {
-                            let newURange = (uStart + Double(i)*deltaU, uStart + Double(i+1)*deltaU)
-                            let newVRange = (vStart + Double(j)*deltaV, vStart + Double(j+1)*deltaV)
-                            let newIntersections = getIntersections(localRay, level: level-1, uRange: newURange, vRange: newVRange)
-                            intersections.append(contentsOf: newIntersections)
-                        }
-                    }
-                }
-            }
-        }
-
-        return intersections
-    }
-
     @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
         // First we check to see if the ray intersects the bounding shape;
         // note that we need a pair of hits in order to construct a range
@@ -206,10 +160,36 @@ public class ParametricSurface: Shape {
             return []
         }
 
-        let intersections = getIntersections(localRay, level: 1, uRange: uRange, vRange: vRange)
-        return intersections.sorted(by: { (i1, i2) in
-            i1.t < i2.t
-        })
+        let (uStart, uEnd) = uRange
+        let (vStart, vEnd) = vRange
+        var xCurr = [uStart, vStart, 0.0]
+        var iterations = 0
+
+        let j = makeJacobian(fx, fy, fz, localRay)
+        let f = makeF(fx, fy, fz, localRay)
+        while iterations < MAX_RECURSIONS {
+            let fPrev = f(xCurr[0], xCurr[1], xCurr[2])
+            let jPrev = j(xCurr[0], xCurr[1], xCurr[2])
+            let system = makeSystemOfThreeEquations(jPrev, fPrev)
+
+            if let yPrev = solve(system) {
+                xCurr = [
+                    xCurr[0] + yPrev[0],
+                    xCurr[1] + yPrev[1],
+                    xCurr[2] + yPrev[2],
+                ]
+                if norm(yPrev) < EPSILON {
+                    return [Intersection(xCurr[2], .value(xCurr[0], xCurr[1]), self)]
+                } else {
+                    iterations += 1
+                }
+            } else {
+                return []
+            }
+
+        }
+
+        return []
     }
 
     @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV) -> Vector {
@@ -232,43 +212,152 @@ public class ParametricSurface: Shape {
     }
 }
 
-// This function checks to see if the ray intersects the triangle
-// formed by the points p1, p2, and p3 and if it does returns the
-// value of t for the ray, else returns nil
-func checkTriangle(_ localRay: Ray, _ p1: Point, _ p2: Point, _ p3: Point) -> Double? {
-    // Form two sides of the triangle...
-    let v1 = p2.subtract(p1)
-    let v2 = p3.subtract(p1)
+public typealias FunctionOfThreeVariables = (Double, Double, Double) -> Double
+public typealias Jacobian = (Double, Double, Double) -> [[Double]]
+public typealias Matrix = [[Double]]
 
-    // ... and test to see if their normal is perpendicular to the ray
-    let normal = v1.cross(v2)
-    let angle = normal.dot(localRay.direction)
-    if abs(angle) < EPSILON {
-        // If we got here, then the ray is parallel to the triangle's plane
-        return nil
+func makeJacobian(_ fx: @escaping ParametricFunction,
+                  _ fy: @escaping ParametricFunction,
+                  _ fz: @escaping ParametricFunction,
+                  _ localRay: Ray) -> Jacobian {
+    // These are the three components of the ray equation:
+    //
+    //     r⃑ = o + td⃑
+    func ftx(_ t: Double) -> Double {
+        localRay.origin.x + t*localRay.direction.x
+    }
+    func fty(_ t: Double) -> Double {
+        localRay.origin.y + t*localRay.direction.y
+    }
+    func ftz(_ t: Double) -> Double {
+        localRay.origin.z + t*localRay.direction.z
     }
 
-    // Calculate the value of t where the ray intersects the plane formed by the two sides
-    let t = (p1.subtract(localRay.origin).dot(normal))/angle
-    let point = localRay.position(t)
-
-    // Now check to see if the point lies within the triangle by
-    // inspecting where the point is with respect to each pair of
-    // adjacent sides...
-    for (pLeft, pCorner, pRight) in [(p1, p2, p3), (p2, p3, p1), (p3, p1, p2)] {
-        let vLeft = pLeft.subtract(pCorner)
-        let vRight = pRight.subtract(pCorner)
-        let pointToCorner = point.subtract(pCorner)
-        let projectionToLeft = pointToCorner.project(vLeft)
-        let projectionToRight = pointToCorner.project(vRight)
-
-        if projectionToLeft.magnitude() > vLeft.magnitude() ||
-            projectionToRight.magnitude() > vRight.magnitude()
-        {
-            // We have a miss, return immediately...
-            return nil
-        }
+    // The system of equations are:
+    //
+    //    fx(u, v) - ftx(t) = 0
+    //    fy(u, v) - fty(t) = 0
+    //    fz(u, v) - ftz(t) = 0
+    func f1(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return fx(u, v) - ftx(t)
+    }
+    func f2(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return fy(u, v) - fty(t)
+    }
+    func f3(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return fz(u, v) - ftz(t)
     }
 
-    return t
+    return makeJacobian(f1, f2, f3)
+}
+
+func makeJacobian(_ f1: @escaping FunctionOfThreeVariables,
+                  _ f2: @escaping FunctionOfThreeVariables,
+                  _ f3: @escaping FunctionOfThreeVariables) -> Jacobian {
+    // Set up all the gradients
+    func gradF1u(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return (f1(u + DELTA, v, t) - f1(u, v, t))/DELTA
+    }
+    func gradF1v(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return (f1(u, v + DELTA, t) - f1(u, v, t))/DELTA
+    }
+    func gradF1t(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return (f1(u, v, t + DELTA) - f1(u, v, t))/DELTA
+    }
+    func gradF2u(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return (f2(u + DELTA, v, t) - f2(u, v, t))/DELTA
+    }
+    func gradF2v(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return (f2(u, v + DELTA, t) - f2(u, v, t))/DELTA
+    }
+    func gradF2t(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return (f2(u, v, t + DELTA) - f2(u, v, t))/DELTA
+    }
+    func gradF3u(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return (f3(u + DELTA, v, t) - f3(u, v, t))/DELTA
+    }
+    func gradF3v(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return (f3(u, v + DELTA, t) - f3(u, v, t))/DELTA
+    }
+    func gradF3t(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return (f3(u, v, t + DELTA) - f3(u, v, t))/DELTA
+    }
+
+    func jacobian(_ u: Double, _ v: Double, _ t: Double) -> [[Double]] {
+    [
+        [gradF1u(u, v, t), gradF1v(u, v, t), gradF1t(u, v, t)],
+        [gradF2u(u, v, t), gradF2v(u, v, t), gradF2t(u, v, t)],
+        [gradF3u(u, v, t), gradF3v(u, v, t), gradF3t(u, v, t)],
+    ]
+    }
+
+    return jacobian
+}
+
+public typealias F = (Double, Double, Double) -> [Double]
+
+func makeF(_ fx: @escaping ParametricFunction,
+           _ fy: @escaping ParametricFunction,
+           _ fz: @escaping ParametricFunction,
+           _ localRay: Ray) -> F {
+    // These are the three components of the ray equation:
+    //
+    //     r⃑ = o + td⃑
+    func ftx(_ t: Double) -> Double {
+        localRay.origin.x + t*localRay.direction.x
+    }
+    func fty(_ t: Double) -> Double {
+        localRay.origin.y + t*localRay.direction.y
+    }
+    func ftz(_ t: Double) -> Double {
+        localRay.origin.z + t*localRay.direction.z
+    }
+
+    // The system of equations are:
+    //
+    //    fx(u, v) - ftx(t) = 0
+    //    fy(u, v) - fty(t) = 0
+    //    fz(u, v) - ftz(t) = 0
+    func f1(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return fx(u, v) - ftx(t)
+    }
+    func f2(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return fy(u, v) - fty(t)
+    }
+    func f3(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return fz(u, v) - ftz(t)
+    }
+
+    return makeF(f1, f2, f3)
+}
+
+func makeF(_ f1: @escaping FunctionOfThreeVariables,
+           _ f2: @escaping FunctionOfThreeVariables,
+           _ f3: @escaping FunctionOfThreeVariables) -> F {
+    func F(_ u: Double, _ v: Double, _ t: Double) -> [Double] {
+        [f1(u, v, t), f2(u, v, t), f3(u, v, t)]
+    }
+
+    return F
+}
+
+func makeSystemOfThreeEquations(_ jacobianValues: [[Double]], _ fValues: [Double]) -> [[Double]] {
+    var matrix: [[Double]] = []
+
+    for j in 0..<jacobianValues.count {
+        var newRow = jacobianValues[j]
+        newRow.append(-fValues[j])
+        matrix.append(newRow)
+    }
+
+    return matrix
+}
+
+func norm(_ vector: [Double]) -> Double {
+    var temp = 0.0
+    for component in vector {
+        temp += component*component
+    }
+
+    return sqrt(temp)
 }
