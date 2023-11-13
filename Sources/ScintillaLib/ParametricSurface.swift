@@ -186,7 +186,6 @@ public class ParametricSurface: Shape {
             } else {
                 return []
             }
-
         }
 
         return []
@@ -339,6 +338,46 @@ func makeF(_ f1: @escaping FunctionOfThreeVariables,
     }
 
     return F
+}
+
+public typealias Hessian = (Double, Double, Double) -> [[Double]]
+
+func makeHessian(f: @escaping FunctionOfThreeVariables) -> Hessian {
+    // Set up second-order derivatives
+    func partialDerivativeFuu(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return (f(u+DELTA, v, t) - 2*f(u, v, t) + f(u-DELTA, v, t))/DELTA
+    }
+    func partialDerivativeFuv(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return (f(u+DELTA, v+DELTA, t) - f(u+DELTA, v, t) - f(u, v+DELTA, t) + f(u, v, t))/DELTA/DELTA
+    }
+    func partialDerivativeFut(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return (f(u+DELTA, v, t+DELTA) - f(u+DELTA, v, t) - f(u, v, t+DELTA) + f(u, v, t))/DELTA/DELTA
+    }
+
+    func partialDerivativeFvv(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return (f(u, v+DELTA, t) - 2*f(u, v, t) + f(u, v-DELTA, t))/DELTA
+    }
+    func partialDerivativeFvt(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return (f(u, v+DELTA, t+DELTA) - f(u, v+DELTA, t) - f(u, v, t+DELTA) + f(u, v, t))/DELTA/DELTA
+    }
+
+    func partialDerivativeFtt(_ u: Double, _ v: Double, _ t: Double) -> Double {
+        return (f(u, v, t+DELTA) - 2*f(u, v, t) + f(u, v, t-DELTA))/DELTA
+    }
+
+    func hessian(_ u: Double, _ v: Double, _ t: Double) -> [[Double]] {
+    [
+        [partialDerivativeFuu(u, v, t), partialDerivativeFuv(u, v, t), partialDerivativeFut(u, v, t)],
+        [partialDerivativeFuv(u, v, t), partialDerivativeFvv(u, v, t), partialDerivativeFvt(u, v, t)],
+        [partialDerivativeFut(u, v, t), partialDerivativeFvt(u, v, t), partialDerivativeFtt(u, v, t)],
+    ]
+    }
+
+    return hessian
+}
+
+func makeSomething() {
+    // TODO: Need to figure out what to name this function that computes Qᵀ ⊗ H
 }
 
 func makeSystemOfThreeEquations(_ jacobianValues: [[Double]], _ fValues: [Double]) -> [[Double]] {
