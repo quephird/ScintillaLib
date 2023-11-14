@@ -10,16 +10,16 @@ import ScintillaLib
 
 @available(macOS 12.0, *)
 @main
-struct SphereTheHardWay: ScintillaApp {
+struct TestSurface: ScintillaApp {
     var world = World {
         PointLight(Point(-10, 10, -10))
-        Camera(600, 600, PI/3, .view(
+        Camera(400, 400, PI/3, .view(
             Point(0, 0, -10),
             Point(0, 0, 0),
             Vector(0, 1, 0)))
         ParametricSurface(
             (-3.5, -3.5, -3.5), (3.5, 3.5, 3.5),
-            (0, 4*PI), (0.0001, PI),
+            (0, 2*PI), (0, 2*PI),
             0.0035, 5.0,
             // Sphere
 //            { (u, v) in cos(u)*sin(v) },
@@ -34,9 +34,9 @@ struct SphereTheHardWay: ScintillaApp {
 //            { (u, v) in cos(u)*cos(v) },
 //            { (u, v) in cos(u)*sin(v) })
             // Torus
-//            { (θ, ϕ) in (2 + cos(ϕ))*cos(θ) },
-//            { (θ, ϕ) in (2 + cos(ϕ))*sin(θ) },
-//            { (θ, ϕ) in sin(ϕ) })
+            { (θ, ϕ) in (2 + cos(ϕ))*cos(θ) },
+            { (θ, ϕ) in (2 + cos(ϕ))*sin(θ) },
+            { (θ, ϕ) in sin(ϕ) })
             // Cylinder
 //            { (u, v) in u },
 //            { (u, v) in cos(v) },
@@ -50,10 +50,10 @@ struct SphereTheHardWay: ScintillaApp {
 //            { (u, v) in sin(v)+u },
 //            { (u, v) in (2.0+cos(v))*sin(u) })
             // Dini surface
-            { (u, v) in cos(u)*sin(v) },
-            { (u, v) in cos(v) + log(tan(v/2)) + 0.2*u },
-            { (u, v) in sin(u)*sin(v) })
-            .material(.solidColor(0.5, 0, 0.5))
+//            { (u, v) in cos(u)*sin(v) },
+//            { (u, v) in cos(v) + log(tan(v/2)) + 0.2*u },
+//            { (u, v) in sin(u)*sin(v) })
+            .material(.solidColor(1.0, 0, 0.5))
         Plane()
             .material(.solidColor(1, 1, 1))
             .translate(0, -3.0, 0)
