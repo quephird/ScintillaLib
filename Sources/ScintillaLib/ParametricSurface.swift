@@ -72,21 +72,21 @@ public class ParametricSurface: Shape {
 
         let t1 = boundingBoxIntersections[0].t
         let t2 = boundingBoxIntersections[1].t
-        let rayOrigin = localRay.origin
+
+        let rayOrigin    = localRay.origin
         let rayDirection = localRay.direction
 
         let (uMin, uMax) = self.uRange
         let (vMin, vMax) = self.vRange
 
-        var intervalsLow = [[Double]](repeating: [Double](repeating: 0.0, count: 32), count: 2)
+        var intervalsLow  = [[Double]](repeating: [Double](repeating: 0.0, count: 32), count: 2)
         var intervalsHigh = [[Double]](repeating: [Double](repeating: 0.0, count: 32), count: 2)
-        var sectorNum = [Int](repeating: 0, count: 32)
-
-        intervalsLow[INDEX_U][0] = uMin;
+        intervalsLow[INDEX_U][0]  = uMin;
         intervalsHigh[INDEX_U][0] = uMax;
-        intervalsLow[INDEX_V][0] = vMin;
+        intervalsLow[INDEX_V][0]  = vMin;
         intervalsHigh[INDEX_V][0] = vMax;
 
+        var sectorNum = [Int](repeating: 0, count: 32)
         sectorNum[0] = 1;
 
         var t = Double.infinity
@@ -101,10 +101,10 @@ public class ParametricSurface: Shape {
         var maxTForY = 0.0
         var minTForZ = 0.0
         var maxTForZ = 0.0
-        var i = 0
 
+        var i = 0
         while i >= 0 {
-            lowUV = (intervalsLow[INDEX_U][i], intervalsLow[INDEX_V][i])
+            lowUV  = (intervalsLow[INDEX_U][i], intervalsLow[INDEX_V][i])
             highUV = (intervalsHigh[INDEX_U][i], intervalsHigh[INDEX_V][i])
 
             var maxSectorWidth = highUV.0 - lowUV.0
@@ -121,8 +121,8 @@ public class ParametricSurface: Shape {
             deltaT = 0.0
 
             // Start narrowing down the value of t based on the range of values for the x coordinate
-            var lowX: Double
-            var highX: Double
+            let lowX: Double
+            let highX: Double
             (lowX, highX) = computeIntervalForSector(fn: self.fx,
                                                      accuracy: self.accuracy,
                                                      lowUV: lowUV,
@@ -132,7 +132,7 @@ public class ParametricSurface: Shape {
             if rayDirection.x.isAlmostEqual(0.0) {
                 parX = true
 
-                if highX < rayOrigin.x || lowX < rayOrigin.x {
+                if highX < rayOrigin.x || lowX > rayOrigin.x {
                     i -= 1
                     continue
                 }
@@ -159,8 +159,8 @@ public class ParametricSurface: Shape {
             }
 
             // Continue narrowing down t based on the range of values for the y coordinate
-            var lowY: Double
-            var highY: Double
+            let lowY: Double
+            let highY: Double
             (lowY, highY) = computeIntervalForSector(fn: self.fy,
                                                      accuracy: self.accuracy,
                                                      lowUV: lowUV,
@@ -170,7 +170,7 @@ public class ParametricSurface: Shape {
             if rayDirection.y.isAlmostEqual(0.0) {
                 parY = true
 
-                if highY < rayOrigin.y || lowY < rayOrigin.y {
+                if highY < rayOrigin.y || lowY > rayOrigin.y {
                     i -= 1
                     continue
                 }
@@ -206,9 +206,9 @@ public class ParametricSurface: Shape {
                 }
             }
 
-            // Now continue narrowing down t based on the range of values for the z coordinate
-            var lowZ: Double
-            var highZ: Double
+            // Finally, continue narrowing down t based on the range of values for the z coordinate
+            let lowZ: Double
+            let highZ: Double
             (lowZ, highZ) = computeIntervalForSector(fn: self.fz,
                                                      accuracy: self.accuracy,
                                                      lowUV: lowUV,
@@ -218,7 +218,7 @@ public class ParametricSurface: Shape {
             if rayDirection.z.isAlmostEqual(0.0) {
                 parY = true
 
-                if highZ < rayOrigin.z || lowZ < rayOrigin.z {
+                if highZ < rayOrigin.z || lowZ > rayOrigin.z {
                     i -= 1
                     continue
                 }
@@ -336,40 +336,40 @@ public class ParametricSurface: Shape {
     }
 
     private func computeIntervalForSector(fn: ParametricFunction,
-                                  accuracy: Double,
-                                  lowUV: (Double, Double),
-                                  highUV: (Double, Double),
-                                  maxGradient: Double) -> (Double, Double) {
-        /* Calculate the values at each corner */
-        let bottomLeft = fn(lowUV.0, lowUV.1) - accuracy
-        let topLeft = fn(lowUV.0, highUV.1) - accuracy
+                                          accuracy: Double,
+                                          lowUV: (Double, Double),
+                                          highUV: (Double, Double),
+                                          maxGradient: Double) -> (Double, Double) {
+        // Calculate the values at each corner
+        let bottomLeft  = fn(lowUV.0, lowUV.1) - accuracy
+        let topLeft     = fn(lowUV.0, highUV.1) - accuracy
         let bottomRight = fn(highUV.0, lowUV.1) - accuracy
-        let topRight = fn(highUV.0, highUV.1) - accuracy
+        let topRight    = fn(highUV.0, highUV.1) - accuracy
 
         let deltaU = highUV.0 - lowUV.0
         let deltaV = highUV.1 - lowUV.1
 
-        /* Determine a min and a max along the left edge of the sector */
+        // Determine min and max values along the left edge of the sector.
         let (leftEdgeMin, leftEdgeMax) = computeIntervalForEdge(deltaY: deltaV,
                                                                 x1: bottomLeft,
                                                                 x2: topLeft,
                                                                 maxGradient: self.maxGradient)
 
-        /* Determine a min and a max along the right edge of the sector */
+        // Determine min and max values along the right edge of the sector.
         let (rightEdgeMin, rightEdgeMax) = computeIntervalForEdge(deltaY: deltaV,
                                                                   x1: bottomRight,
                                                                   x2: topRight,
                                                                   maxGradient: self.maxGradient)
 
-        /* Assume that the upper bounds of both edges are attained at the same
-         u coordinate and determine what an upper bound along that line would
-         be if it existed.  That's the worst-case maximum value we can reach. */
+        // Assume that the upper bounds of both edges are attained at the same
+        // u coordinate and determine what an upper bound along that line would
+        // be if it existed. That's the worst-case maximum value we can reach.
         let (_, high) = computeIntervalForEdge(deltaY: deltaU,
                                                x1: leftEdgeMax,
                                                x2: rightEdgeMax,
                                                maxGradient: self.maxGradient)
 
-        /* same as above to get a lower bound from the two edge lower bounds */
+        // Same as above to get a lower bound from the two edge lower bounds.
         let (low, _) = computeIntervalForEdge(deltaY: deltaU,
                                               x1: leftEdgeMin,
                                               x2: rightEdgeMin,

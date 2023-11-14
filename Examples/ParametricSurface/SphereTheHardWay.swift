@@ -13,18 +13,18 @@ import ScintillaLib
 struct SphereTheHardWay: ScintillaApp {
     var world = World {
         PointLight(Point(-10, 10, -10))
-        Camera(400, 400, PI/3, .view(
-            Point(0, 0, -5),
+        Camera(200, 200, PI/3, .view(
+            Point(0, 0, -10),
             Point(0, 0, 0),
             Vector(0, 1, 0)))
         ParametricSurface(
-            (-1.5, -1.5, -1.5), (1.5, 1.5, 1.5),
+            (-3.5, -3.5, -3.5), (3.5, 3.5, 3.5),
 //            (-3.1, -1, -3.1), (3.1, 7.5, 3.1),
-            (-PI, PI), (0, 2*PI),
+            (-2*PI, 2*PI), (0, 2*PI),
             // Sphere
-            { (u, v) in cos(u)*sin(v) },
-            { (u, v) in sin(u)*sin(v) },
-            { (u, v) in cos(v) })
+//            { (u, v) in cos(u)*sin(v) },
+//            { (u, v) in sin(u)*sin(v) },
+//            { (u, v) in cos(v) })
             // Ellipsoid
 //            { (θ, ϕ) in 3*cos(θ)*sin(ϕ) },
 //            { (θ, ϕ) in sin(θ)*sin(ϕ) },
@@ -46,12 +46,12 @@ struct SphereTheHardWay: ScintillaApp {
 //            { (u, v) in 1/2*sin(u)*sin(2*v) },
 //            { (u, v) in 1/2*cos(u)*sin(2*v) })
             // Spiral
-//            { (u, v) in (2.0+cos(v))*cos(u) },
-//            { (u, v) in sin(v)+u },
-//            { (u, v) in (2.0+cos(v))*sin(u) })
+            { (u, v) in (2.0+cos(v))*cos(u) },
+            { (u, v) in sin(v)+u },
+            { (u, v) in (2.0+cos(v))*sin(u) })
             .material(.solidColor(0.2, 1, 0.5))
-        Plane()
-            .material(.solidColor(1, 1, 1))
-            .translate(0, -1, 0)
+//        Plane()
+//            .material(.solidColor(1, 1, 1))
+//            .translate(0, -1, 0)
     }
 }
