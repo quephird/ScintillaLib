@@ -10,6 +10,8 @@ import Darwin
 public typealias ParametricFunction = (Double, Double) -> Double
 
 let MAX_SECTOR_NUM = 10_000_000
+let DEFAULT_ACCURACY = 0.001
+let DEFAULT_MAX_GRADIENT = 1.0
 
 @_spi(Testing) public enum UV {
     case none
@@ -23,9 +25,27 @@ public class ParametricSurface: Shape {
     var boundingShape: Shape
     var uRange: (Double, Double)
     var vRange: (Double, Double)
+    var accuracy: Double
+    var maxGradient: Double
 
-    var accuracy = 0.001
-    var maxGradient = 1.0
+    public convenience init(_ bottomFrontLeft: Point3D,
+                            _ topBackRight: Point3D,
+                            _ uRange: (Double, Double),
+                            _ vRange: (Double, Double),
+                            _ accuracy: Double,
+                            _ maxGradient: Double,
+                            _ fx: @escaping ParametricFunction,
+                            _ fy: @escaping ParametricFunction,
+                            _ fz: @escaping ParametricFunction) {
+        let (xMin, yMin, zMin) = bottomFrontLeft
+        let (xMax, yMax, zMax) = topBackRight
+        let (scaleX, scaleY, scaleZ) = ((xMax-xMin)/2, (yMax-yMin)/2, (zMax-zMin)/2)
+        let (translateX, translateY, translateZ) = ((xMax+xMin)/2, (yMax+yMin)/2, (zMax+zMin)/2)
+        let boundingShape = Cube()
+            .scale(scaleX, scaleY, scaleZ)
+            .translate(translateX, translateY, translateZ)
+        self.init(boundingShape, uRange, vRange, accuracy, maxGradient, fx, fy, fz)
+    }
 
     public convenience init(_ bottomFrontLeft: Point3D,
                             _ topBackRight: Point3D,
@@ -41,18 +61,22 @@ public class ParametricSurface: Shape {
         let boundingShape = Cube()
             .scale(scaleX, scaleY, scaleZ)
             .translate(translateX, translateY, translateZ)
-        self.init(boundingShape, uRange, vRange, fx, fy, fz)
+        self.init(boundingShape, uRange, vRange, DEFAULT_ACCURACY, DEFAULT_MAX_GRADIENT, fx, fy, fz)
     }
 
     public init(_ boundingShape: Shape,
                 _ uRange: (Double, Double),
                 _ vRange: (Double, Double),
+                _ accuracy: Double,
+                _ maxGradient: Double,
                 _ fx: @escaping ParametricFunction,
                 _ fy: @escaping ParametricFunction,
                 _ fz: @escaping ParametricFunction) {
         self.boundingShape = boundingShape
         self.uRange = uRange
         self.vRange = vRange
+        self.accuracy = accuracy
+        self.maxGradient = maxGradient
         self.fx = fx
         self.fy = fy
         self.fz = fz
@@ -216,8 +240,6 @@ public class ParametricSurface: Shape {
                                                      maxGradient: self.maxGradient)
 
             if rayDirection.z.isAlmostEqual(0.0) {
-                parY = true
-
                 if highZ < rayOrigin.z || lowZ > rayOrigin.z {
                     i -= 1
                     continue
@@ -273,7 +295,7 @@ public class ParametricSurface: Shape {
                 i -= 1
             } else {
                 sectorNum[i] *= 2
-                if sectorNum[i] > MAX_SECTOR_NUM {
+                if sectorNum[i] >= MAX_SECTOR_NUM {
                     sectorNum[i] = MAX_SECTOR_NUM
                 }
 
