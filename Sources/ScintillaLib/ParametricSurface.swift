@@ -217,7 +217,7 @@ public class ParametricSurface: Shape {
                     continue
                 }
 
-                if parX {
+                if !parX {
                     if (minTForY > maxTForX) || (maxTForY < minTForX) {
                         i -= 1
                         continue
@@ -263,13 +263,13 @@ public class ParametricSurface: Shape {
                     continue
                 }
 
-                if parX {
+                if !parX {
                     if (minTForZ > maxTForX) || (maxTForZ < minTForX) {
                         i -= 1
                         continue
                     }
                 }
-                if parY {
+                if !parY {
                     if (minTForZ > maxTForY) || (maxTForZ < minTForY) {
                         i -= 1
                         continue
