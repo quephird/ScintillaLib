@@ -9,100 +9,11 @@ import Darwin
 
 public typealias ParametricFunction = (Double, Double) -> Double
 
-// TODO: Think about separate values for subdividing u and v
-// TODO: Think about having the user pass values in for them
-let UV_SUBDIVISIONS = 10
-let MAX_RECURSIONS = 30
+let MAX_SECTOR_NUM = 10_000_000
 
 @_spi(Testing) public enum UV {
     case none
     case value(Double, Double)
-}
-
-struct PointSet {
-    private var _storage: [Point]
-    private(set) var columns: Int
-
-    private var rows: Int { _storage.count / columns }
-
-    private func indexFor(column: Int, row: Int) -> Int {
-        column * rows + row
-    }
-
-    static private func coordinates(for index: Int, withRows rows: Int) -> Index {
-        Index(column: index / rows, row: index % rows)
-    }
-
-    init(columns: Int, rows: Int, makeElement: (Int, Int) -> Point) {
-        self.columns = columns
-
-        _storage = Array(unsafeUninitializedCapacity: rows * columns) { buffer, initializedCount in
-            // `makeElement` will be captured by the escaping closure passed to `map`, but the result
-            // of `map` will be used and discarded before the initializer returns, so it's safe to
-            // use `withoutActuallyEscaping`.
-            withoutActuallyEscaping(makeElement) { makeElement in
-                _ = buffer.initialize(
-                    from: buffer.indices.lazy.map { i in
-                        let pointIndex = Self.coordinates(for: i, withRows: rows)
-                        return makeElement(pointIndex.column, pointIndex.row)
-                    }
-                )
-            }
-            initializedCount = buffer.count
-        }
-    }
-
-    subscript(_ column: Int, _ row: Int) -> Point {
-        get {
-            _storage[indexFor(column: column, row: row)]
-        }
-        _modify {
-            yield &_storage[indexFor(column: column, row: row)]
-        }
-    }
-}
-
-extension PointSet: MutableCollection, RandomAccessCollection {
-    var startIndex: Index {
-        Index(column: 0, row: 0)
-    }
-
-    var endIndex: Index {
-        Index(column: columns + 1, row: 0)
-    }
-
-    func index(before i: Index) -> Index {
-        index(i, offsetBy: -1)
-    }
-
-    func index(after i: Index) -> Index {
-        index(i, offsetBy: 1)
-    }
-
-    struct Index: Comparable, Hashable {
-        static func < (lhs: PointSet.Index, rhs: PointSet.Index) -> Bool {
-            (lhs.column, lhs.row) < (rhs.column, rhs.row)
-        }
-
-        var column: Int
-        var row: Int
-    }
-
-    func index(_ i: Index, offsetBy distance: Int) -> Index {
-        let storageIndex = indexFor(column: i.column, row: i.row) + distance
-        return Self.coordinates(for: storageIndex, withRows: rows)
-    }
-
-    func distance(from start: Index, to end: Index) -> Int {
-        let startStorageIndex = indexFor(column: start.column, row: start.row)
-        let endStorageIndex = indexFor(column: end.column, row: end.row)
-        return endStorageIndex - startStorageIndex
-    }
-
-    subscript(position: Index) -> Point {
-        get { self[position.column, position.row] }
-        _modify { yield &self[position.column, position.row] }
-    }
 }
 
 public class ParametricSurface: Shape {
@@ -112,7 +23,9 @@ public class ParametricSurface: Shape {
     var boundingShape: Shape
     var uRange: (Double, Double)
     var vRange: (Double, Double)
-    var points: PointSet
+
+    var accuracy = 0.001
+    var maxGradient = 1.0
 
     public convenience init(_ bottomFrontLeft: Point3D,
                             _ topBackRight: Point3D,
@@ -143,13 +56,10 @@ public class ParametricSurface: Shape {
         self.fx = fx
         self.fy = fy
         self.fz = fz
-
-        self.points = PointSet(columns: UV_SUBDIVISIONS + 1, rows: UV_SUBDIVISIONS + 1) { i, j in
-            let u = uRange.0 + (uRange.1 - uRange.0)*Double(i)/Double(UV_SUBDIVISIONS)
-            let v = vRange.0 + (vRange.1 - vRange.0)*Double(j)/Double(UV_SUBDIVISIONS)
-            return Point(fx(u, v), fy(u, v), fz(u, v))
-        }
     }
+
+    let INDEX_U = 0
+    let INDEX_V = 1
 
     @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
         // First we check to see if the ray intersects the bounding shape;
@@ -160,33 +70,234 @@ public class ParametricSurface: Shape {
             return []
         }
 
-        let (uStart, uEnd) = uRange
-        let (vStart, vEnd) = vRange
-        var xCurr = [uStart, vStart, 0.0]
-        var iterations = 0
+        let t1 = boundingBoxIntersections[0].t
+        let t2 = boundingBoxIntersections[1].t
+        let rayOrigin = localRay.origin
+        let rayDirection = localRay.direction
 
-        let j = makeJacobian(fx, fy, fz, localRay)
-        let f = makeF(fx, fy, fz, localRay)
-        while iterations < MAX_RECURSIONS {
-            let fPrev = f(xCurr[0], xCurr[1], xCurr[2])
-            let jPrev = j(xCurr[0], xCurr[1], xCurr[2])
-            let system = makeSystemOfThreeEquations(jPrev, fPrev)
+        let (uMin, uMax) = self.uRange
+        let (vMin, vMax) = self.vRange
 
-            if let yPrev = solve(system) {
-                xCurr = [
-                    xCurr[0] + yPrev[0],
-                    xCurr[1] + yPrev[1],
-                    xCurr[2] + yPrev[2],
-                ]
-                if norm(yPrev) < EPSILON {
-                    return [Intersection(xCurr[2], .value(xCurr[0], xCurr[1]), self)]
-                } else {
-                    iterations += 1
+        var intervalsLow = [[Double]](repeating: [Double](repeating: 0.0, count: 32), count: 2)
+        var intervalsHigh = [[Double]](repeating: [Double](repeating: 0.0, count: 32), count: 2)
+        var sectorNum = [Int](repeating: 0, count: 32)
+
+        intervalsLow[INDEX_U][0] = uMin;
+        intervalsHigh[INDEX_U][0] = uMax;
+        intervalsLow[INDEX_V][0] = vMin;
+        intervalsHigh[INDEX_V][0] = vMax;
+
+        sectorNum[0] = 1;
+
+        var t = Double.infinity
+        var uv: UV = .none
+        var potentialT = Double.infinity
+        var deltaT: Double
+        var lowUV: (Double, Double)
+        var highUV: (Double, Double)
+        var minTForX = 0.0
+        var maxTForX = 0.0
+        var minTForY = 0.0
+        var maxTForY = 0.0
+        var minTForZ = 0.0
+        var maxTForZ = 0.0
+        var i = 0
+
+        while i >= 0 {
+            lowUV = (intervalsLow[INDEX_U][i], intervalsLow[INDEX_V][i])
+            highUV = (intervalsHigh[INDEX_U][i], intervalsHigh[INDEX_V][i])
+
+            var maxSectorWidth = highUV.0 - lowUV.0
+            var splitIndex = INDEX_U
+
+            let tempSectorWidth = highUV.1 - lowUV.1
+            if tempSectorWidth > maxSectorWidth {
+                maxSectorWidth = tempSectorWidth
+                splitIndex = INDEX_V
+            }
+
+            var parX = false
+            var parY = false
+            deltaT = 0.0
+
+            // Start narrowing down the value of t based on the range of values for the x coordinate
+            var lowX: Double
+            var highX: Double
+            (lowX, highX) = computeIntervalForSector(fn: self.fx,
+                                                     accuracy: self.accuracy,
+                                                     lowUV: lowUV,
+                                                     highUV: highUV,
+                                                     maxGradient: self.maxGradient)
+
+            if rayDirection.x.isAlmostEqual(0.0) {
+                parX = true
+
+                if highX < rayOrigin.x || lowX < rayOrigin.x {
+                    i -= 1
+                    continue
                 }
             } else {
-                return []
+                minTForX = (highX - rayOrigin.x)/rayDirection.x
+                maxTForX = (lowX - rayOrigin.x)/rayDirection.x
+
+                if (minTForX > maxTForX) {
+                    (minTForX, maxTForX) = (maxTForX, minTForX)
+                }
+
+                if (minTForX > t2) || (maxTForX < t1) {
+                    i -= 1
+                    continue
+                }
+
+                potentialT = minTForX
+                if potentialT > t {
+                    i -= 1
+                    continue
+                }
+
+                deltaT = maxTForX - minTForX;
+            }
+
+            // Continue narrowing down t based on the range of values for the y coordinate
+            var lowY: Double
+            var highY: Double
+            (lowY, highY) = computeIntervalForSector(fn: self.fy,
+                                                     accuracy: self.accuracy,
+                                                     lowUV: lowUV,
+                                                     highUV: highUV,
+                                                     maxGradient: self.maxGradient)
+
+            if rayDirection.y.isAlmostEqual(0.0) {
+                parY = true
+
+                if highY < rayOrigin.y || lowY < rayOrigin.y {
+                    i -= 1
+                    continue
+                }
+            } else {
+                minTForY = (highY - rayOrigin.y)/rayDirection.y
+                maxTForY = (lowY - rayOrigin.y)/rayDirection.y
+
+                if (minTForY > maxTForY) {
+                    (minTForY, maxTForY) = (maxTForY, minTForY)
+                }
+
+                if (minTForY > t2) || (maxTForY < t1) {
+                    i -= 1
+                    continue
+                }
+
+                potentialT = minTForY
+                if potentialT > t {
+                    i -= 1
+                    continue
+                }
+
+                if parX {
+                    if (minTForY > maxTForX) || (maxTForY < minTForX) {
+                        i -= 1
+                        continue
+                    }
+                }
+
+                let temp = maxTForY - minTForY
+                if temp > deltaT {
+                    deltaT = temp
+                }
+            }
+
+            // Now continue narrowing down t based on the range of values for the z coordinate
+            var lowZ: Double
+            var highZ: Double
+            (lowZ, highZ) = computeIntervalForSector(fn: self.fz,
+                                                     accuracy: self.accuracy,
+                                                     lowUV: lowUV,
+                                                     highUV: highUV,
+                                                     maxGradient: self.maxGradient)
+
+            if rayDirection.z.isAlmostEqual(0.0) {
+                parY = true
+
+                if highZ < rayOrigin.z || lowZ < rayOrigin.z {
+                    i -= 1
+                    continue
+                }
+            } else {
+                minTForZ = (highZ - rayOrigin.z)/rayDirection.z
+                maxTForZ = (lowZ - rayOrigin.z)/rayDirection.z
+
+                if (minTForZ > maxTForZ) {
+                    (minTForZ, maxTForZ) = (maxTForZ, minTForZ)
+                }
+
+                if (minTForZ > t2) || (maxTForZ < t1) {
+                    i -= 1
+                    continue
+                }
+
+                potentialT = minTForZ
+                if potentialT > t {
+                    i -= 1
+                    continue
+                }
+
+                if parX {
+                    if (minTForZ > maxTForX) || (maxTForZ < minTForX) {
+                        i -= 1
+                        continue
+                    }
+                }
+                if parY {
+                    if (minTForZ > maxTForY) || (maxTForZ < minTForY) {
+                        i -= 1
+                        continue
+                    }
+                }
+
+                let temp = maxTForZ - minTForZ
+                if temp > deltaT {
+                    deltaT = temp
+                }
+            }
+
+            if maxSectorWidth > deltaT {
+                maxSectorWidth = deltaT
+            }
+
+            if maxSectorWidth < accuracy {
+                if (t > potentialT) && (potentialT > t1) {
+                    t = potentialT
+                    uv = .value(lowUV.0, lowUV.1)
+                }
+
+                i -= 1
+            } else {
+                sectorNum[i] *= 2
+                if sectorNum[i] > MAX_SECTOR_NUM {
+                    sectorNum[i] = MAX_SECTOR_NUM
+                }
+
+                sectorNum[i+1] = sectorNum[i]
+                sectorNum[i] += 1
+
+                i += 1
+
+                intervalsLow[INDEX_U][i] = lowUV.0
+                intervalsHigh[INDEX_U][i] = highUV.0
+                intervalsLow[INDEX_V][i] = lowUV.1
+                intervalsHigh[INDEX_V][i] = highUV.1
+
+                let temp = (intervalsHigh[splitIndex][i] + intervalsLow[splitIndex][i]) / 2.0
+                intervalsHigh[splitIndex][i] = temp
+                intervalsLow[splitIndex][i-1] = temp
             }
         }
+
+        if t < t2 {
+            let intersection = Intersection(t, uv, self)
+            return [intersection]
+        }
+
 
         return []
     }
@@ -209,194 +320,61 @@ public class ParametricSurface: Shape {
             fatalError("Whoops... you need to pass in a uv pair!")
         }
     }
-}
 
-public typealias FunctionOfThreeVariables = (Double, Double, Double) -> Double
-public typealias Jacobian = (Double, Double, Double) -> [[Double]]
-public typealias Matrix = [[Double]]
+    private func computeIntervalForEdge(deltaY: Double,
+                                        x1: Double,
+                                        x2: Double,
+                                        maxGradient: Double) -> (Double, Double) {
+        let deltaX = abs(x2 - x1)
+        var offset = maxGradient*(deltaY - deltaX/maxGradient)/2.0
 
-func makeJacobian(_ fx: @escaping ParametricFunction,
-                  _ fy: @escaping ParametricFunction,
-                  _ fz: @escaping ParametricFunction,
-                  _ localRay: Ray) -> Jacobian {
-    // These are the three components of the ray equation:
-    //
-    //     r⃑ = o + td⃑
-    func ftx(_ t: Double) -> Double {
-        localRay.origin.x + t*localRay.direction.x
-    }
-    func fty(_ t: Double) -> Double {
-        localRay.origin.y + t*localRay.direction.y
-    }
-    func ftz(_ t: Double) -> Double {
-        localRay.origin.z + t*localRay.direction.z
+        if offset < 0 {
+            offset = 0
+        }
+
+        return (min(x1, x2)-offset, max(x1, x2)+offset)
     }
 
-    // The system of equations are:
-    //
-    //    fx(u, v) - ftx(t) = 0
-    //    fy(u, v) - fty(t) = 0
-    //    fz(u, v) - ftz(t) = 0
-    func f1(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return fx(u, v) - ftx(t)
-    }
-    func f2(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return fy(u, v) - fty(t)
-    }
-    func f3(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return fz(u, v) - ftz(t)
-    }
+    private func computeIntervalForSector(fn: ParametricFunction,
+                                  accuracy: Double,
+                                  lowUV: (Double, Double),
+                                  highUV: (Double, Double),
+                                  maxGradient: Double) -> (Double, Double) {
+        /* Calculate the values at each corner */
+        let bottomLeft = fn(lowUV.0, lowUV.1) - accuracy
+        let topLeft = fn(lowUV.0, highUV.1) - accuracy
+        let bottomRight = fn(highUV.0, lowUV.1) - accuracy
+        let topRight = fn(highUV.0, highUV.1) - accuracy
 
-    return makeJacobian(f1, f2, f3)
-}
+        let deltaU = highUV.0 - lowUV.0
+        let deltaV = highUV.1 - lowUV.1
 
-func makeJacobian(_ f1: @escaping FunctionOfThreeVariables,
-                  _ f2: @escaping FunctionOfThreeVariables,
-                  _ f3: @escaping FunctionOfThreeVariables) -> Jacobian {
-    // Set up all the gradients
-    func gradF1u(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return (f1(u + DELTA, v, t) - f1(u, v, t))/DELTA
-    }
-    func gradF1v(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return (f1(u, v + DELTA, t) - f1(u, v, t))/DELTA
-    }
-    func gradF1t(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return (f1(u, v, t + DELTA) - f1(u, v, t))/DELTA
-    }
-    func gradF2u(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return (f2(u + DELTA, v, t) - f2(u, v, t))/DELTA
-    }
-    func gradF2v(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return (f2(u, v + DELTA, t) - f2(u, v, t))/DELTA
-    }
-    func gradF2t(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return (f2(u, v, t + DELTA) - f2(u, v, t))/DELTA
-    }
-    func gradF3u(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return (f3(u + DELTA, v, t) - f3(u, v, t))/DELTA
-    }
-    func gradF3v(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return (f3(u, v + DELTA, t) - f3(u, v, t))/DELTA
-    }
-    func gradF3t(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return (f3(u, v, t + DELTA) - f3(u, v, t))/DELTA
-    }
+        /* Determine a min and a max along the left edge of the sector */
+        let (leftEdgeMin, leftEdgeMax) = computeIntervalForEdge(deltaY: deltaV,
+                                                                x1: bottomLeft,
+                                                                x2: topLeft,
+                                                                maxGradient: self.maxGradient)
 
-    func jacobian(_ u: Double, _ v: Double, _ t: Double) -> [[Double]] {
-    [
-        [gradF1u(u, v, t), gradF1v(u, v, t), gradF1t(u, v, t)],
-        [gradF2u(u, v, t), gradF2v(u, v, t), gradF2t(u, v, t)],
-        [gradF3u(u, v, t), gradF3v(u, v, t), gradF3t(u, v, t)],
-    ]
+        /* Determine a min and a max along the right edge of the sector */
+        let (rightEdgeMin, rightEdgeMax) = computeIntervalForEdge(deltaY: deltaV,
+                                                                  x1: bottomRight,
+                                                                  x2: topRight,
+                                                                  maxGradient: self.maxGradient)
+
+        /* Assume that the upper bounds of both edges are attained at the same
+         u coordinate and determine what an upper bound along that line would
+         be if it existed.  That's the worst-case maximum value we can reach. */
+        let (_, high) = computeIntervalForEdge(deltaY: deltaU,
+                                               x1: leftEdgeMax,
+                                               x2: rightEdgeMax,
+                                               maxGradient: self.maxGradient)
+
+        /* same as above to get a lower bound from the two edge lower bounds */
+        let (low, _) = computeIntervalForEdge(deltaY: deltaU,
+                                              x1: leftEdgeMin,
+                                              x2: rightEdgeMin,
+                                              maxGradient: self.maxGradient)
+
+        return (low, high)
     }
-
-    return jacobian
-}
-
-public typealias F = (Double, Double, Double) -> [Double]
-
-func makeF(_ fx: @escaping ParametricFunction,
-           _ fy: @escaping ParametricFunction,
-           _ fz: @escaping ParametricFunction,
-           _ localRay: Ray) -> F {
-    // These are the three components of the ray equation:
-    //
-    //     r⃑ = o + td⃑
-    func ftx(_ t: Double) -> Double {
-        localRay.origin.x + t*localRay.direction.x
-    }
-    func fty(_ t: Double) -> Double {
-        localRay.origin.y + t*localRay.direction.y
-    }
-    func ftz(_ t: Double) -> Double {
-        localRay.origin.z + t*localRay.direction.z
-    }
-
-    // The system of equations are:
-    //
-    //    fx(u, v) - ftx(t) = 0
-    //    fy(u, v) - fty(t) = 0
-    //    fz(u, v) - ftz(t) = 0
-    func f1(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return fx(u, v) - ftx(t)
-    }
-    func f2(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return fy(u, v) - fty(t)
-    }
-    func f3(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return fz(u, v) - ftz(t)
-    }
-
-    return makeF(f1, f2, f3)
-}
-
-func makeF(_ f1: @escaping FunctionOfThreeVariables,
-           _ f2: @escaping FunctionOfThreeVariables,
-           _ f3: @escaping FunctionOfThreeVariables) -> F {
-    func F(_ u: Double, _ v: Double, _ t: Double) -> [Double] {
-        [f1(u, v, t), f2(u, v, t), f3(u, v, t)]
-    }
-
-    return F
-}
-
-public typealias Hessian = (Double, Double, Double) -> [[Double]]
-
-func makeHessian(f: @escaping FunctionOfThreeVariables) -> Hessian {
-    // Set up second-order derivatives
-    func partialDerivativeFuu(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return (f(u+DELTA, v, t) - 2*f(u, v, t) + f(u-DELTA, v, t))/DELTA
-    }
-    func partialDerivativeFuv(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return (f(u+DELTA, v+DELTA, t) - f(u+DELTA, v, t) - f(u, v+DELTA, t) + f(u, v, t))/DELTA/DELTA
-    }
-    func partialDerivativeFut(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return (f(u+DELTA, v, t+DELTA) - f(u+DELTA, v, t) - f(u, v, t+DELTA) + f(u, v, t))/DELTA/DELTA
-    }
-
-    func partialDerivativeFvv(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return (f(u, v+DELTA, t) - 2*f(u, v, t) + f(u, v-DELTA, t))/DELTA
-    }
-    func partialDerivativeFvt(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return (f(u, v+DELTA, t+DELTA) - f(u, v+DELTA, t) - f(u, v, t+DELTA) + f(u, v, t))/DELTA/DELTA
-    }
-
-    func partialDerivativeFtt(_ u: Double, _ v: Double, _ t: Double) -> Double {
-        return (f(u, v, t+DELTA) - 2*f(u, v, t) + f(u, v, t-DELTA))/DELTA
-    }
-
-    func hessian(_ u: Double, _ v: Double, _ t: Double) -> [[Double]] {
-    [
-        [partialDerivativeFuu(u, v, t), partialDerivativeFuv(u, v, t), partialDerivativeFut(u, v, t)],
-        [partialDerivativeFuv(u, v, t), partialDerivativeFvv(u, v, t), partialDerivativeFvt(u, v, t)],
-        [partialDerivativeFut(u, v, t), partialDerivativeFvt(u, v, t), partialDerivativeFtt(u, v, t)],
-    ]
-    }
-
-    return hessian
-}
-
-func makeSomething() {
-    // TODO: Need to figure out what to name this function that computes Qᵀ ⊗ H
-}
-
-func makeSystemOfThreeEquations(_ jacobianValues: [[Double]], _ fValues: [Double]) -> [[Double]] {
-    var matrix: [[Double]] = []
-
-    for j in 0..<jacobianValues.count {
-        var newRow = jacobianValues[j]
-        newRow.append(-fValues[j])
-        matrix.append(newRow)
-    }
-
-    return matrix
-}
-
-func norm(_ vector: [Double]) -> Double {
-    var temp = 0.0
-    for component in vector {
-        temp += component*component
-    }
-
-    return sqrt(temp)
 }
