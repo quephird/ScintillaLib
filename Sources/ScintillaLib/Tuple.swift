@@ -28,7 +28,7 @@ extension Tuple4 {
         self.data.3
     }
 
-    subscript(_ index: Int) -> Double {
+    @_spi(Testing) public subscript(_ index: Int) -> Double {
         get {
             switch index {
             case 0: return self.data.0

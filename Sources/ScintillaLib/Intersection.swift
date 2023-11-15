@@ -49,7 +49,7 @@ public struct Intersection {
         return (n1, n2)
     }
 
-    func prepareComputations(_ ray: Ray, _ allIntersections: [Intersection]) -> Computations {
+    @_spi(Testing) public func prepareComputations(_ ray: Ray, _ allIntersections: [Intersection]) -> Computations {
         let point = ray.position(self.t)
         let eye = ray.direction.negate()
         var normal = self.shape.normal(point)
@@ -81,7 +81,7 @@ public struct Intersection {
     }
 }
 
-func hit(_ intersections: [Intersection], includeOnlyShadowingObjects: Bool = false) -> Optional<Intersection> {
+@_spi(Testing) public func hit(_ intersections: [Intersection], includeOnlyShadowingObjects: Bool = false) -> Optional<Intersection> {
     return intersections
         .sorted(by: { i1, i2 in
             i1.t < i2.t
