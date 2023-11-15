@@ -7,12 +7,12 @@
 
 import Foundation
 
-let MAX_RECURSIVE_CALLS = 5
+@_spi(Testing) public let MAX_RECURSIVE_CALLS = 5
 
 public class World {
-    var light: Light
-    var camera: Camera
-    var objects: [Shape]
+    @_spi(Testing) public var light: Light
+    @_spi(Testing) public var camera: Camera
+    @_spi(Testing) public var objects: [Shape]
     var antialiasing: Bool = false
 
     public init(@WorldBuilder builder: () -> World) {
@@ -39,7 +39,7 @@ public class World {
         return self
     }
 
-    func intersect(_ ray: Ray) -> [Intersection] {
+    @_spi(Testing) public func intersect(_ ray: Ray) -> [Intersection] {
         var intersections = objects.flatMap({object in object.intersect(ray)})
         intersections
             .sort(by: { i1, i2 in
@@ -53,7 +53,7 @@ public class World {
         return r0 + (1 - r0) * pow(1 - cosTheta, 5.0)
     }
 
-    func schlickReflectance(_ computations: Computations) -> Double {
+    @_spi(Testing) public func schlickReflectance(_ computations: Computations) -> Double {
         // Find the cosine of the angle between the eye and normal vectors
         let cosThetaI = computations.eye.dot(computations.normal)
 
@@ -75,7 +75,7 @@ public class World {
         }
     }
 
-    func shadeHit(_ computations: Computations, _ remainingCalls: Int) -> Color {
+    @_spi(Testing) public func shadeHit(_ computations: Computations, _ remainingCalls: Int) -> Color {
         let material = computations.object.material
         let intensity = self.intensity(self.light, computations.overPoint)
 
@@ -101,7 +101,7 @@ public class World {
         }
     }
 
-    func reflectedColorAt(_ computations: Computations, _ remainingCalls: Int) -> Color {
+    @_spi(Testing) public func reflectedColorAt(_ computations: Computations, _ remainingCalls: Int) -> Color {
         if remainingCalls == 0 {
             return .black
         } else if computations.object.material.properties.reflective == 0 {
@@ -112,7 +112,7 @@ public class World {
         }
     }
 
-    func refractedColorAt(_ computations: Computations, _ remainingCalls: Int) -> Color {
+    @_spi(Testing) public func refractedColorAt(_ computations: Computations, _ remainingCalls: Int) -> Color {
         if remainingCalls == 0 {
             return .black
         } else if computations.object.material.properties.transparency == 0 {
@@ -150,7 +150,7 @@ public class World {
         }
     }
 
-    func colorAt(_ ray: Ray, _ remainingCalls: Int) -> Color {
+    @_spi(Testing) public func colorAt(_ ray: Ray, _ remainingCalls: Int) -> Color {
         let allIntersections = self.intersect(ray)
         let hit = hit(allIntersections)
         switch hit {
@@ -162,7 +162,7 @@ public class World {
         }
     }
 
-    func isShadowed(_ lightPoint: Point, _ worldPoint: Point) -> Bool {
+    @_spi(Testing) public func isShadowed(_ lightPoint: Point, _ worldPoint: Point) -> Bool {
         let lightVector = lightPoint.subtract(worldPoint)
         let lightDistance = lightVector.magnitude()
         let lightDirection = lightVector.normalize()
@@ -177,7 +177,7 @@ public class World {
         }
     }
 
-    func intensity(_ light: Light, _ worldPoint: Point) -> Double {
+    @_spi(Testing) public func intensity(_ light: Light, _ worldPoint: Point) -> Double {
         switch light {
         case let pointLight as PointLight:
             return isShadowed(pointLight.position, worldPoint) ? 0.0 : 1.0
@@ -196,7 +196,7 @@ public class World {
         }
     }
 
-    func rayForPixel(_ pixelX: Int, _ pixelY: Int, _ dx: Double = 0.5, _ dy: Double = 0.5) -> Ray {
+    @_spi(Testing) public func rayForPixel(_ pixelX: Int, _ pixelY: Int, _ dx: Double = 0.5, _ dy: Double = 0.5) -> Ray {
         // The offset from the edge of the canvas to the pixel's center
         let offsetX = (Double(pixelX) + dx) * self.camera.pixelSize
         let offsetY = (Double(pixelY) + dy) * self.camera.pixelSize

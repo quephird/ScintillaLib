@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class Pattern: Material {
+open class Pattern: Material {
     var transform: Matrix4
     var inverseTransform: Matrix4
     public var properties = MaterialProperties()
@@ -17,7 +17,7 @@ public class Pattern: Material {
         self.inverseTransform = transform.inverse()
     }
 
-    public func copy() -> Self {
+    open func copy() -> Self {
         fatalError("Subclasses must override this method!")
     }
 
@@ -27,7 +27,7 @@ public class Pattern: Material {
         return self.colorAt(patternPoint)
     }
 
-    public func colorAt(_ point: Tuple4) -> Color {
+    open func colorAt(_ point: Tuple4) -> Color {
         fatalError("Subclasses must override this method!")
     }
 }
