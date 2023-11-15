@@ -325,6 +325,15 @@ public class ParametricSurface: Shape {
     }
 
     @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV) -> Vector {
+        // We compute the normal vector by first numerically approximating all the partial
+        // derivatives: ∂Fx/∂u, ∂Fy/∂u, ∂Fz/∂u, ∂Fx/∂v, ∂Fy/∂v, ∂Fz/∂v. Then we form the vectors:
+        //
+        //              ∂Fx    ∂Fy    ∂Fz                  ∂Fx    ∂Fy    ∂Fz
+        //              ---i + ---j + ---k       and       ---i + ---j + ---k
+        //              ∂u     ∂u     ∂u                   ∂v     ∂v     ∂v
+        //
+        // and return their normalized cross product. Note that we don't even consider
+        // the point passed in, just the values for u and v.
         switch uv {
         case .value(let u, let v):
             let gradFxu = (fx(u + DELTA, v) - fx(u, v))/DELTA
