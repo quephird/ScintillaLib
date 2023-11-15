@@ -42,7 +42,7 @@ public struct ColorFunction: Material {
         return self.colorAt(colorFunctionPoint)
     }
 
-    func colorAt(_ point: Tuple4) -> Color {
+    public func colorAt(_ point: Tuple4) -> Color {
         let (component1, component2, component3) = colorFunction(point.x, point.y, point.z)
         return colorSpace.makeColor(component1, component2, component3)
     }
