@@ -86,7 +86,7 @@ public struct Color {
         Color(self.r*other.r, self.g*other.g, self.b*other.b)
     }
 
-    func isAlmostEqual(_ to: Self) -> Bool {
+    @_spi(Testing) public func isAlmostEqual(_ to: Self) -> Bool {
         self.r.isAlmostEqual(to.r) &&
         self.g.isAlmostEqual(to.g) &&
         self.b.isAlmostEqual(to.b)
