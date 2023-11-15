@@ -22,7 +22,7 @@ public class Superellipsoid: Shape {
         self.underlyingImplicitSurface = underlyingImplicitSurface
     }
 
-    override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
         return self.underlyingImplicitSurface
             .localIntersect(localRay)
             .map { intersection in
@@ -30,7 +30,7 @@ public class Superellipsoid: Shape {
             }
     }
 
-    override func localNormal(_ localPoint: Point) -> Vector {
+    @_spi(Testing) public override func localNormal(_ localPoint: Point) -> Vector {
         return self.underlyingImplicitSurface.localNormal(localPoint)
     }
 }
