@@ -97,7 +97,7 @@ public class Shape {
         return self
     }
 
-    func intersect(_ worldRay: Ray) -> [Intersection] {
+    @_spi(Testing) public func intersect(_ worldRay: Ray) -> [Intersection] {
         let localRay = worldRay.transform(self.inverseTransform)
         return self.localIntersect(localRay)
     }
