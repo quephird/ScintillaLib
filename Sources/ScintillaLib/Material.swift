@@ -99,7 +99,7 @@ extension Material {
         return modifyingProperties { $0.refractive = refractive }
     }
 
-    func lighting(_ light: Light, _ object: Shape, _ point: Point, _ eye: Vector, _ normal: Vector, _ intensity: Double) -> Color {
+    @_spi(Testing) public func lighting(_ light: Light, _ object: Shape, _ point: Point, _ eye: Vector, _ normal: Vector, _ intensity: Double) -> Color {
         // Combine the surface color with the light's color/intensity
         var effectiveColor: Color = colorAt(object, point)
         effectiveColor = effectiveColor.hadamard(light.color)

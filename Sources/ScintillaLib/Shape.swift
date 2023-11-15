@@ -16,7 +16,7 @@ public class Shape {
             self.inverseTransposeTransform = transform.inverse().transpose()
         }
     }
-    var material: Material = .basicMaterial()
+    @_spi(Testing) public var material: Material = .basicMaterial()
     var inverseTransform: Matrix4
     var inverseTransposeTransform: Matrix4
     var parent: Container?

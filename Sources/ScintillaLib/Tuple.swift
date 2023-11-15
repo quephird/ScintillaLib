@@ -12,19 +12,19 @@ public protocol Tuple4 {
 }
 
 extension Tuple4 {
-    var x: Double {
+    @_spi(Testing) public var x: Double {
         self.data.0
     }
 
-    var y: Double {
+    @_spi(Testing) public var y: Double {
         self.data.1
     }
 
-    var z: Double {
+    @_spi(Testing) public var z: Double {
         self.data.2
     }
 
-    var w: Double {
+    @_spi(Testing) public var w: Double {
         self.data.3
     }
 
@@ -64,7 +64,7 @@ public struct Point: Tuple4 {
         self.data = (x, y, z, 1.0)
     }
 
-    func add(_ other: Vector) -> Point {
+    @_spi(Testing) public func add(_ other: Vector) -> Point {
         Point(
             self.x + other.x,
             self.y + other.y,
@@ -72,7 +72,7 @@ public struct Point: Tuple4 {
         )
     }
 
-    func subtract(_ other: Vector) -> Point {
+    @_spi(Testing) public func subtract(_ other: Vector) -> Point {
         Point(
             self.x - other.x,
             self.y - other.y,
@@ -80,7 +80,7 @@ public struct Point: Tuple4 {
         )
     }
 
-    func subtract(_ other: Self) -> Vector {
+    @_spi(Testing) public func subtract(_ other: Self) -> Vector {
         Vector(
             self.x - other.x,
             self.y - other.y,
