@@ -49,7 +49,7 @@ extension Tuple4 {
         }
     }
 
-    func isAlmostEqual(_ to: Self) -> Bool {
+    @_spi(Testing) public func isAlmostEqual(_ to: Self) -> Bool {
         self[0].isAlmostEqual(to[0]) &&
             self[1].isAlmostEqual(to[1]) &&
             self[2].isAlmostEqual(to[2]) &&
@@ -96,7 +96,7 @@ public struct Vector: Tuple4 {
         self.data = (x, y, z, 0.0)
     }
 
-    func add(_ other: Vector) -> Vector {
+    @_spi(Testing) public func add(_ other: Vector) -> Vector {
         Vector(
             self.x + other.x,
             self.y + other.y,
@@ -104,7 +104,7 @@ public struct Vector: Tuple4 {
         )
     }
 
-    func add(_ other: Point) -> Point {
+    @_spi(Testing) public func add(_ other: Point) -> Point {
         Point(
             self.x + other.x,
             self.y + other.y,
@@ -112,15 +112,15 @@ public struct Vector: Tuple4 {
         )
     }
 
-    func negate() -> Self {
+    @_spi(Testing) public func negate() -> Self {
         Vector(-self.x, -self.y, -self.z)
     }
 
-    func subtract(_ other: Self) -> Self {
+    @_spi(Testing) public func subtract(_ other: Self) -> Self {
         self.add(other.negate())
     }
 
-    func multiply(_ scalar: Double) -> Self {
+    @_spi(Testing) public func multiply(_ scalar: Double) -> Self {
         Vector(
             scalar*self.x,
             scalar*self.y,
@@ -128,23 +128,23 @@ public struct Vector: Tuple4 {
         )
     }
 
-    func divide(_ scalar: Double) -> Self {
+    @_spi(Testing) public func divide(_ scalar: Double) -> Self {
         self.multiply(1/scalar)
     }
 
-    func magnitude() -> Double {
+    @_spi(Testing) public func magnitude() -> Double {
         (self.x*self.x + self.y*self.y + self.z*self.z).squareRoot()
     }
 
-    func normalize() -> Self {
+    @_spi(Testing) public func normalize() -> Self {
         self.divide(self.magnitude())
     }
 
-    func dot(_ other: Self) -> Double {
+    @_spi(Testing) public func dot(_ other: Self) -> Double {
         self.x*other.x + self.y*other.y + self.z*other.z
     }
 
-    func cross(_ other: Self) -> Self {
+    @_spi(Testing) public func cross(_ other: Self) -> Self {
         Vector(
             self.y*other.z - self.z*other.y,
             self.z*other.x - self.x*other.z,
@@ -152,18 +152,18 @@ public struct Vector: Tuple4 {
         )
     }
 
-    func reflect(_ normal: Vector) -> Vector {
+    @_spi(Testing) public func reflect(_ normal: Vector) -> Vector {
         self.subtract(normal.multiply(2 * self.dot(normal)))
     }
 
-    func project(_ onto: Self) -> Self {
+    @_spi(Testing) public func project(_ onto: Self) -> Self {
         let sDotO = self.dot(onto)
         return onto
             .multiply(sDotO)
             .divide(onto.magnitude()*onto.magnitude())
     }
 
-    func angle(_ with: Self) -> Double {
+    @_spi(Testing) public func angle(_ with: Self) -> Double {
         return acos(self.dot(with)/self.magnitude()/with.magnitude())
     }
 }
