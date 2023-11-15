@@ -46,7 +46,7 @@ final public class Striped: Pattern {
         return .init(firstColor, secondColor, transform, properties: properties)
     }
 
-    override func colorAt(_ patternPoint: Tuple4) -> Color {
+    public override func colorAt(_ patternPoint: Tuple4) -> Color {
         if Int(floor(patternPoint[0])) % 2 == 0 {
             return firstColor
         } else {
@@ -69,7 +69,7 @@ final public class Checkered2D: Pattern {
         return .init(firstColor, secondColor, transform, properties: properties)
     }
 
-    override func colorAt(_ patternPoint: Tuple4) -> Color {
+    public override func colorAt(_ patternPoint: Tuple4) -> Color {
         if Int(floor(patternPoint[0]) + floor(patternPoint[2])) % 2 == 0 {
             return firstColor
         } else {
@@ -92,7 +92,7 @@ final public class Checkered3D: Pattern {
         return .init(firstColor, secondColor, transform, properties: properties)
     }
 
-    override func colorAt(_ patternPoint: Tuple4) -> Color {
+    public override func colorAt(_ patternPoint: Tuple4) -> Color {
         if Int(floor(patternPoint[0]) + floor(patternPoint[1]) + floor(patternPoint[2])) % 2 == 0 {
             return firstColor
         } else {
@@ -115,7 +115,7 @@ final public class Gradient: Pattern {
         return .init(firstColor, secondColor, transform, properties: properties)
     }
 
-    override func colorAt(_ patternPoint: Tuple4) -> Color {
+    public override func colorAt(_ patternPoint: Tuple4) -> Color {
         return firstColor.add(secondColor.subtract(firstColor).multiplyScalar(patternPoint[0] - floor(patternPoint[0])))
     }
 }
