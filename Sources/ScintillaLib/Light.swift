@@ -30,13 +30,13 @@ public struct PointLight: Light {
 public struct AreaLight: Light {
     public var position: Point
     public var color: Color
-    var corner: Point
-    var uVec: Vector
-    var uSteps: Int
-    var vVec: Vector
-    var vSteps: Int
-    var samples: Int
-    var jitter: Jitter
+    @_spi(Testing) public var corner: Point
+    @_spi(Testing) public var uVec: Vector
+    @_spi(Testing) public var uSteps: Int
+    @_spi(Testing) public var vVec: Vector
+    @_spi(Testing) public var vSteps: Int
+    @_spi(Testing) public var samples: Int
+    @_spi(Testing) public var jitter: Jitter
 
     public init(_ corner: Point, _ fullUVec: Vector, _ uSteps: Int, _ fullVVec: Vector, _ vSteps: Int) {
         self.init(corner, .white, fullUVec, uSteps, fullVVec, vSteps, RandomJitter())

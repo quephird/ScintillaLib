@@ -10,6 +10,8 @@ public protocol Jitter {
 }
 
 public struct NoJitter: Jitter {
+    @_spi(Testing) public init() {}
+
     public mutating func next() -> Double {
         return 0.5
     }
