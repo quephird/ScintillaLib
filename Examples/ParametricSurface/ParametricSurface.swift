@@ -13,7 +13,7 @@ import ScintillaLib
 struct TestSurface: ScintillaApp {
     var world = World {
         PointLight(Point(-10, 10, -10))
-        Camera(100, 100, PI/3, .view(
+        Camera(400, 400, PI/3, .view(
             Point(0, 0, -10),
             Point(0, 0, 0),
             Vector(0, 1, 0)))

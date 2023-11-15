@@ -137,7 +137,7 @@ public class ImplicitSurface: Shape {
             }
     }
 
-    @_spi(Testing) public override func localNormal(_ localPoint: Point) -> Vector {
+    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         // We take an approach below in approximating ∂F/∂x, ∂F/∂y, and ∂F/∂z
         // by computing the simple derivative using a very small value for Δx,
         // Δy, and Δz, respectively.

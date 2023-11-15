@@ -108,7 +108,7 @@ public class Shape {
 
     @_spi(Testing) public func normal(_ worldPoint: Point, _ uv: UV = .none) -> Vector {
         let localPoint = self.worldToObject(worldPoint)
-        let localNormal = self.localNormal(localPoint)
+        let localNormal = self.localNormal(localPoint, uv)
         return self.objectToWorld(localNormal)
     }
 

@@ -73,7 +73,7 @@ public class Prism: Shape {
     // Only points that actually exist somewhere on the shape should ever be
     // passed in, so all we should have to do is figure out which side
     // or cap it exists on.
-    @_spi(Testing) public override func localNormal(_ localPoint: Point) -> Vector {
+    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         // Check if the point resides on one of the sides
         for (i, (x1, z1)) in self.xzPoints.enumerated() {
             let (x2, z2) = self.xzPoints[(i+1)%self.xzPoints.count]

@@ -17,7 +17,7 @@ public class Plane: Shape {
         }
     }
 
-    @_spi(Testing) public override func localNormal(_ localPoint: Point) -> Vector {
+    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         return Vector(0, 1, 0)
     }
 }
