@@ -8,10 +8,10 @@
 import Foundation
 
 public struct Intersection {
-    var t: Double
-    var shape: Shape
+    @_spi(Testing) public var t: Double
+    @_spi(Testing) public var shape: Shape
 
-    init(_ t: Double, _ shape: Shape) {
+    @_spi(Testing) public init(_ t: Double, _ shape: Shape) {
         self.t = t
         self.shape = shape
     }

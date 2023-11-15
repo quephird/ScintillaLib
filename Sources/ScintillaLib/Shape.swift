@@ -9,7 +9,7 @@ import Foundation
 
 public class Shape {
     static var latestId: Int = 0
-    var id: Int
+    @_spi(Testing) public var id: Int
     var transform: Matrix4 {
         didSet {
             self.inverseTransform = transform.inverse()
