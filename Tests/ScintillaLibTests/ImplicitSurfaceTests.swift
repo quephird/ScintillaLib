@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import ScintillaLib
+@_spi(Testing) import ScintillaLib
 
 class ImplicitSurfaceTests: XCTestCase {
     func testLocalIntersectImplicitlyDefinedSphereShouldReturnTwoHits() throws {
