@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import ScintillaLib
+@_spi(Testing) import ScintillaLib
 
 class TorusTests: XCTestCase {
     func areAlmostEqual(_ hits1: [Double], _ hits2: [Double]) -> Bool {
