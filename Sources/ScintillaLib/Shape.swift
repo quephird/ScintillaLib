@@ -9,14 +9,14 @@ import Foundation
 
 public class Shape {
     static var latestId: Int = 0
-    var id: Int
+    @_spi(Testing) public var id: Int
     var transform: Matrix4 {
         didSet {
             self.inverseTransform = transform.inverse()
             self.inverseTransposeTransform = transform.inverse().transpose()
         }
     }
-    var material: Material = .basicMaterial()
+    @_spi(Testing) public var material: Material = .basicMaterial()
     var inverseTransform: Matrix4
     var inverseTransposeTransform: Matrix4
     var parent: Container?
@@ -97,7 +97,7 @@ public class Shape {
         return self
     }
 
-    func intersect(_ worldRay: Ray) -> [Intersection] {
+    @_spi(Testing) public func intersect(_ worldRay: Ray) -> [Intersection] {
         let localRay = worldRay.transform(self.inverseTransform)
         return self.localIntersect(localRay)
     }
@@ -106,7 +106,7 @@ public class Shape {
         fatalError("Subclasses must override this method!")
     }
 
-    func normal(_ worldPoint: Point) -> Vector {
+    @_spi(Testing) public func normal(_ worldPoint: Point) -> Vector {
         let localPoint = self.worldToObject(worldPoint)
         let localNormal = self.localNormal(localPoint)
         return self.objectToWorld(localNormal)
@@ -116,7 +116,7 @@ public class Shape {
         fatalError("Subclasses must override this method!")
     }
 
-    func worldToObject(_ worldPoint: Point) -> Point {
+    @_spi(Testing) public func worldToObject(_ worldPoint: Point) -> Point {
         var objectPoint = worldPoint
         if case .group(let group) = parent {
             objectPoint = group.worldToObject(worldPoint)
@@ -126,7 +126,7 @@ public class Shape {
         return self.inverseTransform.multiply(objectPoint)
     }
 
-    func objectToWorld(_ objectNormal: Vector) -> Vector {
+    @_spi(Testing) public func objectToWorld(_ objectNormal: Vector) -> Vector {
         var worldNormal = self.inverseTransposeTransform.multiply(objectNormal)
         worldNormal[3] = 0
         worldNormal = worldNormal.normalize()

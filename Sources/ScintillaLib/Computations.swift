@@ -8,15 +8,15 @@
 import Foundation
 
 public struct Computations {
-    var t: Double
-    var object: Shape
-    var point: Point
-    var overPoint: Point
-    var underPoint: Point
-    var eye: Vector
-    var normal: Vector
-    var reflected: Vector
-    var isInside: Bool
-    var n1: Double
-    var n2: Double
+    @_spi(Testing) public var t: Double
+    @_spi(Testing) public var object: Shape
+    @_spi(Testing) public var point: Point
+    @_spi(Testing) public var overPoint: Point
+    @_spi(Testing) public var underPoint: Point
+    @_spi(Testing) public var eye: Vector
+    @_spi(Testing) public var normal: Vector
+    @_spi(Testing) public var reflected: Vector
+    @_spi(Testing) public var isInside: Bool
+    @_spi(Testing) public var n1: Double
+    @_spi(Testing) public var n2: Double
 }

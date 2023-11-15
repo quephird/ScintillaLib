@@ -8,13 +8,13 @@
 import Foundation
 
 public struct MaterialProperties {
-    var ambient: Double
-    var diffuse: Double
-    var specular: Double
-    var shininess: Double
-    var reflective: Double
-    var transparency: Double
-    var refractive: Double
+    @_spi(Testing) public var ambient: Double
+    @_spi(Testing) public var diffuse: Double
+    @_spi(Testing) public var specular: Double
+    @_spi(Testing) public var shininess: Double
+    @_spi(Testing) public var reflective: Double
+    @_spi(Testing) public var transparency: Double
+    @_spi(Testing) public var refractive: Double
 
     public static let defaultAmbient = 0.1
     public static let defaultDiffuse = 0.9
@@ -99,7 +99,7 @@ extension Material {
         return modifyingProperties { $0.refractive = refractive }
     }
 
-    func lighting(_ light: Light, _ object: Shape, _ point: Point, _ eye: Vector, _ normal: Vector, _ intensity: Double) -> Color {
+    @_spi(Testing) public func lighting(_ light: Light, _ object: Shape, _ point: Point, _ eye: Vector, _ normal: Vector, _ intensity: Double) -> Color {
         // Combine the surface color with the light's color/intensity
         var effectiveColor: Color = colorAt(object, point)
         effectiveColor = effectiveColor.hadamard(light.color)

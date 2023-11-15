@@ -8,19 +8,19 @@
 import Foundation
 
 public struct Ray {
-    var origin: Point
-    var direction: Vector
+    @_spi(Testing) public var origin: Point
+    @_spi(Testing) public var direction: Vector
 
     public init(_ origin: Point, _ direction: Vector) {
         self.origin = origin
         self.direction = direction
     }
 
-    func position(_ t: Double) -> Point {
+    @_spi(Testing) public func position(_ t: Double) -> Point {
         self.origin.add(self.direction.multiply(t))
     }
 
-    func transform(_ m: Matrix4) -> Ray {
+    @_spi(Testing) public func transform(_ m: Matrix4) -> Ray {
         Ray(
             m.multiply(self.origin),
             m.multiply(self.direction)

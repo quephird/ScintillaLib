@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import ScintillaLib
+@_spi(Testing) import ScintillaLib
 
 class CanvasTests: XCTestCase {
     func testInitCreatesAllWhitePixels() throws {

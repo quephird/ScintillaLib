@@ -29,7 +29,7 @@ public class Prism: Shape {
         super.init()
     }
 
-    override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
         // Check bounding box and bail if the ray misses
         let boundingBoxIntersections = self.boundingBox.intersect(localRay)
         guard boundingBoxIntersections.count == 2 else {
@@ -73,7 +73,7 @@ public class Prism: Shape {
     // Only points that actually exist somewhere on the shape should ever be
     // passed in, so all we should have to do is figure out which side
     // or cap it exists on.
-    override func localNormal(_ localPoint: Point) -> Vector {
+    @_spi(Testing) public override func localNormal(_ localPoint: Point) -> Vector {
         // Check if the point resides on one of the sides
         for (i, (x1, z1)) in self.xzPoints.enumerated() {
             let (x2, z2) = self.xzPoints[(i+1)%self.xzPoints.count]
@@ -105,7 +105,7 @@ public class Prism: Shape {
 // Returns the t value for where the ray hits the rectangle
 // formed by the two sides and positioned at the corner passed in.
 // Method taken from https://stackoverflow.com/a/8862483
-func checkRectangle(_ ray: Ray, _ corner: Point, _ side1: Vector, _ side2: Vector) -> Double? {
+@_spi(Testing) public func checkRectangle(_ ray: Ray, _ corner: Point, _ side1: Vector, _ side2: Vector) -> Double? {
     // Compute the normal to the rectangle by taking the cross product of the two sides
     let normal = side2.cross(side1).normalize()
 
@@ -142,7 +142,7 @@ func checkRectangle(_ ray: Ray, _ corner: Point, _ side1: Vector, _ side2: Vecto
 // polygon formed by points made from the (x, y, z) tuples themselves
 // made with the xz-tuples passed in and the inbound y-coordinate fixed.
 // Method taken from https://stackoverflow.com/a/43813314
-func isInsidePolygon(_ localPoint: Point, _ xzTuples: [(Double, Double)], _ y: Double) -> Bool {
+@_spi(Testing) public func isInsidePolygon(_ localPoint: Point, _ xzTuples: [(Double, Double)], _ y: Double) -> Bool {
     var totalAngle = 0.0
     let pointCount = xzTuples.count
     for (i, (x1, z1)) in xzTuples.enumerated() {
