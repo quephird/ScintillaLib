@@ -18,6 +18,11 @@ let DEFAULT_MAX_GRADIENT = 1.0
     case value(Double, Double)
 }
 
+enum SplitParameter {
+    case u
+    case v
+}
+
 public class ParametricSurface: Shape {
     var fx: ParametricFunction
     var fy: ParametricFunction
@@ -103,12 +108,17 @@ public class ParametricSurface: Shape {
         let (uMin, uMax) = self.uRange
         let (vMin, vMax) = self.vRange
 
-        var intervalsLow  = [[Double]](repeating: [Double](repeating: 0.0, count: 32), count: 2)
-        var intervalsHigh = [[Double]](repeating: [Double](repeating: 0.0, count: 32), count: 2)
-        intervalsLow[INDEX_U][0]  = uMin;
-        intervalsHigh[INDEX_U][0] = uMax;
-        intervalsLow[INDEX_V][0]  = vMin;
-        intervalsHigh[INDEX_V][0] = vMax;
+//        var intervalsLow  = [[Double]](repeating: [Double](repeating: 0.0, count: 32), count: 2)
+//        var intervalsHigh = [[Double]](repeating: [Double](repeating: 0.0, count: 32), count: 2)
+//        intervalsLow[INDEX_U][0]  = uMin;
+//        intervalsHigh[INDEX_U][0] = uMax;
+//        intervalsLow[INDEX_V][0]  = vMin;
+//        intervalsHigh[INDEX_V][0] = vMax;
+
+        var intervalsLow = [(Double, Double)](repeating: (0.0, 0.0), count: 32)
+        var intervalsHigh = [(Double, Double)](repeating: (0.0, 0.0), count: 32)
+        intervalsLow[0] = (uMin, vMin)
+        intervalsHigh[0] = (uMax, vMax)
 
         var sectorNum = [Int](repeating: 0, count: 32)
         sectorNum[0] = 1;
@@ -122,16 +132,20 @@ public class ParametricSurface: Shape {
 
         var i = 0
         while i >= 0 {
-            lowUV  = (intervalsLow[INDEX_U][i], intervalsLow[INDEX_V][i])
-            highUV = (intervalsHigh[INDEX_U][i], intervalsHigh[INDEX_V][i])
+//            lowUV  = (intervalsLow[INDEX_U][i], intervalsLow[INDEX_V][i])
+//            highUV = (intervalsHigh[INDEX_U][i], intervalsHigh[INDEX_V][i])
+            lowUV = intervalsLow[i]
+            highUV = intervalsHigh[i]
 
+            var splitParameter: SplitParameter = .u
             var maxSectorWidth = highUV.0 - lowUV.0
-            var splitIndex = INDEX_U
+//            var splitIndex = INDEX_U
 
             let tempSectorWidth = highUV.1 - lowUV.1
             if tempSectorWidth > maxSectorWidth {
                 maxSectorWidth = tempSectorWidth
-                splitIndex = INDEX_V
+//                splitIndex = INDEX_V
+                splitParameter = .v
             }
 
             var rangeTForX: (Double, Double)? = nil
@@ -278,6 +292,8 @@ public class ParametricSurface: Shape {
                 maxSectorWidth = deltaT
             }
 
+            // If we got here, then we got through processing all three coordinates.
+            // First we see if the width of the uv-sector is sufficiently small
             if maxSectorWidth < accuracy {
                 if (t > potentialT) && (potentialT > t1) {
                     t = potentialT
@@ -296,17 +312,31 @@ public class ParametricSurface: Shape {
 
                 i += 1
 
-                intervalsLow[INDEX_U][i] = lowUV.0
-                intervalsHigh[INDEX_U][i] = highUV.0
-                intervalsLow[INDEX_V][i] = lowUV.1
-                intervalsHigh[INDEX_V][i] = highUV.1
+//                intervalsLow[INDEX_U][i] = lowUV.0
+//                intervalsHigh[INDEX_U][i] = highUV.0
+//                intervalsLow[INDEX_V][i] = lowUV.1
+//                intervalsHigh[INDEX_V][i] = highUV.1
+                intervalsLow[i] = lowUV
+                intervalsHigh[i] = highUV
 
-                let temp = (intervalsHigh[splitIndex][i] + intervalsLow[splitIndex][i]) / 2.0
-                intervalsHigh[splitIndex][i] = temp
-                intervalsLow[splitIndex][i-1] = temp
+//                let temp = (intervalsHigh[splitIndex][i] + intervalsLow[splitIndex][i]) / 2.0
+//                intervalsHigh[splitIndex][i] = temp
+//                intervalsLow[splitIndex][i-1] = temp
+
+                switch splitParameter {
+                case .u:
+                    let temp = (intervalsLow[i].0 + intervalsHigh[i].0)/2.0
+                    intervalsHigh[i].0 = temp
+                    intervalsLow[i-1].0 = temp
+                case .v:
+                    let temp = (intervalsLow[i].1 + intervalsHigh[i].1)/2.0
+                    intervalsHigh[i].1 = temp
+                    intervalsLow[i-1].1 = temp
+                }
             }
         }
 
+        // We make sure that the computed value of t is inside the bouding box
         if t < t2 {
             let intersection = Intersection(t, uv, self)
             return [intersection]
