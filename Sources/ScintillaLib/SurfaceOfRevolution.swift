@@ -83,7 +83,7 @@ public class SurfaceOfRevolution: Shape {
         return intersections
     }
 
-    override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
         var intersections: [Intersection] = []
 
         if isCapped {
@@ -106,7 +106,7 @@ public class SurfaceOfRevolution: Shape {
         return intersections
     }
 
-    override func localNormal(_ localPoint: Point) -> Vector {
+    @_spi(Testing) public override func localNormal(_ localPoint: Point) -> Vector {
         if isCapped {
             let (x, y, z) = (localPoint.x, localPoint.y, localPoint.z)
             if abs(y - self.yBottom) < DELTA && (x*x + z*z) <= rBottom*rBottom {
@@ -126,7 +126,7 @@ public class SurfaceOfRevolution: Shape {
 // of values of length n. Implementation modeled on this article:
 //
 // https://en.wikipedia.org/wiki/Gaussian_elimination
-func solve(_ matrix: [[Double]]) -> [Double]? {
+@_spi(Testing) public func solve(_ matrix: [[Double]]) -> [Double]? {
     precondition(
         matrix.allSatisfy { row in
             row.count == matrix.count + 1
@@ -216,7 +216,7 @@ func solve(_ matrix: [[Double]]) -> [Double]? {
 // a so-called natural spline. Implementation modeled on:
 //
 // https://timodenk.com/blog/cubic-spline-interpolation/
-func makeCubicSplineMatrix(_ xyPoints: [Point2D]) -> [[Double]] {
+@_spi(Testing) public func makeCubicSplineMatrix(_ xyPoints: [Point2D]) -> [[Double]] {
     var matrix: [[Double]] = []
     let columnCount = (xyPoints.count-1)*4 + 1
 
@@ -287,14 +287,14 @@ func makeCubicSplineMatrix(_ xyPoints: [Point2D]) -> [[Double]] {
     return matrix
 }
 
-typealias CubicPolynomialCoefficients = (Double, Double, Double, Double)
-typealias CubicSplineFunction = (Double) -> Double
+@_spi(Testing) public typealias CubicPolynomialCoefficients = (Double, Double, Double, Double)
+@_spi(Testing) public typealias CubicSplineFunction = (Double) -> Double
 
 // This function takes set of xy-points, and an array of tuples representing
 // the coefficients of a cubic function of the form, ax³ + bx² + cx + d,
 // and returns a piecewise-defined function for the range of x values
 // established by those points.
-func makePiecewiseCubicSplineFunction(_ xyPoints: [Point2D], _ coefficientsList: [CubicPolynomialCoefficients]) -> CubicSplineFunction? {
+@_spi(Testing) public func makePiecewiseCubicSplineFunction(_ xyPoints: [Point2D], _ coefficientsList: [CubicPolynomialCoefficients]) -> CubicSplineFunction? {
     guard let (_, y0) = xyPoints.first else {
         return nil
     }
