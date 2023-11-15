@@ -119,12 +119,6 @@ public class ParametricSurface: Shape {
         var deltaT: Double
         var lowUV: (Double, Double)
         var highUV: (Double, Double)
-        var minTForX = 0.0
-        var maxTForX = 0.0
-        var minTForY = 0.0
-        var maxTForY = 0.0
-        var minTForZ = 0.0
-        var maxTForZ = 0.0
 
         var i = 0
         while i >= 0 {
@@ -140,8 +134,8 @@ public class ParametricSurface: Shape {
                 splitIndex = INDEX_V
             }
 
-            var parX = false
-            var parY = false
+            var rangeTForX: (Double, Double)? = nil
+            var rangeTForY: (Double, Double)? = nil
             deltaT = 0.0
 
             // Start narrowing down the value of t based on the range of values for the x coordinate
@@ -154,15 +148,13 @@ public class ParametricSurface: Shape {
                                                      maxGradient: self.maxGradient)
 
             if rayDirection.x.isAlmostEqual(0.0) {
-                parX = true
-
                 if highX < rayOrigin.x || lowX > rayOrigin.x {
                     i -= 1
                     continue
                 }
             } else {
-                minTForX = (highX - rayOrigin.x)/rayDirection.x
-                maxTForX = (lowX - rayOrigin.x)/rayDirection.x
+                var minTForX = (highX - rayOrigin.x)/rayDirection.x
+                var maxTForX = (lowX - rayOrigin.x)/rayDirection.x
 
                 if (minTForX > maxTForX) {
                     (minTForX, maxTForX) = (maxTForX, minTForX)
@@ -179,6 +171,7 @@ public class ParametricSurface: Shape {
                     continue
                 }
 
+                rangeTForX = (minTForX, maxTForX)
                 deltaT = maxTForX - minTForX;
             }
 
@@ -192,15 +185,13 @@ public class ParametricSurface: Shape {
                                                      maxGradient: self.maxGradient)
 
             if rayDirection.y.isAlmostEqual(0.0) {
-                parY = true
-
                 if highY < rayOrigin.y || lowY > rayOrigin.y {
                     i -= 1
                     continue
                 }
             } else {
-                minTForY = (highY - rayOrigin.y)/rayDirection.y
-                maxTForY = (lowY - rayOrigin.y)/rayDirection.y
+                var minTForY = (highY - rayOrigin.y)/rayDirection.y
+                var maxTForY = (lowY - rayOrigin.y)/rayDirection.y
 
                 if (minTForY > maxTForY) {
                     (minTForY, maxTForY) = (maxTForY, minTForY)
@@ -217,13 +208,14 @@ public class ParametricSurface: Shape {
                     continue
                 }
 
-                if !parX {
+                if let (minTForX, maxTForX) = rangeTForX {
                     if (minTForY > maxTForX) || (maxTForY < minTForX) {
                         i -= 1
                         continue
                     }
                 }
 
+                rangeTForY = (minTForY, maxTForY)
                 let temp = maxTForY - minTForY
                 if temp > deltaT {
                     deltaT = temp
@@ -245,8 +237,8 @@ public class ParametricSurface: Shape {
                     continue
                 }
             } else {
-                minTForZ = (highZ - rayOrigin.z)/rayDirection.z
-                maxTForZ = (lowZ - rayOrigin.z)/rayDirection.z
+                var minTForZ = (highZ - rayOrigin.z)/rayDirection.z
+                var maxTForZ = (lowZ - rayOrigin.z)/rayDirection.z
 
                 if (minTForZ > maxTForZ) {
                     (minTForZ, maxTForZ) = (maxTForZ, minTForZ)
@@ -263,13 +255,13 @@ public class ParametricSurface: Shape {
                     continue
                 }
 
-                if !parX {
+                if let (minTForX, maxTForX) = rangeTForX {
                     if (minTForZ > maxTForX) || (maxTForZ < minTForX) {
                         i -= 1
                         continue
                     }
                 }
-                if !parY {
+                if let (minTForY, maxTForY) = rangeTForY {
                     if (minTForZ > maxTForY) || (maxTForZ < minTForY) {
                         i -= 1
                         continue
