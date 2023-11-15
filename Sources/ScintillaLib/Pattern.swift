@@ -27,7 +27,7 @@ public class Pattern: Material {
         return self.colorAt(patternPoint)
     }
 
-    func colorAt(_ point: Tuple4) -> Color {
+    public func colorAt(_ point: Tuple4) -> Color {
         fatalError("Subclasses must override this method!")
     }
 }
