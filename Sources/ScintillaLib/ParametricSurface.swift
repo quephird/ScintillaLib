@@ -95,6 +95,8 @@ public class ParametricSurface: Shape {
     let INDEX_U = 0
     let INDEX_V = 1
 
+    // NOTA BENE: This method only ever returns a maximum of one intersection,
+    // that being the closest one to the camera.
     @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
         // First we check to see if the ray intersects the bounding shape;
         // note that we need a pair of hits in order to construct a range
@@ -114,17 +116,14 @@ public class ParametricSurface: Shape {
         uvSectors[0].lowUV  = (self.uRange.0, self.vRange.0)
         uvSectors[0].highUV = (self.uRange.1, self.vRange.1)
 
-        var t = Double.infinity
+        var t: Double? = nil
         var uv: UV = .none
-        var potentialT = Double.infinity
-        var deltaT: Double
-        var lowUV: (Double, Double)
-        var highUV: (Double, Double)
 
         var i = 0
         while i >= 0 {
-            lowUV  = uvSectors[i].lowUV
-            highUV = uvSectors[i].highUV
+            let lowUV  = uvSectors[i].lowUV
+            let highUV = uvSectors[i].highUV
+            var potentialT = Double.infinity
 
             // Here we determine which of the u and v parameters
             // whose range we're going to "split" further down in the loop.
@@ -140,13 +139,14 @@ public class ParametricSurface: Shape {
 
             var rangeTForX: (Double, Double)? = nil
             var rangeTForY: (Double, Double)? = nil
-            deltaT = 0.0
+            var deltaT = 0.0
 
-            // Here is where we start narrowing down the value of t
+            // Here is where we begin narrowing down the value of t,
             // based on the range of values for the x coordinate.
             //
             // First we approximate the mininum and maximum values of x
-            // using the function fx over the sector defined by lowUV and highUV.
+            // using its correspondent function, fx, over the sector defined
+            // by lowUV and highUV.
             let (lowX, highX) = computeIntervalForSector(fn: self.fx,
                                                          accuracy: self.accuracy,
                                                          lowUV: lowUV,
@@ -154,6 +154,7 @@ public class ParametricSurface: Shape {
                                                          maxGradient: self.maxGradient)
 
             // Next we need to convert those x values to t values.
+            //
             // If the x component of the ray's direction is near zero,
             // then we cannot accurately compute correspondent values of t.
             if rayDirection.x.isAlmostEqual(0.0) {
@@ -179,7 +180,7 @@ public class ParametricSurface: Shape {
                 // If the lesser of the newly computed t values is larger than the
                 // previously computed t, then we need to consider the previous sector.
                 potentialT = minTForX
-                if potentialT > t {
+                if let t = t, potentialT > t {
                     i -= 1
                     continue
                 }
@@ -222,7 +223,7 @@ public class ParametricSurface: Shape {
                 // If the lesser of the newly computed t values is larger than the
                 // previously computed t, then we need to consider the previous sector.
                 potentialT = minTForY
-                if potentialT > t {
+                if let t = t, potentialT > t {
                     i -= 1
                     continue
                 }
@@ -281,7 +282,7 @@ public class ParametricSurface: Shape {
                 // If the lesser of the newly computed t values is larger than the
                 // previously computed t, then we need to consider the previous sector.
                 potentialT = minTForZ
-                if potentialT > t {
+                if let t = t, potentialT > t {
                     i -= 1
                     continue
                 }
@@ -315,6 +316,7 @@ public class ParametricSurface: Shape {
                 }
             }
 
+            // TODO: Figure out why we are comparing values for two different concepts here
             if maxSectorWidth > deltaT {
                 maxSectorWidth = deltaT
             }
@@ -323,7 +325,12 @@ public class ParametricSurface: Shape {
             // and we have a potential value for t.
             // First we see if the width of the uv-sector is sufficiently small...
             if maxSectorWidth < accuracy {
-                if (t > potentialT) && (potentialT > t1) {
+                // If we haven't yet set t _or_ the candidate t is closer to the camera
+                // than the current t and inside the bounding box, then we capture a new
+                // value for t.
+                if t == nil || (potentialT < t! && potentialT > t1) {
+                    // TODO: Figure out how and why we hit this branch more than the
+                    // maximum number of intersections a ray could have with a shape
                     t = potentialT
                     uv = .value(lowUV.0, lowUV.1)
                 }
@@ -350,7 +357,7 @@ public class ParametricSurface: Shape {
                     uvSectors[i].highUV.0  = newU
                     uvSectors[i-1].lowUV.0 = newU
                 case .v:
-                    // Do the same as above but for the v values of the current
+                    // Do the same as above but instead for the v values of the current
                     // and previous sectors.
                     let newV = (uvSectors[i].lowUV.1 + uvSectors[i].highUV.1)/2.0
                     uvSectors[i].highUV.1  = newV
@@ -360,14 +367,14 @@ public class ParametricSurface: Shape {
         }
 
         // If we got here, then we're finally done iterating to find a t value.
-        //
-        // Here, we only select this value of t if it is inside the bounding box.
-        if t < t2 {
+        if let t = t {
+            // Note that t has already been tested in the loop above to be inside
+            // the bounding box, i.e., both t > t1 and t < t2
             let intersection = Intersection(t, uv, self)
             return [intersection]
         }
 
-        // Otherwise, the ray misses and we return an empty list.
+        // No t was ever found; the ray missed and we return an empty list.
         return []
     }
 
