@@ -92,9 +92,6 @@ public class ParametricSurface: Shape {
         self.fz = fz
     }
 
-    let INDEX_U = 0
-    let INDEX_V = 1
-
     // NOTA BENE: This method only ever returns a maximum of one intersection,
     // that being the closest one to the camera.
     @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
@@ -118,8 +115,18 @@ public class ParametricSurface: Shape {
 
         var t: Double? = nil
         var uv: UV = .none
-
         var i = 0
+
+        // This loop effectively treats uvSectors as a stack, the top of which the loop below
+        // always operates, using i as a pointer to the top. Each iteration examines the current
+        // sector, bounded by the low and high values for u and v. Generally speaking, we compute
+        // ranges of t values first for x, then for y, and then finally for z, and if all three
+        // ranges overlap, _and_ the maximum range of t values is less than the desired accuracy,
+        // then we capture the values for t, u, and v. We then continue refining t, u, and v,
+        // until the stack is effectively empty (when i is -1).
+        //
+        // TODO: Explain how we are guaranteed to exit this loop, and how we are
+        // sure that the computed t value is provably the closest possible to the camera
         while i >= 0 {
             let lowUV  = uvSectors[i].lowUV
             let highUV = uvSectors[i].highUV
@@ -324,7 +331,7 @@ public class ParametricSurface: Shape {
             // If we got here, then we finished processing for all three coordinates,
             // and we have a potential value for t.
             // First we see if the width of the uv-sector is sufficiently small...
-            if maxSectorWidth < accuracy {
+            if maxSectorWidth < self.accuracy {
                 // If we haven't yet set t _or_ the candidate t is closer to the camera
                 // than the current t and inside the bounding box, then we capture a new
                 // value for t.
@@ -339,7 +346,7 @@ public class ParametricSurface: Shape {
             } else {
                 // If we got here, then we need to refine the values of u or v.
                 //
-                // First increment i, effectively setting up a new sector
+                // First increment i, effectively "pushing" a new sector onto the stack
                 i += 1
 
                 // Copy the uv ranges of the previous sector into the new one.
