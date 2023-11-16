@@ -108,11 +108,8 @@ public class ParametricSurface: Shape {
         let (uMin, uMax) = self.uRange
         let (vMin, vMax) = self.vRange
 
-        var sectors = [(lowUV: (Double, Double), highUV: (Double, Double))](repeating: (lowUV: (0, 0), highUV: (0, 0)), count: 32)
-        sectors[0] = (lowUV: (uMin, vMin), highUV: (uMax, vMax))
-
-        var sectorNum = [Int](repeating: 0, count: 32)
-        sectorNum[0] = 1;
+        var uvSectors = [(lowUV: (Double, Double), highUV: (Double, Double))](repeating: (lowUV: (0, 0), highUV: (0, 0)), count: 32)
+        uvSectors[0] = (lowUV: (uMin, vMin), highUV: (uMax, vMax))
 
         var t = Double.infinity
         var uv: UV = .none
@@ -123,8 +120,8 @@ public class ParametricSurface: Shape {
 
         var i = 0
         while i >= 0 {
-            lowUV = sectors[i].lowUV
-            highUV = sectors[i].highUV
+            lowUV = uvSectors[i].lowUV
+            highUV = uvSectors[i].highUV
 
             var splitParameter: SplitParameter = .u
             var maxSectorWidth = highUV.0 - lowUV.0
@@ -289,28 +286,20 @@ public class ParametricSurface: Shape {
 
                 i -= 1
             } else {
-                sectorNum[i] *= 2
-                if sectorNum[i] >= MAX_SECTOR_NUM {
-                    sectorNum[i] = MAX_SECTOR_NUM
-                }
-
-                sectorNum[i+1] = sectorNum[i]
-                sectorNum[i] += 1
-
                 i += 1
 
-                sectors[i].lowUV = lowUV
-                sectors[i].highUV = highUV
+                uvSectors[i].lowUV = lowUV
+                uvSectors[i].highUV = highUV
 
                 switch splitParameter {
                 case .u:
-                    let temp = (sectors[i].lowUV.0 + sectors[i].highUV.0)/2.0
-                    sectors[i].highUV.0 = temp
-                    sectors[i-1].lowUV.0 = temp
+                    let temp = (uvSectors[i].lowUV.0 + uvSectors[i].highUV.0)/2.0
+                    uvSectors[i].highUV.0 = temp
+                    uvSectors[i-1].lowUV.0 = temp
                 case .v:
-                    let temp = (sectors[i].lowUV.1 + sectors[i].highUV.1)/2.0
-                    sectors[i].highUV.1 = temp
-                    sectors[i-1].lowUV.1 = temp
+                    let temp = (uvSectors[i].lowUV.1 + uvSectors[i].highUV.1)/2.0
+                    uvSectors[i].highUV.1 = temp
+                    uvSectors[i-1].lowUV.1 = temp
                 }
             }
         }
