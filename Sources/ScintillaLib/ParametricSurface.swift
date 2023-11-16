@@ -23,6 +23,11 @@ enum SplitParameter {
     case v
 }
 
+struct Sector {
+    var lowUV: (Double, Double)
+    var highUV: (Double, Double)
+}
+
 public class ParametricSurface: Shape {
     var fx: ParametricFunction
     var fy: ParametricFunction
@@ -108,8 +113,9 @@ public class ParametricSurface: Shape {
         let (uMin, uMax) = self.uRange
         let (vMin, vMax) = self.vRange
 
-        var uvSectors = [(lowUV: (Double, Double), highUV: (Double, Double))](repeating: (lowUV: (0, 0), highUV: (0, 0)), count: 32)
-        uvSectors[0] = (lowUV: (uMin, vMin), highUV: (uMax, vMax))
+        var uvSectors = [Sector](repeating: Sector(lowUV: (0, 0), highUV: (0, 0)), count: 32)
+        uvSectors[0].lowUV = (uMin, vMin)
+        uvSectors[0].highUV = (uMax, vMax)
 
         var t = Double.infinity
         var uv: UV = .none
