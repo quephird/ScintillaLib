@@ -110,12 +110,9 @@ public class ParametricSurface: Shape {
         let rayOrigin    = localRay.origin
         let rayDirection = localRay.direction
 
-        let (uMin, uMax) = self.uRange
-        let (vMin, vMax) = self.vRange
-
         var uvSectors = [Sector](repeating: Sector(lowUV: (0, 0), highUV: (0, 0)), count: 32)
-        uvSectors[0].lowUV  = (uMin, vMin)
-        uvSectors[0].highUV = (uMax, vMax)
+        uvSectors[0].lowUV  = (self.uRange.0, self.vRange.0)
+        uvSectors[0].highUV = (self.uRange.1, self.vRange.1)
 
         var t = Double.infinity
         var uv: UV = .none
@@ -129,9 +126,12 @@ public class ParametricSurface: Shape {
             lowUV  = uvSectors[i].lowUV
             highUV = uvSectors[i].highUV
 
-            var splitParameter: SplitParameter = .u
+            // Here we determine which of the u and v parameters
+            // whose range we're going to "split" further down in the loop.
+            // Note that we're always going to choose the one whose
+            // range is the larger.
             var maxSectorWidth = highUV.0 - lowUV.0
-
+            var splitParameter: SplitParameter = .u
             let tempSectorWidth = highUV.1 - lowUV.1
             if tempSectorWidth > maxSectorWidth {
                 maxSectorWidth = tempSectorWidth
@@ -330,20 +330,31 @@ public class ParametricSurface: Shape {
 
                 i -= 1
             } else {
+                // If we got here, then we need to refine the values of u or v.
+                //
+                // First increment i, effectively setting up a new sector
                 i += 1
 
-                uvSectors[i].lowUV = lowUV
+                // Copy the uv ranges of the previous sector into the new one.
+                uvSectors[i].lowUV  = lowUV
                 uvSectors[i].highUV = highUV
 
+                // Now we need to refine the uv ranges.
                 switch splitParameter {
                 case .u:
-                    let temp = (uvSectors[i].lowUV.0 + uvSectors[i].highUV.0)/2.0
-                    uvSectors[i].highUV.0 = temp
-                    uvSectors[i-1].lowUV.0 = temp
+                    // Take the average of the low and high values of u and
+                    // shrink the range of u for the new current sector by lowering
+                    // its high u value, and shrink the range of the previous sector
+                    // by raising its low u value.
+                    let newU = (uvSectors[i].lowUV.0 + uvSectors[i].highUV.0)/2.0
+                    uvSectors[i].highUV.0  = newU
+                    uvSectors[i-1].lowUV.0 = newU
                 case .v:
-                    let temp = (uvSectors[i].lowUV.1 + uvSectors[i].highUV.1)/2.0
-                    uvSectors[i].highUV.1 = temp
-                    uvSectors[i-1].lowUV.1 = temp
+                    // Do the same as above but for the v values of the current
+                    // and previous sectors.
+                    let newV = (uvSectors[i].lowUV.1 + uvSectors[i].highUV.1)/2.0
+                    uvSectors[i].highUV.1  = newV
+                    uvSectors[i-1].lowUV.1 = newV
                 }
             }
         }
