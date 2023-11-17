@@ -136,12 +136,12 @@ public class ParametricSurface: Shape {
             // whose range we're going to "split" further down in the loop.
             // Note that we're always going to choose the one whose
             // range is the larger.
-            var maxSectorWidth = highUV.0 - lowUV.0
-            var splitParameter: SplitParameter = .u
-            let tempSectorWidth = highUV.1 - lowUV.1
-            if tempSectorWidth > maxSectorWidth {
-                maxSectorWidth = tempSectorWidth
-                splitParameter = .v
+            let deltaU = highUV.0 - lowUV.0
+            let deltaV = highUV.1 - lowUV.1
+            let splitParameter: SplitParameter = if deltaV > deltaU {
+                .v
+            } else {
+                .u
             }
 
             var rangeTForX: (Double, Double)? = nil
@@ -323,15 +323,15 @@ public class ParametricSurface: Shape {
                 }
             }
 
-            // TODO: Figure out why we are comparing values for two different concepts here
-            if maxSectorWidth > deltaT {
-                maxSectorWidth = deltaT
-            }
+            // TODO: Figure out why we are taking the _smaller_ of deltaT against the
+            // _larger_ of deltaU and deltaV
+            let sectorWidth = min(deltaT, max(deltaU, deltaV))
 
             // If we got here, then we finished processing for all three coordinates,
             // and we have a potential value for t.
-            // First we see if the width of the uv-sector is sufficiently small...
-            if maxSectorWidth < self.accuracy {
+            //
+            // First we see if the width of the tuv-sector is sufficiently small...
+            if sectorWidth < self.accuracy {
                 // If we haven't yet set t _or_ the candidate t is closer to the camera
                 // than the current t and inside the bounding box, then we capture a new
                 // value for t.
@@ -342,6 +342,8 @@ public class ParametricSurface: Shape {
                     uv = .value(lowUV.0, lowUV.1)
                 }
 
+                // OBSERVATION: i appears to never be zero in this block, and thus
+                // the loop never immediately terminates right after this statement.
                 i -= 1
             } else {
                 // If we got here, then we need to refine the values of u or v.
