@@ -238,7 +238,7 @@ public class ParametricSurface: Shape {
                 // If we previously computed a range of potential t values
                 // while examining the x coordinate, _and_ that range does not
                 // overlap the range of t values for the y coordinate, then
-                // we need to consider the preevious sector.
+                // we need to consider the previous sector.
                 if let (minTForX, maxTForX) = rangeTForX {
                     if (minTForY > maxTForX) || (maxTForY < minTForX) {
                         i -= 1
@@ -297,7 +297,7 @@ public class ParametricSurface: Shape {
                 // If we previously computed a range of potential t values
                 // while examining the x coordinate, _and_ that range does not
                 // overlap the range of t values for the z coordinate, then
-                // we need to consider the preevious sector.
+                // we need to consider the previous sector.
                 if let (minTForX, maxTForX) = rangeTForX {
                     if (minTForZ > maxTForX) || (maxTForZ < minTForX) {
                         i -= 1
@@ -307,7 +307,7 @@ public class ParametricSurface: Shape {
                 // Similarly, if we previously computed a range of potential t values
                 // while examining the _y_ coordinate, _and_ that range does not
                 // overlap the range of t values for the z coordinate, then
-                // we need to consider the preevious sector.
+                // we need to consider the previous sector.
                 if let (minTForY, maxTForY) = rangeTForY {
                     if (minTForZ > maxTForY) || (maxTForZ < minTForY) {
                         i -= 1
