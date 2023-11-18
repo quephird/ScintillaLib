@@ -18,11 +18,6 @@ let DEFAULT_MAX_GRADIENT = 1.0
     case value(Double, Double)
 }
 
-enum SplitParameter {
-    case u
-    case v
-}
-
 struct Sector {
     var lowUV: (Double, Double)
     var highUV: (Double, Double)
@@ -121,9 +116,11 @@ public class ParametricSurface: Shape {
         // always operates, using i as a pointer to the top. Each iteration examines the current
         // sector, bounded by the low and high values for u and v. Generally speaking, we compute
         // ranges of t values first for x, then for y, and then finally for z, and if all three
-        // ranges overlap, _and_ the maximum range of t values is less than the desired accuracy,
-        // then we capture the values for t, u, and v. We then continue refining t, u, and v,
-        // until the stack is effectively empty (when i is -1).
+        // ranges overlap, _and_ the width of the "cube" formed by the ranges of values for t, u, and v
+        // is less than the desired accuracy, then we capture the values for t, u, and v.
+        // We then continue refining t, u, and v, until the stack is effectively empty (when i is -1).
+        // Note that each time we capture a value for t, it is always smaller than the previous
+        // one captured.
         //
         // TODO: Explain how we are guaranteed to exit this loop, and how we are
         // sure that the computed t value is provably the closest possible to the camera
@@ -138,11 +135,6 @@ public class ParametricSurface: Shape {
             // range is the larger.
             let deltaU = highUV.0 - lowUV.0
             let deltaV = highUV.1 - lowUV.1
-            let splitParameter: SplitParameter = if deltaV > deltaU {
-                .v
-            } else {
-                .u
-            }
 
             var rangeTForX: (Double, Double)? = nil
             var rangeTForY: (Double, Double)? = nil
@@ -356,8 +348,8 @@ public class ParametricSurface: Shape {
                 uvSectors[i].highUV = highUV
 
                 // Now we need to refine the uv ranges.
-                switch splitParameter {
-                case .u:
+                switch deltaU > deltaV {
+                case true:
                     // Take the average of the low and high values of u and
                     // shrink the range of u for the new current sector by lowering
                     // its high u value, and shrink the range of the previous sector
@@ -365,7 +357,7 @@ public class ParametricSurface: Shape {
                     let newU = (uvSectors[i].lowUV.0 + uvSectors[i].highUV.0)/2.0
                     uvSectors[i].highUV.0  = newU
                     uvSectors[i-1].lowUV.0 = newU
-                case .v:
+                case false:
                     // Do the same as above but instead for the v values of the current
                     // and previous sectors.
                     let newV = (uvSectors[i].lowUV.1 + uvSectors[i].highUV.1)/2.0
