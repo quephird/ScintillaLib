@@ -415,7 +415,7 @@ public class ParametricSurface: Shape {
             let gradFu = Vector(gradFxu, gradFyu, gradFzu)
             let gradFv = Vector(gradFxv, gradFyv, gradFzv)
 
-            return gradFu.cross(gradFv).normalize()
+            return gradFv.cross(gradFu).normalize()
         default:
             fatalError("Whoops... you need to pass in a uv pair!")
         }
