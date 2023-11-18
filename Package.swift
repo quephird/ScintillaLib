@@ -76,8 +76,8 @@ let package = Package(
             dependencies: ["ScintillaLib"],
             path: "Examples/TDOR"),
         .executableTarget(
-            name: "ParametricSurface",
+            name: "Cavatappi",
             dependencies: ["ScintillaLib"],
-            path: "Examples/ParametricSurface"),
+            path: "Examples/Cavatappi"),
     ]
 )

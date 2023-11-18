@@ -341,13 +341,13 @@ public class ParametricSurface: Shape {
 
             // TODO: Figure out why we are taking the _smaller_ of deltaT against the
             // _larger_ of deltaU and deltaV
-            let sectorWidth = min(deltaT, max(deltaU, deltaV))
+            let cubeWidth = min(deltaT, max(deltaU, deltaV))
 
             // If we got here, then we finished processing for all three coordinates,
             // and we have a potential value for t.
             //
             // First we see if the width of the tuv-sector is sufficiently small...
-            if sectorWidth < self.accuracy {
+            if cubeWidth < self.accuracy {
                 // If we haven't yet set t _or_ the candidate t is closer to the camera
                 // than the current t and inside the bounding box, then we capture a new
                 // value for t.
