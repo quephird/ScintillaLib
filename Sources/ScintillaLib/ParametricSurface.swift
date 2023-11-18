@@ -110,31 +110,32 @@ public class ParametricSurface: Shape {
         // uvSectors is effectively a stack, used in the main loop below
         // to track which parts of the (u, v) space have searched for
         // intersections.
-        var uvSectors = [Sector](repeating: Sector(lowUV: (0, 0), highUV: (0, 0)), count: 32)
-        uvSectors[0].lowUV  = (self.uRange.0, self.vRange.0)
-        uvSectors[0].highUV = (self.uRange.1, self.vRange.1)
+        let firstSector = Sector(lowUV: (self.uRange.0, self.vRange.0), highUV: (self.uRange.1, self.vRange.1))
+        var uvSectors = [firstSector]
+        uvSectors.reserveCapacity(32)
 
         var t: Double? = nil
         var uv: UV = .none
 
-        // This loop effectively treats uvSectors as a stack, the top of which the loop below
-        // always operates, using i as a pointer to the top. Each iteration examines the current
-        // sector, bounded by the low and high values for u and v. Generally speaking, we compute
+        // This loop treats uvSectors as a stack, the top of which the loop below
+        // always operates. Each iteration examines the current sector, bounded by
+        // the low and high values for u and v. Generally speaking, we compute
         // ranges of t values first for x, then for y, and then finally for z, and if all three
         // ranges overlap, _and_ the width of the "cube" formed by the ranges of values for t, u, and v
         // is less than the desired accuracy, then we capture the values for t, u, and v.
-        // We then continue refining t, u, and v, until the stack is effectively empty (when i is -1).
+        // We then continue refining t, u, and v, or searching for such a tuple,
+        // until the stack is empty.
+        //
         // Note that each time we capture a value for t, it is always smaller than the previous
         // one captured. It is that final set of values of t, u, and v that represents an intersection.
-        // The assumption is once i reaches -1, we have either found the closest intersection _or_
+        // The assumption is once the stack is empty, we have either found the closest intersection _or_
         // we have sufficiently and exhaustively searched (t,u,v) space for one and failed.
         //
         // TODO: Explain how we are guaranteed to exit this loop, and how we are
         // sure that the computed t value is provably the closest possible to the camera
-        var i = 0
-        while i >= 0 {
-            let lowUV  = uvSectors[i].lowUV
-            let highUV = uvSectors[i].highUV
+        while let currentSector = uvSectors.popLast() {
+            let lowUV  = currentSector.lowUV
+            let highUV = currentSector.highUV
 
             // These variables will be used in the final part of the loop
             // to refine the cube formed by the ranges of values of each of
@@ -186,7 +187,6 @@ public class ParametricSurface: Shape {
             // then we cannot accurately compute correspondent values of t.
             if rayDirection.x.isAlmostEqual(0.0) {
                 if highX < rayOrigin.x || lowX > rayOrigin.x {
-                    i -= 1
                     continue
                 }
             } else {
@@ -200,7 +200,6 @@ public class ParametricSurface: Shape {
                 // If the range of the new t values is outside the bounding box,
                 // then we need to consider the previous sector.
                 if (minTForX > t2) || (maxTForX < t1) {
-                    i -= 1
                     continue
                 }
 
@@ -208,7 +207,6 @@ public class ParametricSurface: Shape {
                 // previously computed t, then we need to consider the previous sector.
                 potentialT = minTForX
                 if let t = t, potentialT > t {
-                    i -= 1
                     continue
                 }
 
@@ -227,7 +225,6 @@ public class ParametricSurface: Shape {
             // As for the x coordinate, we need to convert y values to t values.
             if rayDirection.y.isAlmostEqual(0.0) {
                 if highY < rayOrigin.y || lowY > rayOrigin.y {
-                    i -= 1
                     continue
                 }
             } else {
@@ -241,7 +238,6 @@ public class ParametricSurface: Shape {
                 // If the range of the new t values is outside the bounding box,
                 // then we need to consider the previous sector.
                 if (minTForY > t2) || (maxTForY < t1) {
-                    i -= 1
                     continue
                 }
 
@@ -249,7 +245,6 @@ public class ParametricSurface: Shape {
                 // previously computed t, then we need to consider the previous sector.
                 potentialT = minTForY
                 if let t = t, potentialT > t {
-                    i -= 1
                     continue
                 }
 
@@ -259,7 +254,6 @@ public class ParametricSurface: Shape {
                 // we need to consider the previous sector.
                 if let (minTForX, maxTForX) = rangeTForX {
                     if (minTForY > maxTForX) || (maxTForY < minTForX) {
-                        i -= 1
                         continue
                     }
                 }
@@ -284,7 +278,6 @@ public class ParametricSurface: Shape {
             // As for the x and y coordinates, we need to convert z values to t values.
             if rayDirection.z.isAlmostEqual(0.0) {
                 if highZ < rayOrigin.z || lowZ > rayOrigin.z {
-                    i -= 1
                     continue
                 }
             } else {
@@ -298,7 +291,6 @@ public class ParametricSurface: Shape {
                 // If the range of the new t values is outside the bounding box,
                 // then we need to consider the previous sector.
                 if (minTForZ > t2) || (maxTForZ < t1) {
-                    i -= 1
                     continue
                 }
 
@@ -306,7 +298,6 @@ public class ParametricSurface: Shape {
                 // previously computed t, then we need to consider the previous sector.
                 potentialT = minTForZ
                 if let t = t, potentialT > t {
-                    i -= 1
                     continue
                 }
 
@@ -316,7 +307,6 @@ public class ParametricSurface: Shape {
                 // we need to consider the previous sector.
                 if let (minTForX, maxTForX) = rangeTForX {
                     if (minTForZ > maxTForX) || (maxTForZ < minTForX) {
-                        i -= 1
                         continue
                     }
                 }
@@ -326,7 +316,6 @@ public class ParametricSurface: Shape {
                 // we need to consider the previous sector.
                 if let (minTForY, maxTForY) = rangeTForY {
                     if (minTForZ > maxTForY) || (maxTForZ < minTForY) {
-                        i -= 1
                         continue
                     }
                 }
@@ -352,46 +341,44 @@ public class ParametricSurface: Shape {
                 // than the current t and inside the bounding box, then we capture a new
                 // value for t.
                 if t == nil || (potentialT < t! && potentialT > t1) {
-                    // TODO: Figure out how and why we hit this branch more than the
-                    // maximum number of intersections a ray could have with a shape
                     t = potentialT
                     uv = .value(lowUV.0, lowUV.1)
                 }
 
-                // OBSERVATION: i appears to never be zero in this block, and thus
+                // OBSERVATION: uvSectors appears to never be empty in this block, and thus
                 // the loop never immediately terminates right after this statement.
-                i -= 1
-            } else {
-                // If we got here, then we need to refine the values of u or v.
-                //
-                // First increment i, effectively "pushing" a new sector onto the stack
-                i += 1
-
-                // Copy the uv ranges of the previous sector into the new one.
-                uvSectors[i].lowUV  = lowUV
-                uvSectors[i].highUV = highUV
-
-                // Here we determine which of the u and v parameters whose range
-                // we're going to "split" for the next iteration of the loop.
-                // Note that we're always going to choose the one whose range is
-                // the larger.
-                switch deltaU > deltaV {
-                case true:
-                    // Take the average of the low and high values of u and
-                    // shrink the range of u for the new current sector by lowering
-                    // its high u value, and shrink the range of the previous sector
-                    // by raising its low u value.
-                    let newU = (uvSectors[i].lowUV.0 + uvSectors[i].highUV.0)/2.0
-                    uvSectors[i].highUV.0  = newU
-                    uvSectors[i-1].lowUV.0 = newU
-                case false:
-                    // Do the same as above but instead for the v values of the current
-                    // and previous sectors.
-                    let newV = (uvSectors[i].lowUV.1 + uvSectors[i].highUV.1)/2.0
-                    uvSectors[i].highUV.1  = newV
-                    uvSectors[i-1].lowUV.1 = newV
-                }
+                continue
             }
+
+            // If we got here, then we need to refine the values of u or v.
+            // We do this by pushing a modified version of the sector
+            // we just examined, as well as a brand new one.
+            var previouslyExaminedSector = currentSector
+            var newSector = currentSector
+
+            // Here we determine which of the u and v parameters whose range
+            // we're going to "split" for the next iteration of the loop.
+            // Note that we're always going to choose the one whose range is
+            // the larger.
+            switch deltaU > deltaV {
+            case true:
+                // Take the average of the low and high values of u and
+                // shrink the range of u for the brand new sector by lowering
+                // its high u value, and shrink the range of the previous sector
+                // by raising its low u value.
+                let newU = (currentSector.lowUV.0 + currentSector.highUV.0)/2.0
+                previouslyExaminedSector.lowUV.0 = newU
+                newSector.highUV.0 = newU
+            case false:
+                // Do the same as above but instead for the v values of the new
+                // and previous sectors.
+                let newV = (currentSector.lowUV.1 + currentSector.highUV.1)/2.0
+                previouslyExaminedSector.lowUV.1 = newV
+                newSector.highUV.1 = newV
+            }
+
+            uvSectors.append(previouslyExaminedSector)
+            uvSectors.append(newSector)
         }
 
         // If we got here, then we're finally done iterating to find a t value.
