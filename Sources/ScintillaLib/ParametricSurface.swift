@@ -98,19 +98,24 @@ public class ParametricSurface: Shape {
             return []
         }
 
+        // Capture the t values for the intersections; these will be used
+        // in the loop below to filter out candidate intersections that
+        // fall outside the bounding box.
         let t1 = boundingBoxIntersections[0].t
         let t2 = boundingBoxIntersections[1].t
 
         let rayOrigin    = localRay.origin
         let rayDirection = localRay.direction
 
+        // uvSectors is effectively a stack, used in the main loop below
+        // to track which parts of the (u, v) space have searched for
+        // intersections.
         var uvSectors = [Sector](repeating: Sector(lowUV: (0, 0), highUV: (0, 0)), count: 32)
         uvSectors[0].lowUV  = (self.uRange.0, self.vRange.0)
         uvSectors[0].highUV = (self.uRange.1, self.vRange.1)
 
         var t: Double? = nil
         var uv: UV = .none
-        var i = 0
 
         // This loop effectively treats uvSectors as a stack, the top of which the loop below
         // always operates, using i as a pointer to the top. Each iteration examines the current
@@ -120,25 +125,48 @@ public class ParametricSurface: Shape {
         // is less than the desired accuracy, then we capture the values for t, u, and v.
         // We then continue refining t, u, and v, until the stack is effectively empty (when i is -1).
         // Note that each time we capture a value for t, it is always smaller than the previous
-        // one captured.
+        // one captured. It is that final set of values of t, u, and v that represents an intersection.
+        // The assumption is once i reaches -1, we have either found the closest intersection _or_
+        // we have sufficiently and exhaustively searched (t,u,v) space for one and failed.
         //
         // TODO: Explain how we are guaranteed to exit this loop, and how we are
         // sure that the computed t value is provably the closest possible to the camera
+        var i = 0
         while i >= 0 {
             let lowUV  = uvSectors[i].lowUV
             let highUV = uvSectors[i].highUV
-            var potentialT = Double.infinity
 
-            // Here we determine which of the u and v parameters
-            // whose range we're going to "split" further down in the loop.
-            // Note that we're always going to choose the one whose
-            // range is the larger.
+            // These variables will be used in the final part of the loop
+            // to refine the cube formed by the ranges of values of each of
+            // t, u, and v. That is, we want to find a cube whose width
+            // is as clase as possible to the accuracy parameter associsated
+            // with the shape; that way we can be most confident that we have
+            // found an intersection.
+            //
+            //                          ___________
+            //                         /          /|
+            //                        /_________ / |
+            //                       |          |  |
+            //                deltaV |          |  /
+            //                       |          | / deltaT
+            //                       |__________|/
+            //                          deltaU
+            //
             let deltaU = highUV.0 - lowUV.0
             let deltaV = highUV.1 - lowUV.1
+            var deltaT = 0.0
 
+            // We start with the largest possible value of t, and each time we are
+            // able to compute a range of t values associated with the fx, fy, and fz
+            // functions, we will capture a candidate value of t if it is smaller than
+            // the previous value.
+            var potentialT = Double.infinity
+
+            // These variables are used to capture whether or not we have found
+            // a range of values for t while examining the functions associated with
+            // the x and y coordinates.
             var rangeTForX: (Double, Double)? = nil
             var rangeTForY: (Double, Double)? = nil
-            var deltaT = 0.0
 
             // Here is where we begin narrowing down the value of t,
             // based on the range of values for the x coordinate.
@@ -184,7 +212,7 @@ public class ParametricSurface: Shape {
                     continue
                 }
 
-                // Capture the computed values of t for the x coordinate and its range.
+                // Capture the range of values of t for the x coordinate and its range.
                 rangeTForX = (minTForX, maxTForX)
                 deltaT = maxTForX - minTForX;
             }
@@ -197,8 +225,6 @@ public class ParametricSurface: Shape {
                                                          maxGradient: self.maxGradient)
 
             // As for the x coordinate, we need to convert y values to t values.
-            // If the y component of the ray's direction is near zero,
-            // then we cannot accurately compute correspondent values of t.
             if rayDirection.y.isAlmostEqual(0.0) {
                 if highY < rayOrigin.y || lowY > rayOrigin.y {
                     i -= 1
@@ -238,7 +264,7 @@ public class ParametricSurface: Shape {
                     }
                 }
 
-                // Capture the computed values of t for the y coordinate,
+                // Capture the computed range of values of t for the y coordinate,
                 // and if its range is bigger than the current value of deltaT,
                 // then capture that as the new value for deltaT.
                 rangeTForY = (minTForY, maxTForY)
@@ -256,8 +282,6 @@ public class ParametricSurface: Shape {
                                                          maxGradient: self.maxGradient)
 
             // As for the x and y coordinates, we need to convert z values to t values.
-            // If the z component of the ray's direction is near zero,
-            // then we cannot accurately compute correspondent values of t.
             if rayDirection.z.isAlmostEqual(0.0) {
                 if highZ < rayOrigin.z || lowZ > rayOrigin.z {
                     i -= 1
@@ -347,7 +371,10 @@ public class ParametricSurface: Shape {
                 uvSectors[i].lowUV  = lowUV
                 uvSectors[i].highUV = highUV
 
-                // Now we need to refine the uv ranges.
+                // Here we determine which of the u and v parameters whose range
+                // we're going to "split" for the next iteration of the loop.
+                // Note that we're always going to choose the one whose range is
+                // the larger.
                 switch deltaU > deltaV {
                 case true:
                     // Take the average of the low and high values of u and
@@ -370,7 +397,7 @@ public class ParametricSurface: Shape {
         // If we got here, then we're finally done iterating to find a t value.
         if let t = t {
             // Note that t has already been tested in the loop above to be inside
-            // the bounding box, i.e., both t > t1 and t < t2
+            // the bounding box, i.e., that both t > t1 and t < t2
             let intersection = Intersection(t, uv, self)
             return [intersection]
         }
