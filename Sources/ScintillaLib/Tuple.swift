@@ -137,7 +137,12 @@ public struct Vector: Tuple4 {
     }
 
     @_spi(Testing) public func normalize() -> Self {
-        self.divide(self.magnitude())
+        let magnitude = self.magnitude()
+        if magnitude.isZero {
+            return self
+        }
+
+        return self.divide(magnitude)
     }
 
     @_spi(Testing) public func dot(_ other: Self) -> Double {

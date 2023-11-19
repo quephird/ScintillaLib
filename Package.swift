@@ -79,5 +79,9 @@ let package = Package(
             name: "Cavatappi",
             dependencies: ["ScintillaLib"],
             path: "Examples/Cavatappi"),
+        .executableTarget(
+            name: "Breather",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/Breather"),
     ]
 )
