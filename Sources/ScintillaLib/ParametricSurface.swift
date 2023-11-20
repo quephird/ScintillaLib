@@ -93,12 +93,13 @@ public class ParametricSurface: Shape {
     // further processing if no range for t is found, or capture a range
     // of t values.
     private func computeTRangeForCoordinate(fn: ParametricFunction,
-                                            rayOriginComponent: Double,
-                                            rayDirectionComponent: Double,
+                                            rayComponents: (Double, Double),
                                             sector: Sector,
                                             currentT: Double?,
-                                            t1: Double,
-                                            t2: Double) -> ComputeTRangeReturnValue {
+                                            boundingBoxTRange: (Double, Double)) -> ComputeTRangeReturnValue {
+        let (t1, t2) = boundingBoxTRange
+        let (rayOriginComponent, rayDirectionComponent) = rayComponents
+
         // First we approximate the mininum and maximum values of the coordinate
         // using its correspondent function, fn, over the sector defined
         // by lowUV and highUV.
@@ -224,12 +225,10 @@ public class ParametricSurface: Shape {
             // Here is where we begin narrowing down the value of t,
             // first based on the range of values for the x coordinate.
             switch computeTRangeForCoordinate(fn: self.fx,
-                                              rayOriginComponent: localRay.origin.x,
-                                              rayDirectionComponent: localRay.direction.x,
+                                              rayComponents: (localRay.origin.x, localRay.direction.x),
                                               sector: currentSector,
                                               currentT: t,
-                                              t1: t1,
-                                              t2: t2) {
+                                              boundingBoxTRange: (t1, t2)) {
             case .goToPreviousSector:
                 continue
             case .noneFound:
@@ -243,12 +242,10 @@ public class ParametricSurface: Shape {
             // Continue narrowing down t based on the range of values
             // for the y coordinate.
             switch computeTRangeForCoordinate(fn: self.fy,
-                                              rayOriginComponent: localRay.origin.y,
-                                              rayDirectionComponent: localRay.direction.y,
+                                              rayComponents: (localRay.origin.y, localRay.direction.y),
                                               sector: currentSector,
                                               currentT: t,
-                                              t1: t1,
-                                              t2: t2) {
+                                              boundingBoxTRange: (t1, t2)) {
             case .goToPreviousSector:
                 continue
             case .noneFound:
@@ -275,12 +272,10 @@ public class ParametricSurface: Shape {
             // Finally, continue narrowing down t based on the range
             // of values for the z coordinate
             switch computeTRangeForCoordinate(fn: self.fz,
-                                              rayOriginComponent: localRay.origin.z,
-                                              rayDirectionComponent: localRay.direction.z,
+                                              rayComponents: (localRay.origin.z, localRay.direction.z),
                                               sector: currentSector,
                                               currentT: t,
-                                              t1: t1,
-                                              t2: t2) {
+                                              boundingBoxTRange: (t1, t2)) {
             case .goToPreviousSector:
                 continue
             case .noneFound:
