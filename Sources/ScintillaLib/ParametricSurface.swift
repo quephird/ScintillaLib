@@ -23,6 +23,12 @@ struct Sector {
     var highUV: (Double, Double)
 }
 
+enum ComputeTRangeReturnValue {
+    case goToPreviousSector
+    case noneFound
+    case value(Double, Double)
+}
+
 public class ParametricSurface: Shape {
     var fx: ParametricFunction
     var fy: ParametricFunction
@@ -32,6 +38,16 @@ public class ParametricSurface: Shape {
     var vRange: (Double, Double)
     var accuracy: Double
     var maxGradient: Double
+
+    public convenience init(_ bottomFrontLeft: Point3D,
+                            _ topBackRight: Point3D,
+                            _ uRange: (Double, Double),
+                            _ vRange: (Double, Double),
+                            _ fx: @escaping ParametricFunction,
+                            _ fy: @escaping ParametricFunction,
+                            _ fz: @escaping ParametricFunction) {
+        self.init(bottomFrontLeft, topBackRight, uRange, vRange, DEFAULT_ACCURACY, DEFAULT_MAX_GRADIENT, fx, fy, fz)
+    }
 
     public convenience init(_ bottomFrontLeft: Point3D,
                             _ topBackRight: Point3D,
@@ -52,23 +68,6 @@ public class ParametricSurface: Shape {
         self.init(boundingShape, uRange, vRange, accuracy, maxGradient, fx, fy, fz)
     }
 
-    public convenience init(_ bottomFrontLeft: Point3D,
-                            _ topBackRight: Point3D,
-                            _ uRange: (Double, Double),
-                            _ vRange: (Double, Double),
-                            _ fx: @escaping ParametricFunction,
-                            _ fy: @escaping ParametricFunction,
-                            _ fz: @escaping ParametricFunction) {
-        let (xMin, yMin, zMin) = bottomFrontLeft
-        let (xMax, yMax, zMax) = topBackRight
-        let (scaleX, scaleY, scaleZ) = ((xMax-xMin)/2, (yMax-yMin)/2, (zMax-zMin)/2)
-        let (translateX, translateY, translateZ) = ((xMax+xMin)/2, (yMax+yMin)/2, (zMax+zMin)/2)
-        let boundingShape = Cube()
-            .scale(scaleX, scaleY, scaleZ)
-            .translate(translateX, translateY, translateZ)
-        self.init(boundingShape, uRange, vRange, DEFAULT_ACCURACY, DEFAULT_MAX_GRADIENT, fx, fy, fz)
-    }
-
     public init(_ boundingShape: Shape,
                 _ uRange: (Double, Double),
                 _ vRange: (Double, Double),
@@ -87,6 +86,59 @@ public class ParametricSurface: Shape {
         self.fz = fz
     }
 
+    private func computeTRangeForCoordinate(fn: ParametricFunction,
+                                            rayOriginComponent: Double,
+                                            rayDirectionComponent: Double,
+                                            sector: Sector,
+                                            currentT: Double?,
+                                            t1: Double,
+                                            t2: Double) -> ComputeTRangeReturnValue {
+        let lowUV  = sector.lowUV
+        let highUV = sector.highUV
+
+        // First we approximate the mininum and maximum values of the coordinate
+        // using its correspondent function, fn, over the sector defined
+        // by lowUV and highUV.
+        let (low, high) = computeIntervalForSector(fn: fn,
+                                                   accuracy: self.accuracy,
+                                                   lowUV: lowUV,
+                                                   highUV: highUV,
+                                                   maxGradient: self.maxGradient)
+
+        // Next we need to convert those values to t values.
+        //
+        // If the component of the ray's direction is near zero,
+        // then we cannot accurately compute correspondent values of t.
+        if rayDirectionComponent.isAlmostEqual(0.0) {
+            if high < rayOriginComponent || low > rayOriginComponent {
+                return .goToPreviousSector
+            }
+
+            return .noneFound
+        }
+
+        var minT = (low - rayOriginComponent)/rayDirectionComponent
+        var maxT = (high - rayOriginComponent)/rayDirectionComponent
+
+        if (minT > maxT) {
+            (minT, maxT) = (maxT, minT)
+        }
+
+        // If the range of the new t values is outside the bounding box,
+        // then we need to consider the previous sector.
+        if (minT > t2) || (maxT < t1) {
+            return .goToPreviousSector
+        }
+
+        // If the lesser of the newly computed t values is larger than the
+        // previously computed t, then we need to consider the previous sector.
+        if let t = currentT, minT > t {
+            return .goToPreviousSector
+        }
+
+        return .value(minT, maxT)
+    }
+
     // NOTA BENE: This method only ever returns a maximum of one intersection,
     // that being the closest one to the camera.
     @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
@@ -103,9 +155,6 @@ public class ParametricSurface: Shape {
         // fall outside the bounding box.
         let t1 = boundingBoxIntersections[0].t
         let t2 = boundingBoxIntersections[1].t
-
-        let rayOrigin    = localRay.origin
-        let rayDirection = localRay.direction
 
         // uvSectors is effectively a stack, used in the main loop below
         // to track which parts of the (u, v) space have searched for
@@ -170,159 +219,92 @@ public class ParametricSurface: Shape {
             var rangeTForY: (Double, Double)? = nil
 
             // Here is where we begin narrowing down the value of t,
-            // based on the range of values for the x coordinate.
-            //
-            // First we approximate the mininum and maximum values of x
-            // using its correspondent function, fx, over the sector defined
-            // by lowUV and highUV.
-            let (lowX, highX) = computeIntervalForSector(fn: self.fx,
-                                                         accuracy: self.accuracy,
-                                                         lowUV: lowUV,
-                                                         highUV: highUV,
-                                                         maxGradient: self.maxGradient)
-
-            // Next we need to convert those x values to t values.
-            //
-            // If the x component of the ray's direction is near zero,
-            // then we cannot accurately compute correspondent values of t.
-            if rayDirection.x.isAlmostEqual(0.0) {
-                if highX < rayOrigin.x || lowX > rayOrigin.x {
-                    continue
-                }
-            } else {
-                var minTForX = (lowX - rayOrigin.x)/rayDirection.x
-                var maxTForX = (highX - rayOrigin.x)/rayDirection.x
-
-                if (minTForX > maxTForX) {
-                    (minTForX, maxTForX) = (maxTForX, minTForX)
-                }
-
-                // If the range of the new t values is outside the bounding box,
-                // then we need to consider the previous sector.
-                if (minTForX > t2) || (maxTForX < t1) {
-                    continue
-                }
-
-                // If the lesser of the newly computed t values is larger than the
-                // previously computed t, then we need to consider the previous sector.
-                potentialT = minTForX
-                if let t = t, potentialT > t {
-                    continue
-                }
-
-                // Capture the range of values of t for the x coordinate and its range.
-                rangeTForX = (minTForX, maxTForX)
-                deltaT = maxTForX - minTForX;
+            // first based on the range of values for the x coordinate.
+            switch computeTRangeForCoordinate(fn: self.fx,
+                                              rayOriginComponent: localRay.origin.x,
+                                              rayDirectionComponent: localRay.direction.x,
+                                              sector: currentSector,
+                                              currentT: t,
+                                              t1: t1,
+                                              t2: t2) {
+            case .goToPreviousSector:
+                continue
+            case .noneFound:
+                break
+            case .value(let minT, let maxT):
+                potentialT = minT
+                rangeTForX = (minT, maxT)
+                deltaT = maxT - minT
             }
 
-            // Continue narrowing down t based on the range of values for the y coordinate.
-            let (lowY, highY) = computeIntervalForSector(fn: self.fy,
-                                                         accuracy: self.accuracy,
-                                                         lowUV: lowUV,
-                                                         highUV: highUV,
-                                                         maxGradient: self.maxGradient)
-
-            // As for the x coordinate, we need to convert y values to t values.
-            if rayDirection.y.isAlmostEqual(0.0) {
-                if highY < rayOrigin.y || lowY > rayOrigin.y {
-                    continue
-                }
-            } else {
-                var minTForY = (lowY - rayOrigin.y)/rayDirection.y
-                var maxTForY = (highY - rayOrigin.y)/rayDirection.y
-
-                if (minTForY > maxTForY) {
-                    (minTForY, maxTForY) = (maxTForY, minTForY)
-                }
-
-                // If the range of the new t values is outside the bounding box,
-                // then we need to consider the previous sector.
-                if (minTForY > t2) || (maxTForY < t1) {
-                    continue
-                }
-
-                // If the lesser of the newly computed t values is larger than the
-                // previously computed t, then we need to consider the previous sector.
-                potentialT = minTForY
-                if let t = t, potentialT > t {
-                    continue
-                }
-
+            // Continue narrowing down t based on the range of values
+            // for the y coordinate.
+            switch computeTRangeForCoordinate(fn: self.fy,
+                                              rayOriginComponent: localRay.origin.y,
+                                              rayDirectionComponent: localRay.direction.y,
+                                              sector: currentSector,
+                                              currentT: t,
+                                              t1: t1,
+                                              t2: t2) {
+            case .goToPreviousSector:
+                continue
+            case .noneFound:
+                break
+            case .value(let minT, let maxT):
                 // If we previously computed a range of potential t values
                 // while examining the x coordinate, _and_ that range does not
                 // overlap the range of t values for the y coordinate, then
                 // we need to consider the previous sector.
                 if let (minTForX, maxTForX) = rangeTForX {
-                    if (minTForY > maxTForX) || (maxTForY < minTForX) {
+                    if (minT > maxTForX) || (maxT < minTForX) {
                         continue
                     }
                 }
 
-                // Capture the computed range of values of t for the y coordinate,
-                // and if its range is bigger than the current value of deltaT,
-                // then capture that as the new value for deltaT.
-                rangeTForY = (minTForY, maxTForY)
-                let temp = maxTForY - minTForY
+                potentialT = minT
+                rangeTForY = (minT, maxT)
+                let temp = maxT - minT
                 if temp > deltaT {
                     deltaT = temp
                 }
             }
 
-            // Finally, continue narrowing down t based on the range of values for the z coordinate
-            let (lowZ, highZ) = computeIntervalForSector(fn: self.fz,
-                                                         accuracy: self.accuracy,
-                                                         lowUV: lowUV,
-                                                         highUV: highUV,
-                                                         maxGradient: self.maxGradient)
-
-            // As for the x and y coordinates, we need to convert z values to t values.
-            if rayDirection.z.isAlmostEqual(0.0) {
-                if highZ < rayOrigin.z || lowZ > rayOrigin.z {
-                    continue
-                }
-            } else {
-                var minTForZ = (lowZ - rayOrigin.z)/rayDirection.z
-                var maxTForZ = (highZ - rayOrigin.z)/rayDirection.z
-
-                if (minTForZ > maxTForZ) {
-                    (minTForZ, maxTForZ) = (maxTForZ, minTForZ)
-                }
-
-                // If the range of the new t values is outside the bounding box,
-                // then we need to consider the previous sector.
-                if (minTForZ > t2) || (maxTForZ < t1) {
-                    continue
-                }
-
-                // If the lesser of the newly computed t values is larger than the
-                // previously computed t, then we need to consider the previous sector.
-                potentialT = minTForZ
-                if let t = t, potentialT > t {
-                    continue
-                }
-
+            // Finally, continue narrowing down t based on the range
+            // of values for the z coordinate
+            switch computeTRangeForCoordinate(fn: self.fz,
+                                              rayOriginComponent: localRay.origin.z,
+                                              rayDirectionComponent: localRay.direction.z,
+                                              sector: currentSector,
+                                              currentT: t,
+                                              t1: t1,
+                                              t2: t2) {
+            case .goToPreviousSector:
+                continue
+            case .noneFound:
+                break
+            case .value(let minT, let maxT):
                 // If we previously computed a range of potential t values
                 // while examining the x coordinate, _and_ that range does not
                 // overlap the range of t values for the z coordinate, then
                 // we need to consider the previous sector.
                 if let (minTForX, maxTForX) = rangeTForX {
-                    if (minTForZ > maxTForX) || (maxTForZ < minTForX) {
+                    if (minT > maxTForX) || (maxT < minTForX) {
                         continue
                     }
                 }
+
                 // Similarly, if we previously computed a range of potential t values
                 // while examining the _y_ coordinate, _and_ that range does not
                 // overlap the range of t values for the z coordinate, then
                 // we need to consider the previous sector.
                 if let (minTForY, maxTForY) = rangeTForY {
-                    if (minTForZ > maxTForY) || (maxTForZ < minTForY) {
+                    if (minT > maxTForY) || (maxT < minTForY) {
                         continue
                     }
                 }
 
-                // If the range of t values for the z coordinate is bigger than the
-                // current value of deltaT, then capture that as the new value for deltaT.
-                let temp = maxTForZ - minTForZ
+                potentialT = minT
+                let temp = maxT - minT
                 if temp > deltaT {
                     deltaT = temp
                 }
