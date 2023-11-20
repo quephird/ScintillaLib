@@ -71,5 +71,9 @@ let package = Package(
             name: "HappyHalloween",
             dependencies: ["ScintillaLib"],
             path: "Examples/HappyHalloween"),
+        .executableTarget(
+            name: "TDOR",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/TDOR"),
     ]
 )
