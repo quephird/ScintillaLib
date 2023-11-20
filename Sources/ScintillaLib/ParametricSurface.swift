@@ -86,6 +86,12 @@ public class ParametricSurface: Shape {
         self.fz = fz
     }
 
+    // This function is for computing the range of values for t
+    // for a given coordinate and its correspondent parametric function,
+    // over the uv-sector. There are several checks to see if the caller
+    // should go back to the previous uv-sector in the stack, move onto
+    // further processing if no range for t is found, or capture a range
+    // of t values.
     private func computeTRangeForCoordinate(fn: ParametricFunction,
                                             rayOriginComponent: Double,
                                             rayDirectionComponent: Double,
@@ -93,16 +99,13 @@ public class ParametricSurface: Shape {
                                             currentT: Double?,
                                             t1: Double,
                                             t2: Double) -> ComputeTRangeReturnValue {
-        let lowUV  = sector.lowUV
-        let highUV = sector.highUV
-
         // First we approximate the mininum and maximum values of the coordinate
         // using its correspondent function, fn, over the sector defined
         // by lowUV and highUV.
         let (low, high) = computeIntervalForSector(fn: fn,
                                                    accuracy: self.accuracy,
-                                                   lowUV: lowUV,
-                                                   highUV: highUV,
+                                                   lowUV: sector.lowUV,
+                                                   highUV: sector.highUV,
                                                    maxGradient: self.maxGradient)
 
         // Next we need to convert those values to t values.
