@@ -9,29 +9,32 @@ import Foundation
 
 @_spi(Testing) public let MAX_RECURSIVE_CALLS = 5
 
-public class World {
+@available(macOS 10.15, *)
+public actor World {
     @_spi(Testing) public var light: Light
     @_spi(Testing) public var camera: Camera
     @_spi(Testing) public var objects: [Shape]
     var antialiasing: Bool = false
 
-    public init(@WorldBuilder builder: () -> World) {
-        let world = builder()
-        self.light = world.light
-        self.camera = world.camera
-        self.objects = world.objects
+    var totalPixels: Int
+
+    public init(@WorldBuilder builder: () -> (Light, Camera, [Shape])) {
+        (self.light, self.camera, self.objects) = builder()
+        self.totalPixels = camera.horizontalSize * camera.verticalSize
     }
 
     public init(_ light: Light, _ camera: Camera, @ShapeBuilder builder: () -> [Shape]) {
         self.light = light
         self.camera = camera
         self.objects = builder()
+        self.totalPixels = camera.horizontalSize * camera.verticalSize
     }
 
     public init(_ light: Light, _ camera: Camera, _ objects: [Shape]) {
         self.light = light
         self.camera = camera
         self.objects = objects
+        self.totalPixels = camera.horizontalSize * camera.verticalSize
     }
 
     public func antialiasing(_ antialiasing: Bool) -> Self {
@@ -216,7 +219,10 @@ public class World {
         return Ray(origin, direction)
     }
 
-    public func render() -> Canvas {
+    public func render(updateClosure: @MainActor @escaping (Double) -> Void) async -> Canvas {
+        var renderedPixels = 0
+        var percentRendered = 0.0
+        Task { [percentRendered] in await updateClosure(percentRendered) }
         var canvas = Canvas(self.camera.horizontalSize, self.camera.verticalSize)
         for y in 0..<self.camera.verticalSize {
             for x in 0..<self.camera.horizontalSize {
@@ -248,6 +254,9 @@ public class World {
                     color = self.colorAt(ray, MAX_RECURSIVE_CALLS)
                 }
                 canvas.setPixel(x, y, color)
+                renderedPixels += 1
+                percentRendered = Double(renderedPixels)*100.0/Double(self.totalPixels)
+                Task { [percentRendered] in await updateClosure(percentRendered) }
             }
         }
         return canvas

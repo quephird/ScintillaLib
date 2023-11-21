@@ -5,11 +5,11 @@
 //  Created by Danielle Kefford on 9/15/22.
 //
 
+@available(macOS 10.15, *)
 @resultBuilder
 public enum WorldBuilder {
-    public static func buildFinalResult(_ component: (Light, Camera, [Shape])) -> World {
-        let (light, camera, shapes) = component
-        return World(light, camera, shapes)
+    public static func buildFinalResult(_ component: (Light, Camera, [Shape])) -> (Light, Camera, [Shape]) {
+        return component
     }
 
     public static func buildBlock(_ light: Light, _ camera: Camera, _ shapes: [Shape]...) -> (Light, Camera, [Shape]) {

@@ -8,7 +8,7 @@
 import SwiftUI
 
 @available(macOS 12.0, *)
-public protocol ScintillaApp: App {
+@MainActor public protocol ScintillaApp: App {
     @WorldBuilder var world: World { get }
 }
 
