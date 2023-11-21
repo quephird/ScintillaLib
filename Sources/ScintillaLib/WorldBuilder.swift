@@ -8,8 +8,8 @@
 @available(macOS 10.15, *)
 @resultBuilder
 public enum WorldBuilder {
-    public static func buildFinalResult(_ component: (Light, Camera, [Shape])) -> (Light, Camera, [Shape]) {
-        return component
+    public static func buildFinalResult(_ world: (Light, Camera, [Shape])) -> (Light, Camera, [Shape]) {
+        return world
     }
 
     public static func buildBlock(_ light: Light, _ camera: Camera, _ shapes: [Shape]...) -> (Light, Camera, [Shape]) {
