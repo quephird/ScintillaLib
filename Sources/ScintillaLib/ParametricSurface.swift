@@ -96,7 +96,8 @@ public class ParametricSurface: Shape {
                                             rayComponents: (Double, Double),
                                             sector: Sector,
                                             currentT: Double?,
-                                            boundingBoxTRange: (Double, Double)) -> ComputeTRangeReturnValue {
+                                            boundingBoxTRange: (Double, Double),
+                                            previousTRanges: [(Double, Double)?]) -> ComputeTRangeReturnValue {
         let (t1, t2) = boundingBoxTRange
         let (rayOriginComponent, rayDirectionComponent) = rayComponents
 
@@ -138,6 +139,18 @@ public class ParametricSurface: Shape {
         // previously computed t, then we need to consider the previous sector.
         if let t = currentT, minT > t {
             return .goToPreviousSector
+        }
+
+        // If we computed a range of potential t values while examining the
+        // previous coordinate, _and_ that range does not overlap the range of
+        // t values for the current coordinate, then we need to return to the
+        // previous uv sector.
+        for previousTRange in previousTRanges {
+            if let (previousMinT, previousMaxT) = previousTRange {
+                if (minT > previousMaxT) || (maxT < previousMinT) {
+                    return .goToPreviousSector
+                }
+            }
         }
 
         return .value(minT, maxT)
@@ -228,7 +241,8 @@ public class ParametricSurface: Shape {
                                               rayComponents: (localRay.origin.x, localRay.direction.x),
                                               sector: currentSector,
                                               currentT: t,
-                                              boundingBoxTRange: (t1, t2)) {
+                                              boundingBoxTRange: (t1, t2),
+                                              previousTRanges: []) {
             case .goToPreviousSector:
                 continue
             case .noneFound:
@@ -245,22 +259,13 @@ public class ParametricSurface: Shape {
                                               rayComponents: (localRay.origin.y, localRay.direction.y),
                                               sector: currentSector,
                                               currentT: t,
-                                              boundingBoxTRange: (t1, t2)) {
+                                              boundingBoxTRange: (t1, t2),
+                                              previousTRanges: [rangeTForX]) {
             case .goToPreviousSector:
                 continue
             case .noneFound:
                 break
             case .value(let minT, let maxT):
-                // If we previously computed a range of potential t values
-                // while examining the x coordinate, _and_ that range does not
-                // overlap the range of t values for the y coordinate, then
-                // we need to consider the previous sector.
-                if let (minTForX, maxTForX) = rangeTForX {
-                    if (minT > maxTForX) || (maxT < minTForX) {
-                        continue
-                    }
-                }
-
                 potentialT = minT
                 rangeTForY = (minT, maxT)
                 let temp = maxT - minT
@@ -275,32 +280,13 @@ public class ParametricSurface: Shape {
                                               rayComponents: (localRay.origin.z, localRay.direction.z),
                                               sector: currentSector,
                                               currentT: t,
-                                              boundingBoxTRange: (t1, t2)) {
+                                              boundingBoxTRange: (t1, t2),
+                                              previousTRanges: [rangeTForX, rangeTForY]) {
             case .goToPreviousSector:
                 continue
             case .noneFound:
                 break
             case .value(let minT, let maxT):
-                // If we previously computed a range of potential t values
-                // while examining the x coordinate, _and_ that range does not
-                // overlap the range of t values for the z coordinate, then
-                // we need to consider the previous sector.
-                if let (minTForX, maxTForX) = rangeTForX {
-                    if (minT > maxTForX) || (maxT < minTForX) {
-                        continue
-                    }
-                }
-
-                // Similarly, if we previously computed a range of potential t values
-                // while examining the _y_ coordinate, _and_ that range does not
-                // overlap the range of t values for the z coordinate, then
-                // we need to consider the previous sector.
-                if let (minTForY, maxTForY) = rangeTForY {
-                    if (minT > maxTForY) || (maxT < minTForY) {
-                        continue
-                    }
-                }
-
                 potentialT = minT
                 let temp = maxT - minT
                 if temp > deltaT {
