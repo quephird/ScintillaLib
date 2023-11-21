@@ -10,7 +10,7 @@ import ScintillaLib
 @available(macOS 12.0, *)
 @main
 struct BallWithAreaLight: ScintillaApp {
-    var world: World {
+    var world: World = World {
         AreaLight(
             Point(-5, 5, -5),
             Vector(2, 0, 0), 10,
