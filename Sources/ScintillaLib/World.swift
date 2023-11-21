@@ -219,10 +219,14 @@ public actor World {
         return Ray(origin, direction)
     }
 
+    private func sendProgress(_ newValue: Double, to updateClosure: @MainActor @escaping (Double) -> Void) {
+        Task { await updateClosure(newValue) }
+    }
+
     public func render(updateClosure: @MainActor @escaping (Double) -> Void) async -> Canvas {
         var renderedPixels = 0
         var percentRendered = 0.0
-        Task { [percentRendered] in await updateClosure(percentRendered) }
+        sendProgress(percentRendered, to: updateClosure)
         var canvas = Canvas(self.camera.horizontalSize, self.camera.verticalSize)
         for y in 0..<self.camera.verticalSize {
             for x in 0..<self.camera.horizontalSize {
@@ -257,7 +261,7 @@ public actor World {
                 renderedPixels += 1
                 percentRendered = Double(renderedPixels)/Double(self.totalPixels)
             }
-            Task { [percentRendered] in await updateClosure(percentRendered) }
+            sendProgress(percentRendered, to: updateClosure)
         }
         return canvas
     }
