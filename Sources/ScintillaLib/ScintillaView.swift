@@ -8,8 +8,9 @@
 import SwiftUI
 
 @available(macOS 12.0, *)
-public struct ScintillaView: View {
+@MainActor public struct ScintillaView: View {
     @State private var nsImage: NSImage?
+    @State var percentRendered: Double = 0.0
 
     @WorldBuilder var world: World
     var fileName: String
@@ -24,15 +25,29 @@ public struct ScintillaView: View {
             if let nsImage = self.nsImage {
                 Image(nsImage: nsImage)
             } else {
-                Text("Rendering...")
+                ProgressView(value: percentRendered) {
+                    Text("Rendering…")
+                } currentValueLabel: {
+                    Text(
+                        percentRendered
+                            .formatted(
+                                .percent.precision(
+                                    .integerAndFractionLength(integerLimits: 1...3,
+                                                              fractionLimits: 0...0))))
+                }
+                    .progressViewStyle(.circular)
             }
         }.task {
             await self.renderImage()
         }
     }
 
+    func updatePercentRendered(_ newPercentRendered: Double) {
+        self.percentRendered = newPercentRendered
+    }
+
     func renderImage() async {
-        let canvas = world.render()
+        let canvas = await world.render(updateClosure: updatePercentRendered)
         self.nsImage = canvas.toNSImage()
         canvas.save(to: self.fileName)
     }
