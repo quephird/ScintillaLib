@@ -25,8 +25,15 @@ import SwiftUI
             if let nsImage = self.nsImage {
                 Image(nsImage: nsImage)
             } else {
-                Text(String(percentRendered))
-//                Text("Rendering... (\($world.$percentRendered)% complete)")
+                ProgressView(value: percentRendered) {
+                    Text("Rendering…")
+                } currentValueLabel: {
+                    Text(percentRendered
+                            .formatted(.percent.precision(
+                                .integerAndFractionLength(integerLimits: 1...3,
+                                                          fractionLimits: 0...0))))
+                }
+                    .progressViewStyle(.circular)
             }
         }.task {
             await self.renderImage()

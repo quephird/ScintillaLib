@@ -255,9 +255,9 @@ public actor World {
                 }
                 canvas.setPixel(x, y, color)
                 renderedPixels += 1
-                percentRendered = Double(renderedPixels)*100.0/Double(self.totalPixels)
-                Task { [percentRendered] in await updateClosure(percentRendered) }
+                percentRendered = Double(renderedPixels)/Double(self.totalPixels)
             }
+            Task { [percentRendered] in await updateClosure(percentRendered) }
         }
         return canvas
     }
