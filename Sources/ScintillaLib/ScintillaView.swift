@@ -28,10 +28,12 @@ import SwiftUI
                 ProgressView(value: percentRendered) {
                     Text("Rendering…")
                 } currentValueLabel: {
-                    Text(percentRendered
-                            .formatted(.percent.precision(
-                                .integerAndFractionLength(integerLimits: 1...3,
-                                                          fractionLimits: 0...0))))
+                    Text(
+                        percentRendered
+                            .formatted(
+                                .percent.precision(
+                                    .integerAndFractionLength(integerLimits: 1...3,
+                                                              fractionLimits: 0...0))))
                 }
                     .progressViewStyle(.circular)
             }
@@ -40,12 +42,12 @@ import SwiftUI
         }
     }
 
-    func reportProgress(_ newPercentage: Double) {
-        self.percentRendered = newPercentage
+    func updatePercentRendered(_ newPercentRendered: Double) {
+        self.percentRendered = newPercentRendered
     }
 
     func renderImage() async {
-        let canvas = await world.render(updateClosure: reportProgress)
+        let canvas = await world.render(updateClosure: updatePercentRendered)
         self.nsImage = canvas.toNSImage()
         canvas.save(to: self.fileName)
     }
