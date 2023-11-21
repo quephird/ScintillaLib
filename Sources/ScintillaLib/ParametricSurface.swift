@@ -110,8 +110,6 @@ public class ParametricSurface: Shape {
                                                    highUV: sector.highUV,
                                                    maxGradient: self.maxGradient)
 
-        // Next we need to convert those values to t values.
-        //
         // If the component of the ray's direction is near zero,
         // then we cannot accurately compute correspondent values of t.
         if rayDirectionComponent.isAlmostEqual(0.0) {
@@ -122,9 +120,9 @@ public class ParametricSurface: Shape {
             return .noneFound
         }
 
+        // Next we need to convert those values to t values.
         var minT = (low - rayOriginComponent)/rayDirectionComponent
         var maxT = (high - rayOriginComponent)/rayDirectionComponent
-
         if (minT > maxT) {
             (minT, maxT) = (maxT, minT)
         }
