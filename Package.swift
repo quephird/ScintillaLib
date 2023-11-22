@@ -83,5 +83,9 @@ let package = Package(
             name: "Breather",
             dependencies: ["ScintillaLib"],
             path: "Examples/Breather"),
+        .executableTarget(
+            name: "Rings",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/Rings"),
     ]
 )
