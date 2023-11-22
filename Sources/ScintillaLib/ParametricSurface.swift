@@ -154,6 +154,10 @@ public class ParametricSurface: Shape {
         return .value(minT, maxT)
     }
 
+    // The implementation below is a fairly modified version of the one
+    // used in POV-Ray, and is hopefully a little clearly and expressed in
+    // idiomatic Swift.
+    //
     // NOTA BENE: This method only ever returns a maximum of one intersection,
     // that being the closest one to the camera.
     @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
@@ -235,6 +239,10 @@ public class ParametricSurface: Shape {
 
             // Here is where we begin narrowing down the value of t,
             // first based on the range of values for the x coordinate.
+            //
+            // NOTA BENE: Although the code below for x, y, and z coordinates is quite
+            // duplicative, it runs significantly faster than putting as much of the
+            // common parts in a for loop.
             switch computeTRangeForCoordinate(fn: self.fx,
                                               rayComponents: (localRay.origin.x, localRay.direction.x),
                                               sector: currentSector,
@@ -409,10 +417,10 @@ public class ParametricSurface: Shape {
                                           highUV: (Double, Double),
                                           maxGradient: Double) -> (Double, Double) {
         // Calculate the values of fn at each corner of the sector.
-        let bottomLeft  = fn(lowUV.0, lowUV.1) - accuracy
-        let topLeft     = fn(lowUV.0, highUV.1) - accuracy
-        let bottomRight = fn(highUV.0, lowUV.1) - accuracy
-        let topRight    = fn(highUV.0, highUV.1) - accuracy
+        let bottomLeft  = fn(lowUV.0, lowUV.1)
+        let topLeft     = fn(lowUV.0, highUV.1)
+        let bottomRight = fn(highUV.0, lowUV.1)
+        let topRight    = fn(highUV.0, highUV.1)
 
         let deltaU = highUV.0 - lowUV.0
         let deltaV = highUV.1 - lowUV.1

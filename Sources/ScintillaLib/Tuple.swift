@@ -137,6 +137,8 @@ public struct Vector: Tuple4 {
     }
 
     @_spi(Testing) public func normalize() -> Self {
+        // NOTA BENE: This is a bit of a hack, but I needed to do this
+        // to avoid a divide-by-zero error.
         let magnitude = self.magnitude()
         if magnitude.isZero {
             return self
