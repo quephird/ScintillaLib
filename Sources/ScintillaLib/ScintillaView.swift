@@ -24,7 +24,9 @@ import SwiftUI
     public var body: some View {
         VStack {
             if let nsImage = self.nsImage {
+                Spacer()
                 Image(nsImage: nsImage)
+                Spacer()
             } else {
                 VStack {
                     Spacer()
@@ -40,13 +42,13 @@ import SwiftUI
                     }
                         .progressViewStyle(.circular)
                     Spacer()
-                    HStack {
-                        Text("Elapsed time: \(elapsedTime.formatted(.timeDuration))")
-                            .padding(.leading, 5)
-                            .padding(.bottom, 5)
-                        Spacer()
-                    }
                 }
+            }
+            HStack {
+                Text("Elapsed time: \(elapsedTime.formatted(.timeDuration))")
+                    .padding(.leading, 5)
+                    .padding(.bottom, 5)
+                Spacer()
             }
         }.task {
             await self.renderImage()
