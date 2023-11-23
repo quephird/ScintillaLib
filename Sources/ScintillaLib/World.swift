@@ -219,14 +219,19 @@ public actor World {
         return Ray(origin, direction)
     }
 
-    private func sendProgress(_ newValue: Double, to updateClosure: @MainActor @escaping (Double) -> Void) {
-        Task { await updateClosure(newValue) }
+    private func sendProgress(newPercentRendered: Double,
+                              newElapsedTime: Range<Date>,
+                              to updateClosure: @MainActor @escaping (Double, Range<Date>) -> Void) {
+        Task { await updateClosure(newPercentRendered, newElapsedTime) }
     }
 
-    public func render(updateClosure: @MainActor @escaping (Double) -> Void) async -> Canvas {
+    public func render(updateClosure: @MainActor @escaping (Double, Range<Date>) -> Void) async -> Canvas {
         var renderedPixels = 0
         var percentRendered = 0.0
-        sendProgress(percentRendered, to: updateClosure)
+        let startingTime = Date()
+        sendProgress(newPercentRendered: percentRendered,
+                     newElapsedTime: startingTime..<startingTime,
+                     to: updateClosure)
         var canvas = Canvas(self.camera.horizontalSize, self.camera.verticalSize)
         for y in 0..<self.camera.verticalSize {
             for x in 0..<self.camera.horizontalSize {
@@ -259,9 +264,11 @@ public actor World {
                 }
                 canvas.setPixel(x, y, color)
                 renderedPixels += 1
-                percentRendered = Double(renderedPixels)/Double(self.totalPixels)
             }
-            sendProgress(percentRendered, to: updateClosure)
+            percentRendered = Double(renderedPixels)/Double(self.totalPixels)
+            sendProgress(newPercentRendered: percentRendered,
+                         newElapsedTime: startingTime ..< Date(),
+                         to: updateClosure)
         }
         return canvas
     }
