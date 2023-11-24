@@ -106,13 +106,13 @@ public class Shape {
         fatalError("Subclasses must override this method!")
     }
 
-    @_spi(Testing) public func normal(_ worldPoint: Point) -> Vector {
+    @_spi(Testing) public func normal(_ worldPoint: Point, _ uv: UV = .none) -> Vector {
         let localPoint = self.worldToObject(worldPoint)
-        let localNormal = self.localNormal(localPoint)
+        let localNormal = self.localNormal(localPoint, uv)
         return self.objectToWorld(localNormal)
     }
 
-    func localNormal(_ localPoint: Point) -> Vector {
+    func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         fatalError("Subclasses must override this method!")
     }
 

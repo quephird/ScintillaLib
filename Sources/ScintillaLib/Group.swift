@@ -32,7 +32,7 @@ public class Group: Shape {
         return allIntersections
     }
 
-    @_spi(Testing) public override func localNormal(_ localPoint: Point) -> Vector {
+    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         return Vector(0, 0, 1)
     }
 

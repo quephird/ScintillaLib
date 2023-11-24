@@ -45,7 +45,7 @@ import SwiftUI
                 }
             }
             HStack {
-                Text("Elapsed time: \(elapsedTime.formatted(.timeDuration))")
+                Text("Elapsed time: \(elapsedTime.formatted(.components(style: .condensedAbbreviated)))")
                     .padding(.leading, 5)
                     .padding(.bottom, 5)
                 Spacer()

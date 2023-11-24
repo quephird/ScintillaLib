@@ -30,7 +30,7 @@ public class Superellipsoid: Shape {
             }
     }
 
-    @_spi(Testing) public override func localNormal(_ localPoint: Point) -> Vector {
+    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         return self.underlyingImplicitSurface.localNormal(localPoint)
     }
 }
