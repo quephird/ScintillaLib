@@ -153,6 +153,49 @@ struct MyImplicitSurface: ScintillaApp {
 
 Implicit surfaces can be used just like any other primitive shape; they can be translated, scaled, and rotated, and all of their material properties work the same way as well.
 
+## Parametric surfaces
+
+Parametric surfaces are also a subclass of `Shape` and are also used a little differently from the other primitives. Unlike implicit surfaces, parametric surfaces are expressed with a material and _three_ closures taking two parameters, one for each of the coordinates. For example, an hourglass like surface is defined by the following parametric functions:
+
+<div style="text-align: center;">
+  <div style="display: inline-block; text-align: left;">
+    x(u, v) = cos(u)sin(2v)<br />
+    y(u, v) = sin(v)<br />
+    z(u, v) = sin(u)sin(2v)<br />
+  </div>
+</div>
+
+... and this can be expressed in Scintilla like the following:
+
+```
+import Darwin
+import ScintillaLib
+
+@main
+struct Hourglass: ScintillaApp {
+    var world = World {
+        PointLight(Point(-10, 10, -10))
+        Camera(400, 400, PI/3, .view(
+            Point(0, 1, -5),
+            Point(0, 0, 0),
+            Vector(0, 1, 0)))
+        ParametricSurface(
+            (-1.0, -1.0, -1.0), (1.0, 1.0, 1.0),
+            (0, 2*PI), (0, 2*PI),
+            { (u, v) in cos(u)*sin(2*v) },
+            { (u, v) in sin(v) },
+            { (u, v) in sin(u)*sin(2*v) })
+            .material(.solidColor(0.9, 0.5, 0.5, .hsl))
+        Plane()
+            .material(.solidColor(1, 1, 1))
+            .translate(0, -1.0, 0)
+    }
+}
+```
+
+![](./images/Hourglass.png)
+
+
 ## Superellipsoids
 
 Superellisoids are a family of surfaces with a wide range of diversity of shapes, governed by two parameters, `e` and `n` in the following equation:
