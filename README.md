@@ -157,12 +157,10 @@ Implicit surfaces can be used just like any other primitive shape; they can be t
 
 Parametric surfaces are also a subclass of `Shape` and are also used a little differently from the other primitives. Unlike implicit surfaces, parametric surfaces are expressed with a material and _three_ closures taking two parameters, one for each of the coordinates. For example, an hourglass like surface is defined by the following parametric functions:
 
-<div style="text-align: center;">
-  <div style="display: inline-block; text-align: left;">
-    x(u, v) = cos(u)sin(2v)<br />
-    y(u, v) = sin(v)<br />
-    z(u, v) = sin(u)sin(2v)<br />
-  </div>
+<div align="center">
+  x(u, v) = cos(u)sin(2v)<br />
+  y(u, v) = sin(v)<br />
+  z(u, v) = sin(u)sin(2v)<br />
 </div>
 
 ... and this can be expressed in Scintilla like the following:
