@@ -266,7 +266,7 @@ struct Hourglass: ScintillaApp {
 
 One thing to remember: smaller values of accuracy mean both a higher quality rendering as well as increased time to render.
 
-Similarly, you may need to override the default value of the maximum gradient to  increase the fidelity of certain parametric surfaces. Using too _low_ a value can cause parts of the shape to "drop" out. Below we have made the maximum gradient set at 0.3, lower than the default value:
+Similarly, you may need to override the default value of the maximum gradient to  increase the fidelity of certain parametric surfaces. The maximum gradient basically affects how Scinit Using too _low_ a value can cause parts of the shape to "drop" out. Below we have made the maximum gradient set at 0.3, lower than the default value:
 
 ```swift
 import Darwin

@@ -325,7 +325,7 @@ public class ParametricSurface: Shape {
             // If we got here, then we need to refine the values of u or v.
             // We do this by pushing a modified version of the sector
             // we just examined, as well as a brand new one.
-            var previouslyExaminedSector = currentSector
+            var updatedCurrentSector = currentSector
             var newSector = currentSector
 
             // Here we determine which of the u and v parameters whose range
@@ -339,17 +339,17 @@ public class ParametricSurface: Shape {
                 // its high u value, and shrink the range of the previous sector
                 // by raising its low u value.
                 let newU = (currentSector.lowUV.0 + currentSector.highUV.0)/2.0
-                previouslyExaminedSector.lowUV.0 = newU
+                updatedCurrentSector.lowUV.0 = newU
                 newSector.highUV.0 = newU
             case false:
                 // Do the same as above but instead for the v values of the new
                 // and previous sectors.
                 let newV = (currentSector.lowUV.1 + currentSector.highUV.1)/2.0
-                previouslyExaminedSector.lowUV.1 = newV
+                updatedCurrentSector.lowUV.1 = newV
                 newSector.highUV.1 = newV
             }
 
-            uvSectors.append(previouslyExaminedSector)
+            uvSectors.append(updatedCurrentSector)
             uvSectors.append(newSector)
         }
 

@@ -20,7 +20,7 @@ struct Hourglass: ScintillaApp {
         ParametricSurface(
             (-1.0, -1.0, -1.0), (1.0, 1.0, 1.0),
             (0, 2*PI), (0, 2*PI),
-            0.001, 0.3,
+            0.001, 1.0,
             { (u, v) in cos(u)*sin(2*v) },
             { (u, v) in sin(v) },
             { (u, v) in sin(u)*sin(2*v) })
