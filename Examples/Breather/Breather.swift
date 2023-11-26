@@ -21,7 +21,7 @@ func z(u: Double, v: Double) -> Double {
     return 2*sqrt(0.84)*cosh(0.4*u)*(-sqrt(0.84)*sin(v)*cos(sqrt(0.84)*v) + cos(v)*sin(sqrt(0.84)*v))/d(u: u, v: v)
 }
 
-// ACHTUNG: This takes a _long_ time to render!
+// ACHTUNG: This takes a while to render!
 @available(macOS 12.0, *)
 @main
 struct Breather: ScintillaApp {
@@ -34,7 +34,7 @@ struct Breather: ScintillaApp {
         ParametricSurface(
             (-8, -5, -5), (8, 5, 5),
             (-15, 15), (-38, 38),
-            0.05, 5.0,
+            0.001, 1.0,
             { (u, v) in x(u: u, v: v) },
             { (u, v) in y(u: u, v: v) },
             { (u, v) in z(u: u, v: v) })

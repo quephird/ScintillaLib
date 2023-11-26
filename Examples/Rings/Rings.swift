@@ -20,7 +20,7 @@ struct Rings: ScintillaApp {
         ParametricSurface(
             (-6, -3, -6), (6, 3, 6),
             (0, 2*PI), (0, 2*PI),
-            0.0005, 20.0,
+            0.001, 3.0,
             { (u, v) in (4*(1 + 0.25*sin(3.0*v)) + cos(u))*cos(2.0*v) },
             { (u, v) in sin(u) + 2.0*cos(3*v) },
             { (u, v) in (4*(1 + 0.25*sin(3.0*v)) + cos(u))*sin(2.0*v) })

@@ -20,7 +20,7 @@ struct Cavatappi: ScintillaApp {
         ParametricSurface(
             (-3.5, 0, -3.5), (3.5, 15.0, 3.5),
             (0, 2*PI), (0, 7*PI),
-            0.0035, 5.0,
+            0.001, 1.0,
             { (u, v) in (2 + cos(u) + 0.1*cos(8*u))*cos(v) },
             { (u, v) in 2 + sin(u) + 0.1*sin(8*u) + 0.5*v },
             { (u, v) in (2 + cos(u) + 0.1*cos(8*u))*sin(v) })
