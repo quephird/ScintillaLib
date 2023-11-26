@@ -86,77 +86,9 @@ public class ParametricSurface: Shape {
         self.fz = fz
     }
 
-    // This function is for computing the range of values for t
-    // for a given coordinate and its correspondent parametric function,
-    // over the uv-sector. There are several checks to see if the caller
-    // should go back to the previous uv-sector in the stack, move onto
-    // further processing if no range for t is found, or capture a range
-    // of t values.
-    private func computeTRangeForCoordinate(fn: ParametricFunction,
-                                            rayComponents: (Double, Double),
-                                            sector: Sector,
-                                            currentT: Double?,
-                                            boundingBoxTRange: (Double, Double),
-                                            previousTRanges: [(Double, Double)?]) -> ComputeTRangeReturnValue {
-        let (t1, t2) = boundingBoxTRange
-        let (rayOriginComponent, rayDirectionComponent) = rayComponents
-
-        // First we approximate the mininum and maximum values of the coordinate
-        // using its correspondent function, fn, over the sector defined
-        // by lowUV and highUV.
-        let (low, high) = computeRangeOverSector(fn: fn,
-                                                 accuracy: self.accuracy,
-                                                 lowUV: sector.lowUV,
-                                                 highUV: sector.highUV,
-                                                 maxGradient: self.maxGradient)
-
-        // If the component of the ray's direction is near zero,
-        // then we cannot accurately compute correspondent values of t.
-        if rayDirectionComponent.isAlmostEqual(0.0) {
-            if high < rayOriginComponent || low > rayOriginComponent {
-                return .goToPreviousSector
-            }
-
-            return .noneFound
-        }
-
-        // Next we need to convert those values to t values.
-        var minT = (low - rayOriginComponent)/rayDirectionComponent
-        var maxT = (high - rayOriginComponent)/rayDirectionComponent
-        if (minT > maxT) {
-            (minT, maxT) = (maxT, minT)
-        }
-
-        // If the range of the new t values is outside the bounding box,
-        // then we need to consider the previous sector.
-        if (minT > t2) || (maxT < t1) {
-            return .goToPreviousSector
-        }
-
-        // If the lesser of the newly computed t values is larger than the
-        // previously computed t, then we need to consider the previous sector.
-        if let t = currentT, minT > t {
-            return .goToPreviousSector
-        }
-
-        // If we computed a range of potential t values while examining the
-        // previous coordinate, _and_ that range does not overlap the range of
-        // t values for the current coordinate, then we need to return to the
-        // previous uv sector.
-        for previousTRange in previousTRanges {
-            if let (previousMinT, previousMaxT) = previousTRange {
-                if (minT > previousMaxT) || (maxT < previousMinT) {
-                    return .goToPreviousSector
-                }
-            }
-        }
-
-        return .value(minT, maxT)
-    }
-
     // The implementation below is a fairly modified version of the one
-    // used in POV-Ray, and is hopefully a little clearly and expressed in
-    // idiomatic Swift.
+    // used in POV-Ray, and is hopefully expressed more clearly and is
+    // idiomatic for Swift.
     //
     // NOTA BENE: This method only ever returns a maximum of one intersection,
     // that being the closest one to the camera.
@@ -365,6 +297,138 @@ public class ParametricSurface: Shape {
         return []
     }
 
+    // This function is for computing the range of values for t
+    // for a given coordinate and its correspondent parametric function,
+    // over the uv-sector. There are several checks to see if the caller
+    // should go back to the previous uv-sector in the stack, move onto
+    // further processing if no range for t is found, or capture a range
+    // of t values.
+    private func computeTRangeForCoordinate(fn: ParametricFunction,
+                                            rayComponents: (Double, Double),
+                                            sector: Sector,
+                                            currentT: Double?,
+                                            boundingBoxTRange: (Double, Double),
+                                            previousTRanges: [(Double, Double)?]) -> ComputeTRangeReturnValue {
+        let (t1, t2) = boundingBoxTRange
+        let (rayOriginComponent, rayDirectionComponent) = rayComponents
+
+        // First we approximate the mininum and maximum values of the coordinate
+        // using its correspondent function, fn, over the sector defined
+        // by lowUV and highUV.
+        let (low, high) = computeRangeOverSector(fn: fn,
+                                                 accuracy: self.accuracy,
+                                                 lowUV: sector.lowUV,
+                                                 highUV: sector.highUV,
+                                                 maxGradient: self.maxGradient)
+
+        // If the component of the ray's direction is near zero,
+        // then we cannot accurately compute correspondent values of t.
+        if rayDirectionComponent.isAlmostEqual(0.0) {
+            if high < rayOriginComponent || low > rayOriginComponent {
+                return .goToPreviousSector
+            }
+
+            return .noneFound
+        }
+
+        // Next we need to convert those values to t values.
+        var minT = (low - rayOriginComponent)/rayDirectionComponent
+        var maxT = (high - rayOriginComponent)/rayDirectionComponent
+        if (minT > maxT) {
+            (minT, maxT) = (maxT, minT)
+        }
+
+        // If the range of the new t values is outside the bounding box,
+        // then we need to consider the previous sector.
+        if (minT > t2) || (maxT < t1) {
+            return .goToPreviousSector
+        }
+
+        // If the lesser of the newly computed t values is larger than the
+        // previously computed t, then we need to consider the previous sector.
+        if let t = currentT, minT > t {
+            return .goToPreviousSector
+        }
+
+        // If we computed a range of potential t values while examining the
+        // previous coordinate, _and_ that range does not overlap the range of
+        // t values for the current coordinate, then we need to return to the
+        // previous uv sector.
+        for previousTRange in previousTRanges {
+            if let (previousMinT, previousMaxT) = previousTRange {
+                if (minT > previousMaxT) || (maxT < previousMinT) {
+                    return .goToPreviousSector
+                }
+            }
+        }
+
+        return .value(minT, maxT)
+    }
+
+    // This function computes the min and max values for the coordinate
+    // correspondent with the parametric function fn passed in over the sector
+    // defined by lowUV and highUV.
+    private func computeRangeOverSector(fn: ParametricFunction,
+                                        accuracy: Double,
+                                        lowUV: (Double, Double),
+                                        highUV: (Double, Double),
+                                        maxGradient: Double) -> (Double, Double) {
+        let (lowU, lowV) = lowUV
+        let (highU, highV) = highUV
+
+        // Calculate the values of fn at each corner of the sector.
+        let bottomLeft  = fn(lowU, lowV)
+        let topLeft     = fn(lowU, highV)
+        let bottomRight = fn(highU, lowV)
+        let topRight    = fn(highU, highV)
+
+        // Determine min and max values along the left edge of the sector.
+        let (leftEdgeMin, leftEdgeMax) = computeRangeUsingOffsets(coordinateRange: (bottomLeft, topLeft),
+                                                                  parameterRange: (lowV, highV),
+                                                                  maxGradient: maxGradient)
+
+        // Determine min and max values along the right edge of the sector.
+        let (rightEdgeMin, rightEdgeMax) = computeRangeUsingOffsets(coordinateRange: (bottomRight, topRight),
+                                                                    parameterRange: (lowV, highV),
+                                                                    maxGradient: maxGradient)
+
+        // Assume that the upper bounds of both edges are attained at the same
+        // u coordinate and determine what an upper bound along that line would
+        // be if it existed. That's the worst-case maximum value we can reach.
+        let (_, high) = computeRangeUsingOffsets(coordinateRange: (leftEdgeMax, rightEdgeMax),
+                                                 parameterRange: (lowU, highU),
+                                                 maxGradient: maxGradient)
+
+        // Same as above to get a lower bound from the two edge lower bounds.
+        let (low, _) = computeRangeUsingOffsets(coordinateRange: (leftEdgeMin, rightEdgeMin),
+                                                parameterRange: (lowU, highU),
+                                                maxGradient: maxGradient)
+
+        return (low, high)
+    }
+
+    // This function takes the input range of coordinate values and returns
+    // and altered version of it, taking into account the maximum gradient and
+    // the range of values for one of the u and v parameters passed in
+    //
+    // TODO: Explain what is the thinking behind this implementation
+    private func computeRangeUsingOffsets(coordinateRange: (Double, Double),
+                                          parameterRange: (Double, Double),
+                                          maxGradient: Double) -> (Double, Double) {
+        let (coordinateValue1, coordinateValue2) = coordinateRange
+        let (parameterValue1, parameterValue2) = parameterRange
+
+        let deltaCoord = abs(coordinateValue2 - coordinateValue1)
+        let deltaParam = parameterValue2 - parameterValue1
+
+        var offset = maxGradient*(deltaParam - deltaCoord/maxGradient)/2.0
+        if offset < 0 {
+            offset = 0
+        }
+
+        return (min(coordinateValue1, coordinateValue2)-offset, max(coordinateValue1, coordinateValue2)+offset)
+    }
+
     @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV) -> Vector {
         // We compute the normal vector by first numerically approximating all the partial
         // derivatives: ∂Fx/∂u, ∂Fy/∂u, ∂Fz/∂u, ∂Fx/∂v, ∂Fy/∂v, ∂Fz/∂v. Then we form the vectors:
@@ -391,69 +455,5 @@ public class ParametricSurface: Shape {
         default:
             fatalError("Whoops... you need to pass in a uv pair!")
         }
-    }
-
-    // This function takes the input range of coordinate values and returns
-    // and altered version of it, taking into account the maximum gradient and
-    // the range of values for one of the u and v parameters passed in
-    //
-    // TODO: Explain what is the thinking behind this implementation
-    private func computeRangeUsingOffsets(coordinateRange: (Double, Double),
-                                          parametricRange: (Double, Double),
-                                          maxGradient: Double) -> (Double, Double) {
-        let (coordinateValue1, coordinateValue2) = coordinateRange
-        let (parametricValue1, parametricValue2) = parametricRange
-
-        let deltaCoord = abs(coordinateValue2 - coordinateValue1)
-        let deltaParam = parametricValue2 - parametricValue1
-
-        var offset = maxGradient*(deltaParam - deltaCoord/maxGradient)/2.0
-        if offset < 0 {
-            offset = 0
-        }
-
-        return (min(coordinateValue1, coordinateValue2)-offset, max(coordinateValue1, coordinateValue2)+offset)
-    }
-
-    // This function computes the min and max values for the coordinate
-    // correspondent with the parametric function fn passed in over the sector
-    // defined by lowUV and highUV.
-    private func computeRangeOverSector(fn: ParametricFunction,
-                                        accuracy: Double,
-                                        lowUV: (Double, Double),
-                                        highUV: (Double, Double),
-                                        maxGradient: Double) -> (Double, Double) {
-        let (lowU, lowV) = lowUV
-        let (highU, highV) = highUV
-
-        // Calculate the values of fn at each corner of the sector.
-        let bottomLeft  = fn(lowU, lowV)
-        let topLeft     = fn(lowU, highV)
-        let bottomRight = fn(highU, lowV)
-        let topRight    = fn(highU, highV)
-
-        // Determine min and max values along the left edge of the sector.
-        let (leftEdgeMin, leftEdgeMax) = computeRangeUsingOffsets(coordinateRange: (bottomLeft, topLeft),
-                                                                  parametricRange: (lowV, highV),
-                                                                  maxGradient: maxGradient)
-
-        // Determine min and max values along the right edge of the sector.
-        let (rightEdgeMin, rightEdgeMax) = computeRangeUsingOffsets(coordinateRange: (bottomRight, topRight),
-                                                                    parametricRange: (lowV, highV),
-                                                                    maxGradient: maxGradient)
-
-        // Assume that the upper bounds of both edges are attained at the same
-        // u coordinate and determine what an upper bound along that line would
-        // be if it existed. That's the worst-case maximum value we can reach.
-        let (_, high) = computeRangeUsingOffsets(coordinateRange: (leftEdgeMax, rightEdgeMax),
-                                                 parametricRange: (lowU, highU),
-                                                 maxGradient: maxGradient)
-
-        // Same as above to get a lower bound from the two edge lower bounds.
-        let (low, _) = computeRangeUsingOffsets(coordinateRange: (leftEdgeMin, rightEdgeMin),
-                                                parametricRange: (lowU, highU),
-                                                maxGradient: maxGradient)
-
-        return (low, high)
     }
 }
