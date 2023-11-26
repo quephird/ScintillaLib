@@ -91,5 +91,9 @@ let package = Package(
             name: "Hourglass",
             dependencies: ["ScintillaLib"],
             path: "Examples/Hourglass"),
+        .executableTarget(
+            name: "DecoCube",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/DecoCube"),
     ]
 )
