@@ -266,7 +266,11 @@ struct Hourglass: ScintillaApp {
 
 One thing to remember: smaller values of accuracy mean both a higher quality rendering as well as increased time to render.
 
-Similarly, you may need to override the default value of the maximum gradient to  increase the fidelity of certain parametric surfaces. The maximum gradient basically affects how Scinit Using too _low_ a value can cause parts of the shape to "drop" out. Below we have made the maximum gradient set at 0.3, lower than the default value:
+Similarly, you may need to override the default value of the maximum gradient to  increase the fidelity of certain parametric surfaces. Generally speaking, the maximum gradient affects how Scintilla handles the bendiness of shapes; for less curvy shapes, you can get away with lower values of the max gradient, but for more curvy shapes, using too _low_ a value can cause parts of certain shapes to "drop" out.
+
+(Specifically, the max gradient is an estimate of the maximum value of all the partial derivatives of the parametic functions at each point, namely `∂x/∂u`, `∂x/∂v`, `∂y/∂u`, `∂y/∂v`, `∂z/∂u`, and `∂z/∂v`. It is used to compute the minimum and maximum values of each coordinate for a given range of values for `u` and `v`, which ultimately is done when searching for a point of intersection by each ray from the camera toward the shape. If you are not sure how to choose an optimal value, you should start with the default value (1.0) and keep experimenting by raising or lowering it to find the lowest value that does not create unwanted artifacts.)
+
+As an example, below we have taken our shape from above of and set the maximum gradient set to 0.3:
 
 ```swift
 import Darwin
@@ -295,7 +299,7 @@ struct Hourglass: ScintillaApp {
 }
 ```
 
-... and we can clearly see that we are missing significant parts of the shape:
+... and we can see that we have chosen a value that is too small, and see that we are missing significant parts of the shape:
 
 ![](./images/HourglassWithTooLowGradient.png)
 
