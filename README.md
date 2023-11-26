@@ -81,6 +81,42 @@ Cube()
 
 The implementation applies the underlying transformation matrices in reverse order, so the programmer isn't burdened with those details and instead can simply chain operations in an intuitive manner.
 
+## Superellipsoids
+
+Superellisoids are a family of surfaces with a wide range of diversity of shapes, governed by two parameters, `e` and `n` in the following equation:
+
+<p align="center">
+(|x|<sup>2/e</sup> + |y|<sup>2/e</sup>)<sup>e/n</sup> + z<sup>2/n</sup> = 1
+</p>
+
+Below is a rendering of an array of superellipsoids, each with a distinct combination of values for `e` and `n`:
+
+```swift
+import ScintillaLib
+
+@main
+struct SuperellipsoidScene: ScintillaApp {
+    var world: World = World {
+        PointLight(Point(0, 5, -5))
+        Camera(400, 400, PI/3, .view(
+            Point(0, 0, -12),
+            Point(0, 0, 0),
+            Vector(0, 1, 0)))
+        for (i, e) in [0.25, 0.5, 1.0, 2.0, 2.5].enumerated() {
+            for (j, n) in [0.25, 0.5, 1.0, 2.0, 2.5].enumerated() {
+                Superellipsoid(e, n)
+                    .material(.solidColor((Double(i)+1.0)/5.0, (Double(j)+1.0)/5.0, 0.2))
+                    .translate(2.5*(Double(i)-2.0), 2.5*(Double(j)-2.0), 0.0)
+            }
+        }
+    }
+}
+```
+
+They too are used just like any of the primitive shapes.
+
+![](./images/Superellipsoids.png)
+
 ## Implicit surfaces
 
 Implicit surfaces are actually a subclass of `Shape` but are used a little differently from the other types. Implicit surfaces are created with a material _and_ a closure that represents the function F in the equation that defines the surface in terms of the three coordinates, namely:
@@ -89,7 +125,7 @@ Implicit surfaces are actually a subclass of `Shape` but are used a little diffe
 F(x, y, z) = 0
 </p>
 
-Since it is not possible to compute the bounds of an arbitrary choice of F, Scintilla needs to somehow be informed of them. The user can specify them by passing in a pair of 3-tuples representing the bottom-left-front and top-right-rear corners of a bounding box. If they do not, Scintilla defaults to a bounding box defined by (-1, -1, -1) and (1, 1, 1). Below is example code for rendering an implicit surface with an explicit bounding box for the equation:
+Since it is not possible to compute the bounds of an arbitrary choice of F, Scintilla needs to somehow be informed of them. You can specify them by passing in a pair of 3-tuples representing the bottom-left-front and top-right-rear corners of a bounding box. If you do not, Scintilla defaults to a bounding box defined by (-1, -1, -1) and (1, 1, 1). Below is example code for rendering an implicit surface with an explicit bounding box for the equation:
 
 <p align="center">
 x² + y² + z² + sin(4x) + sin(4y) + sin(4z) = 1
@@ -150,45 +186,124 @@ struct MyImplicitSurface: ScintillaApp {
 ```
 ![](./images/Barth.png)
 
-
 Implicit surfaces can be used just like any other primitive shape; they can be translated, scaled, and rotated, and all of their material properties work the same way as well.
 
-## Superellipsoids
+## Parametric surfaces
 
-Superellisoids are a family of surfaces with a wide range of diversity of shapes, governed by two parameters, `e` and `n` in the following equation:
+Parametric surfaces are also a subclass of `Shape` and are also used a little differently from the other primitives. Like implicit surfaces, you need to specify a bounding box with two 3-tuples representing the bottom-left-front and top-right-back corners. And likewise, if not specified, the bounding box defaults to the cube formed by (-1, -1, -1) and (1, 1, 1).
+
+However, unlike implicit surfaces, parametric surfaces are expressed with _three_ closures taking two parameters, one for each of the coordinates. For example, an hourglass like surface is defined by the following parametric functions:
 
 <p align="center">
-(|x|<sup>2/e</sup> + |y|<sup>2/e</sup>)<sup>e/n</sup> + z<sup>2/n</sup> = 1
+  x(u, v) = cos(u)sin(2v)<br />
+  y(u, v) = sin(v)<br />
+  z(u, v) = sin(u)sin(2v)<br />
 </p>
 
-Below is a rendering of an array of superellipsoids, each with a distinct combination of values for `e` and `n`:
+... and this can be expressed in Scintilla like the following:
 
 ```swift
+import Darwin
 import ScintillaLib
 
 @main
-struct SuperellipsoidScene: ScintillaApp {
-    var world: World = World {
-        PointLight(Point(0, 5, -5))
+struct Hourglass: ScintillaApp {
+    var world = World {
+        PointLight(Point(-10, 10, -10))
         Camera(400, 400, PI/3, .view(
-            Point(0, 0, -12),
+            Point(0, 1, -5),
             Point(0, 0, 0),
             Vector(0, 1, 0)))
-        for (i, e) in [0.25, 0.5, 1.0, 2.0, 2.5].enumerated() {
-            for (j, n) in [0.25, 0.5, 1.0, 2.0, 2.5].enumerated() {
-                Superellipsoid(e, n)
-                    .material(.solidColor((Double(i)+1.0)/5.0, (Double(j)+1.0)/5.0, 0.2))
-                    .translate(2.5*(Double(i)-2.0), 2.5*(Double(j)-2.0), 0.0)
-            }
-        }
+        ParametricSurface(
+            (-1.0, -1.0, -1.0), (1.0, 1.0, 1.0),
+            (0, 2*PI), (0, 2*PI),
+            { (u, v) in cos(u)*sin(2*v) },
+            { (u, v) in sin(v) },
+            { (u, v) in sin(u)*sin(2*v) })
+            .material(.solidColor(0.9, 0.5, 0.5, .hsl))
+        Plane()
+            .material(.solidColor(1, 1, 1))
+            .translate(0, -1.0, 0)
     }
 }
 ```
 
-They too are used just like any of the primitive shapes.
+... which results in an image like the following:
 
+![](./images/Hourglass.png)
 
-![](./images/Superellipsoids.png)
+There are two other parameters that can be tweaked to improve the quality of the image for a parametric surface: the accuracy and the maximum gradient. They are passed in after the ranges of `u` and `v` values and before the three closures for `x`, `y`, and `z`. Both values also have default values— 0.001 for accuracy and 1.0 for the maximum gradient— so you do not always need to specify them. However, sometimes the resultant images for certain parametric surfaces can be too jaggy and so you may need to reduce the accuracy parameter. This is somewhat of a contrived example but below we have made the accuracy significantly larger (0.1) than the default value...
+
+```swift
+import Darwin
+import ScintillaLib
+
+@main
+struct Hourglass: ScintillaApp {
+    var world = World {
+        PointLight(Point(-10, 10, -10))
+        Camera(400, 400, PI/3, .view(
+            Point(0, 1, -5),
+            Point(0, 0, 0),
+            Vector(0, 1, 0)))
+        ParametricSurface(
+            (-1.0, -1.0, -1.0), (1.0, 1.0, 1.0),
+            (0, 2*PI), (0, 2*PI),
+            0.1, 1.0,
+            { (u, v) in cos(u)*sin(2*v) },
+            { (u, v) in sin(v) },
+            { (u, v) in sin(u)*sin(2*v) })
+            .material(.solidColor(0.9, 0.5, 0.5, .hsl))
+        Plane()
+            .material(.solidColor(1, 1, 1))
+            .translate(0, -1.0, 0)
+    }
+}
+```
+... and we can clearly see that it causes the shape to appear very blocky:
+
+![](./images/HourglassWithTooHighAccuracy.png)
+
+One thing to remember: smaller values of accuracy mean both a higher quality rendering as well as increased time to render.
+
+Similarly, you may need to override the default value of the maximum gradient to  increase the fidelity of certain parametric surfaces. Generally speaking, the maximum gradient affects how Scintilla handles the bendiness of shapes; for less curvy shapes, you can get away with lower values of the max gradient, but for more curvy shapes, using too _low_ a value can cause parts of certain shapes to "drop" out.
+
+(Specifically, the max gradient is an estimate of the maximum value of all the partial derivatives of the parametic functions at each point, namely `∂x/∂u`, `∂x/∂v`, `∂y/∂u`, `∂y/∂v`, `∂z/∂u`, and `∂z/∂v`. It is used to compute the minimum and maximum values of each coordinate for a given range of values for `u` and `v`, which ultimately is done when searching for a point of intersection by each ray from the camera toward the shape. If you are not sure how to choose an optimal value, you should start with the default value (1.0) and keep experimenting by raising or lowering it to find the lowest value that does not create unwanted artifacts.)
+
+As an example, below we have taken our shape from above of and set the maximum gradient set to 0.3:
+
+```swift
+import Darwin
+import ScintillaLib
+
+@main
+struct Hourglass: ScintillaApp {
+    var world = World {
+        PointLight(Point(-10, 10, -10))
+        Camera(400, 400, PI/3, .view(
+            Point(0, 1, -5),
+            Point(0, 0, 0),
+            Vector(0, 1, 0)))
+        ParametricSurface(
+            (-1.0, -1.0, -1.0), (1.0, 1.0, 1.0),
+            (0, 2*PI), (0, 2*PI),
+            0.001, 0.3,
+            { (u, v) in cos(u)*sin(2*v) },
+            { (u, v) in sin(v) },
+            { (u, v) in sin(u)*sin(2*v) })
+            .material(.solidColor(0.9, 0.5, 0.5, .hsl))
+        Plane()
+            .material(.solidColor(1, 1, 1))
+            .translate(0, -1.0, 0)
+    }
+}
+```
+
+... and we can see that we have chosen a value that is too small, and see that we are missing significant parts of the shape:
+
+![](./images/HourglassWithTooLowGradient.png)
+
+It should be noted that even using the default values for accuracy and maximum gradient, parametric surfaces can take _significantly_ longer to render than implicit surfaces. However, there are many surfaces that cannot possibly (or easily) be expressed with an implicit function, and so using parametric surfaces can open up lots of possibilities.
 
 ## Prisms
 
