@@ -19,13 +19,13 @@ public class Cylinder: Shape {
         super.init()
     }
 
-    public init(_ minimum: Double, _ maximum: Double) {
+    public init(bottomY minimum: Double, topY maximum: Double) {
         self.minimum = minimum
         self.maximum = maximum
         self.isCapped = false
     }
 
-    public init(_ minimum: Double, _ maximum: Double, _ isCapped: Bool) {
+    public init(bottomY minimum: Double, topY maximum: Double, isCapped: Bool) {
         self.minimum = minimum
         self.maximum = maximum
         self.isCapped = isCapped
