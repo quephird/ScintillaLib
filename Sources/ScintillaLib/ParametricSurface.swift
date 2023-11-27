@@ -39,25 +39,31 @@ public class ParametricSurface: Shape {
     var accuracy: Double
     var maxGradient: Double
 
-    public convenience init(_ bottomFrontLeft: Point3D,
-                            _ topBackRight: Point3D,
-                            _ uRange: (Double, Double),
-                            _ vRange: (Double, Double),
-                            _ fx: @escaping ParametricFunction,
-                            _ fy: @escaping ParametricFunction,
-                            _ fz: @escaping ParametricFunction) {
-        self.init(bottomFrontLeft, topBackRight, uRange, vRange, DEFAULT_ACCURACY, DEFAULT_MAX_GRADIENT, fx, fy, fz)
+    public convenience init(bottomFrontLeft: Point3D,
+                            topBackRight: Point3D,
+                            uRange: (Double, Double),
+                            vRange: (Double, Double),
+                            fx: @escaping ParametricFunction,
+                            fy: @escaping ParametricFunction,
+                            fz: @escaping ParametricFunction) {
+        self.init(bottomFrontLeft: bottomFrontLeft,
+                  topBackRight: topBackRight,
+                  uRange: uRange,
+                  vRange: vRange,
+                  accuracy: DEFAULT_ACCURACY,
+                  maxGradient: DEFAULT_MAX_GRADIENT,
+                  fx: fx, fy: fy, fz:fz)
     }
 
-    public convenience init(_ bottomFrontLeft: Point3D,
-                            _ topBackRight: Point3D,
-                            _ uRange: (Double, Double),
-                            _ vRange: (Double, Double),
-                            _ accuracy: Double,
-                            _ maxGradient: Double,
-                            _ fx: @escaping ParametricFunction,
-                            _ fy: @escaping ParametricFunction,
-                            _ fz: @escaping ParametricFunction) {
+    public convenience init(bottomFrontLeft: Point3D,
+                            topBackRight: Point3D,
+                            uRange: (Double, Double),
+                            vRange: (Double, Double),
+                            accuracy: Double,
+                            maxGradient: Double,
+                            fx: @escaping ParametricFunction,
+                            fy: @escaping ParametricFunction,
+                            fz: @escaping ParametricFunction) {
         let (xMin, yMin, zMin) = bottomFrontLeft
         let (xMax, yMax, zMax) = topBackRight
         let (scaleX, scaleY, scaleZ) = ((xMax-xMin)/2, (yMax-yMin)/2, (zMax-zMin)/2)
@@ -65,18 +71,23 @@ public class ParametricSurface: Shape {
         let boundingShape = Cube()
             .scale(scaleX, scaleY, scaleZ)
             .translate(translateX, translateY, translateZ)
-        self.init(boundingShape, uRange, vRange, accuracy, maxGradient, fx, fy, fz)
+        self.init(shape: boundingShape,
+                  uRange: uRange,
+                  vRange: vRange,
+                  accuracy: accuracy,
+                  maxGradient: maxGradient,
+                  fx: fx, fy: fy, fz: fz)
     }
 
-    public init(_ boundingShape: Shape,
-                _ uRange: (Double, Double),
-                _ vRange: (Double, Double),
-                _ accuracy: Double,
-                _ maxGradient: Double,
-                _ fx: @escaping ParametricFunction,
-                _ fy: @escaping ParametricFunction,
-                _ fz: @escaping ParametricFunction) {
-        self.boundingShape = boundingShape
+    public init(shape: Shape,
+                uRange: (Double, Double),
+                vRange: (Double, Double),
+                accuracy: Double,
+                maxGradient: Double,
+                fx: @escaping ParametricFunction,
+                fy: @escaping ParametricFunction,
+                fz: @escaping ParametricFunction) {
+        self.boundingShape = shape
         self.uRange = uRange
         self.vRange = vRange
         self.accuracy = accuracy
