@@ -14,7 +14,7 @@ let φ: Double = 1.61833987
 @main
 struct BarthSextic: ScintillaApp {
     var world: World = World {
-        PointLight(Point(-5, 5, -5))
+        PointLight(position: Point(-5, 5, -5))
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,

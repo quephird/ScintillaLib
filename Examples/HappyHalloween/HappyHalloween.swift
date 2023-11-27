@@ -24,7 +24,7 @@ func stem(x: Double, y: Double, z: Double) -> Double {
 @main
 struct HappyHalloween: ScintillaApp {
     var world: World = World {
-        PointLight(Point(-2, 5, -5))
+        PointLight(position: Point(-2, 5, -5))
         Camera(width: 600,
                height: 600,
                viewAngle: PI/3,

@@ -16,12 +16,12 @@ public struct PointLight: Light {
     public var position: Point
     public var color: Color
 
-    public init(_ position: Point) {
+    public init(position: Point) {
         self.position = position
         self.color = .white
     }
 
-    public init(_ position: Point, _ color: Color) {
+    public init(position: Point, color: Color) {
         self.position = position
         self.color = color
     }

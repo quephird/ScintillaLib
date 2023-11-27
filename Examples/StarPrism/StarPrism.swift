@@ -11,7 +11,7 @@ import ScintillaLib
 @main
 struct StarPrism: ScintillaApp {
     var world = World {
-        PointLight(Point(-5, 5, -5))
+        PointLight(position: Point(-5, 5, -5))
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,

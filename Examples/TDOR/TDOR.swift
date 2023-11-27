@@ -12,7 +12,7 @@ import ScintillaLib
 @main
 struct TDOR: ScintillaApp {
     var world = World {
-        PointLight(Point(-10, 10, -10))
+        PointLight(position: Point(-10, 10, -10))
         Camera(width: 600,
                height: 600,
                viewAngle: PI/3,

@@ -11,7 +11,7 @@ import ScintillaLib
 @main
 struct Superellipsoids: ScintillaApp {
     var world: World = World {
-        PointLight(Point(0, 5, -5))
+        PointLight(position: Point(0, 5, -5))
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,

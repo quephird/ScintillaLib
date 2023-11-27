@@ -23,7 +23,7 @@ func decoCubeColor(_ x: Double, _ y: Double, _ z: Double) -> (Double, Double, Do
 @main
 struct DecoCube: ScintillaApp {
     var world = World {
-        PointLight(Point(-10, 10, -10))
+        PointLight(position: Point(-10, 10, -10))
         Camera(width: 600,
                height: 600,
                viewAngle: PI/3,

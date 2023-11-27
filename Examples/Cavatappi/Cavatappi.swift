@@ -12,7 +12,7 @@ import ScintillaLib
 @main
 struct Cavatappi: ScintillaApp {
     var world = World {
-        PointLight(Point(-10, 10, -10))
+        PointLight(position: Point(-10, 10, -10))
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,

@@ -15,7 +15,7 @@ struct Die: ScintillaApp {
             .reflective(0.2)
 
         return World {
-            PointLight(Point(-10, 10, -10))
+            PointLight(position: Point(-10, 10, -10))
             Camera(width: 800,
                    height: 600,
                    viewAngle: PI/3,
