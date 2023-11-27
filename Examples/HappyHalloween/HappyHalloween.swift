@@ -29,25 +29,25 @@ struct HappyHalloween: ScintillaApp {
             Point(0, 2, -5),
             Point(0, 0, 0),
             Vector(0, 1, 0)))
-        ImplicitSurface((0.0, 0.0, 0.0), 2.0) { x, y, z in
+        ImplicitSurface(center: (0.0, 0.0, 0.0), radius: 2.0) { x, y, z in
             pumpkin(x: x, y: y, z: z)
         }
             .material(.solidColor(1.0, 0.5, 0.0))
             .scale(2.0, 1.5, 2.0)
             .difference {
-                Prism(-1.0, 1.5, [(0.0, 0.5), (-0.25, 0), (0.25, 0.0)]) // Right eye
+                Prism(bottomY: -1.0, topY: 1.5, xzPoints: [(0.0, 0.5), (-0.25, 0), (0.25, 0.0)]) // Right eye
                     .material(.solidColor(1.0, 0.8, 0.0))
                     .rotateX(-PI/2.0)
                     .translate(-0.5, 0.4, -1.5)
-                Prism(-1.0, 1.5, [(0.0, 0.5), (-0.25, 0), (0.25, 0.0)]) // Left eye
+                Prism(bottomY: -1.0, topY: 1.5, xzPoints: [(0.0, 0.5), (-0.25, 0), (0.25, 0.0)]) // Left eye
                     .material(.solidColor(1.0, 0.8, 0.0))
                     .rotateX(-PI/2.0)
                     .translate(0.5, 0.4, -1.5)
-                Prism(-1.0, 1.5, [(0.0, 0.25), (-0.1, 0), (0.1, 0.0)]) // Nose
+                Prism(bottomY: -1.0, topY: 1.5, xzPoints: [(0.0, 0.25), (-0.1, 0), (0.1, 0.0)]) // Nose
                     .material(.solidColor(1.0, 0.8, 0.0))
                     .rotateX(-PI/2.0)
                     .translate(0.0, 0.3, -1.5)
-                Prism(-1.0, 1.5, [(-0.75, 0.0), (-0.5, -0.25), // Mouth
+                Prism(bottomY: -1.0, topY: 1.5, xzPoints: [(-0.75, 0.0), (-0.5, -0.25), // Mouth
                                  (-0.4, -0.25), (-0.4, -0.15), (-0.3, -0.15), (-0.3, -0.25),
                                  (0.5, -0.25), (0.75, 0.0),
                                  (0.4, 0.0), (0.4, -0.1), (0.3, -0.1), (0.3, 0.0)])
@@ -55,7 +55,8 @@ struct HappyHalloween: ScintillaApp {
                     .rotateX(-PI/2.0)
                     .translate(0.0, 0.1, -1.7)
             }
-        ImplicitSurface((-1.5, 0, -1.5), (1.5, 1, 1.5)) { x, y, z in
+        ImplicitSurface(bottomFrontLeft: (-1.5, 0, -1.5),
+                        topBackRight: (1.5, 1, 1.5)) { x, y, z in
             stem(x: x, y: y, z: z)
         }
             .material(.solidColor(0.9, 0.9, 0.7))
