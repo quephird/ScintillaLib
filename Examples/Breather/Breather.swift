@@ -31,13 +31,15 @@ struct Breather: ScintillaApp {
             Point(0, 0, -15),
             Point(0, 0, 0),
             Vector(0, 1, 0)))
-        ParametricSurface(
-            (-8, -5, -5), (8, 5, 5),
-            (-15, 15), (-38, 38),
-            0.001, 1.0,
-            { (u, v) in x(u: u, v: v) },
-            { (u, v) in y(u: u, v: v) },
-            { (u, v) in z(u: u, v: v) })
+        ParametricSurface(bottomFrontLeft: (-8, -5, -5),
+                          topBackRight: (8, 5, 5),
+                          uRange: (-15, 15),
+                          vRange: (-38, 38),
+                          accuracy: 0.001,
+                          maxGradient: 1.0,
+                          fx: { (u, v) in x(u: u, v: v) },
+                          fy: { (u, v) in y(u: u, v: v) },
+                          fz: { (u, v) in z(u: u, v: v) })
             .material(.solidColor(0.1, 0.2, 1.0))
             .rotateY(PI/8.0)
         Plane()
