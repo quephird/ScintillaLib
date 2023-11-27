@@ -17,17 +17,23 @@ public struct Camera {
     var halfHeight: Double
     @_spi(Testing) public var pixelSize: Double
 
-    public init(_ horizontalSize: Int,
-                _ verticalSize: Int,
-                _ fieldOfView: Double,
-                _ from: Point,
-                _ to: Point,
-                _ up: Vector) {
+    public init(width horizontalSize: Int,
+                height verticalSize: Int,
+                viewAngle fieldOfView: Double,
+                from: Point,
+                to: Point,
+                up: Vector) {
         let viewTransform = Matrix4.view(from, to, up)
-        self.init(horizontalSize, verticalSize, fieldOfView, viewTransform)
+        self.init(width: horizontalSize,
+                  height: verticalSize,
+                  viewAngle: fieldOfView,
+                  viewTransform: viewTransform)
     }
 
-    public init(_ horizontalSize: Int, _ verticalSize: Int, _ fieldOfView: Double, _ viewTransform: Matrix4) {
+    public init(width horizontalSize: Int,
+                height verticalSize: Int,
+                viewAngle fieldOfView: Double,
+                viewTransform: Matrix4) {
         self.horizontalSize = horizontalSize
         self.verticalSize = verticalSize
         self.fieldOfView = fieldOfView
