@@ -39,6 +39,11 @@ public class ParametricSurface: Shape {
     var accuracy: Double
     var maxGradient: Double
 
+    // This constructor constructs a parametric surface shape with
+    // a bottom box with the specified bottom front left and top back right
+    // corners, the two ranges for u and v parameters, and the three
+    // parametric functions for x, y, and z coordinates, all using
+    // default values for accuracy and maximum gradient.
     public convenience init(bottomFrontLeft: Point3D,
                             topBackRight: Point3D,
                             uRange: (Double, Double),
@@ -55,6 +60,8 @@ public class ParametricSurface: Shape {
                   fx: fx, fy: fy, fz:fz)
     }
 
+    // This constructor constructs a parametric surface shape as the above
+    // but with specified values for accuracy and maximum gradient.
     public convenience init(bottomFrontLeft: Point3D,
                             topBackRight: Point3D,
                             uRange: (Double, Double),
@@ -79,6 +86,8 @@ public class ParametricSurface: Shape {
                   fx: fx, fy: fy, fz: fz)
     }
 
+    // This constructor constructs a parametric surface is the same as
+    // the above but with a bounding shape instead
     public init(shape: Shape,
                 uRange: (Double, Double),
                 vRange: (Double, Double),
