@@ -190,12 +190,13 @@ class WorldTests: XCTestCase {
     }
 
     func testIntensityOfAreaLightWithNoJitter() async throws {
-        let areaLight = AreaLight(
-            Point(-0.5, -0.5, -5),
-            Color(1, 1, 1),
-            Vector(1, 0, 0), 2,
-            Vector(0, 1, 0), 2,
-            NoJitter())
+        let areaLight = AreaLight(corner: Point(-0.5, -0.5, -5),
+                                  color: Color(1, 1, 1),
+                                  uVec: Vector(1, 0, 0),
+                                  uSteps: 2,
+                                  vVec: Vector(0, 1, 0),
+                                  vSteps: 2,
+                                  jitter: NoJitter())
         let world = World {
             areaLight
             Camera(width: 800,
@@ -228,12 +229,13 @@ class WorldTests: XCTestCase {
     }
 
     func testIntensityOfAreaLightWithPseduorandomJitter() async throws {
-        let areaLight = AreaLight(
-            Point(-0.5, -0.5, -5),
-            Color(1, 1, 1),
-            Vector(1, 0, 0), 2,
-            Vector(0, 1, 0), 2,
-            PseudorandomJitter([0.7, 0.3, 0.9, 0.1, 0.5]))
+        let areaLight = AreaLight(corner: Point(-0.5, -0.5, -5),
+                                  color: Color(1, 1, 1),
+                                  uVec: Vector(1, 0, 0),
+                                  uSteps: 2,
+                                  vVec: Vector(0, 1, 0),
+                                  vSteps: 2,
+                                  jitter: PseudorandomJitter([0.7, 0.3, 0.9, 0.1, 0.5]))
         let world = World {
             areaLight
             Camera(width: 800,

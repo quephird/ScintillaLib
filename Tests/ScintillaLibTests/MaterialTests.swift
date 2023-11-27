@@ -121,12 +121,13 @@ class MaterialTests: XCTestCase {
     }
 
     func testLightingSamplesAreaLight() throws {
-        let areaLight = AreaLight(
-            Point(-0.5, -0.5, -5),
-            Color(1, 1, 1),
-            Vector(1, 0, 0), 2,
-            Vector(0, 1, 0), 2,
-            NoJitter())
+        let areaLight = AreaLight(corner: Point(-0.5, -0.5, -5),
+                                  color: Color(1, 1, 1),
+                                  uVec: Vector(1, 0, 0),
+                                  uSteps: 2,
+                                  vVec: Vector(0, 1, 0),
+                                  vSteps: 2,
+                                  jitter: NoJitter())
         let material: Material = .solidColor(1, 1, 1)
             .ambient(0.1)
             .diffuse(0.9)

@@ -11,10 +11,11 @@ import ScintillaLib
 @main
 struct BallWithAreaLight: ScintillaApp {
     var world: World = World {
-        AreaLight(
-            Point(-5, 5, -5),
-            Vector(2, 0, 0), 10,
-            Vector(0, 2, 0), 10)
+        AreaLight(corner: Point(-5, 5, -5),
+                  uVec: Vector(2, 0, 0),
+                  uSteps: 10,
+                  vVec: Vector(0, 2, 0),
+                  vSteps: 10)
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,
