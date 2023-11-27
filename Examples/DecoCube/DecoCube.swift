@@ -28,7 +28,8 @@ struct DecoCube: ScintillaApp {
             Point(2, 1, -6),
             Point(0, 0, 0),
             Vector(0, 1, 0)))
-        ImplicitSurface((-2.5, -2.5, -2.5), (2.5, 2.5, 2.5), { x, y, z in
+        ImplicitSurface(bottomFrontLeft: (-2.5, -2.5, -2.5),
+                        topBackRight: (2.5, 2.5, 2.5), { x, y, z in
             decoCubeShape(x, y, z)
         })
             .material(.colorFunction(.hsl) { x, y, z in
