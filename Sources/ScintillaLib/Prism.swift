@@ -13,7 +13,7 @@ public class Prism: Shape {
     var yTop: Double
     var boundingBox: Cube
 
-    public init(_ yBase: Double, _ yTop: Double, _ xzPoints: [(Double, Double)]) {
+    public init(bottomY yBase: Double, topY yTop: Double, xzPoints: [(Double, Double)]) {
         self.yBase = yBase
         self.yTop = yTop
         self.xzPoints = xzPoints

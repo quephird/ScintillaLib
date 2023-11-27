@@ -90,13 +90,13 @@ class PrismTests: XCTestCase {
     }
 
     func testLocalIntersectTriangularPrism() throws {
-        let prism = Prism(
-            -1.0, 1.0, [
-                (1.0, -1.0),
-                (0.0, 1.0),
-                (-1.0, -1.0)
-            ]
-        )
+        let prism = Prism(bottomY: -1.0,
+                          topY: 1.0,
+                          xzPoints: [
+                            (1.0, -1.0),
+                            (0.0, 1.0),
+                            (-1.0, -1.0),
+                          ])
         for ((ox, oy, oz), (dx, dy, dz), expectedTs) in [
             ((0.5, 0.0, -2.0), (0.0, 0.0, 1.0), [1.0, 2.0]), // Ray entering through front side
             ((-2.0, 0.0, 0.0), (1.0, 0.0, 0.0), [1.5, 2.5]), // Ray entering from the left
@@ -117,12 +117,14 @@ class PrismTests: XCTestCase {
     }
 
     func testLocalIntersectPrismFromConcaveQuad() throws {
-        let yBase = -1.0
-        let yTop = 1.0
-        let xzPoints = [
-            (1.0, -1.0), (0.0, 1.0), (-1.0, -1.0), (0.0, 0.0)
-        ]
-        let prism = Prism(yBase, yTop, xzPoints)
+        let prism = Prism(bottomY: -1.0,
+                          topY: 1.0,
+                          xzPoints: [
+                            (1.0, -1.0),
+                            (0.0, 1.0),
+                            (-1.0, -1.0),
+                            (0.0, 0.0),
+                          ])
 
         for ((ox, oy, oz), (dx, dy, dz), expectedTs) in [
             ((-2.0, 0.0, -0.5), (1.0, 0.0, 0.0), [1.25, 1.5, 2.5, 2.75]), // Ray entering through left side, four hits
@@ -145,13 +147,14 @@ class PrismTests: XCTestCase {
     }
 
     func testLocalNormalForTriangularPrism() {
-        let prism = Prism(
-            -1.0, 1.0, [
-                (1.0, -1.0),
-                (0.0, 1.0),
-                (-1.0, -1.0)
-            ]
-        )
+        let prism = Prism(bottomY: -1.0,
+                          topY: 1.0,
+                          xzPoints: [
+                            (1.0, -1.0),
+                            (0.0, 1.0),
+                            (-1.0, -1.0)
+                          ])
+
         for ((ix, iy, iz), (nx, ny, nz)) in [
             ((0.0, 0.0, -1.0), (0.0, 0.0, -1.0)), // Middle front side
             ((0.5, 0.0, 0.0), (0.89443, 0.0, 0.44721)), // Right side
