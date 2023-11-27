@@ -20,11 +20,13 @@ import ScintillaLib
 @main
 struct QuickStart: ScintillaApp {
     var world = World {
-        PointLight(Point(-10, 10, -10))
-        Camera(400, 400, PI/3, .view(
-            Point(0, 2, -2),
-            Point(0, 0, 0),
-            Vector(0, 1, 0)))
+        PointLight(position: Point(-10, 10, -10))
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 2, -2),
+               to: Point(0, 0, 0),
+               up: Vector(0, 1, 0))
         Sphere()
             .material(.solidColor(1, 0, 0))
     }
@@ -97,14 +99,16 @@ import ScintillaLib
 @main
 struct SuperellipsoidScene: ScintillaApp {
     var world: World = World {
-        PointLight(Point(0, 5, -5))
-        Camera(400, 400, PI/3, .view(
-            Point(0, 0, -12),
-            Point(0, 0, 0),
-            Vector(0, 1, 0)))
+        PointLight(position: Point(0, 5, -5))
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 0, -12),
+               to: Point(0, 0, 0),
+               up: Vector(0, 1, 0))
         for (i, e) in [0.25, 0.5, 1.0, 2.0, 2.5].enumerated() {
             for (j, n) in [0.25, 0.5, 1.0, 2.0, 2.5].enumerated() {
-                Superellipsoid(e, n)
+                Superellipsoid(e: e, n: n)
                     .material(.solidColor((Double(i)+1.0)/5.0, (Double(j)+1.0)/5.0, 0.2))
                     .translate(2.5*(Double(i)-2.0), 2.5*(Double(j)-2.0), 0.0)
             }
@@ -138,12 +142,15 @@ import ScintillaLib
 @main
 struct MyWorld: ScintillaApp {
     var world = World {
-        PointLight(Point(-10, 10, -10))
-        Camera(400, 400, PI/3, .view(
-            Point(0, 0, -5),
-            Point(0, 0, 0),
-            Vector(0, 1, 0)))
-        ImplicitSurface((-2, -2, -2), (2, 2, 2), { x, y, z in
+        PointLight(position: Point(-10, 10, -10))
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 0, -5),
+               to: Point(0, 0, 0),
+               up: Vector(0, 1, 0))
+        ImplicitSurface(bottomFrontLeft: (-2, -2, -2),
+                        topBackRight: (2, 2, 2), { x, y, z in
             x*x + y*y + z*z + sin(4*x) + sin(4*y) + sin(4*z) - 1
         })
             .material(.solidColor(0.2, 1, 0.5))
@@ -171,12 +178,15 @@ let φ: Double = 1.61833987
 @main
 struct MyImplicitSurface: ScintillaApp {
     var world: World {
-        PointLight(Point(-5, 5, -5))
-        Camera(400, 400, PI/3, .view(
-            Point(0, 0, -5),
-            Point(0, 0, 0),
-            Vector(0, 1, 0)))
-        ImplicitSurface((0.0, 0.0, 0.0), 2.0) { x, y, z in
+        PointLight(position: Point(-5, 5, -5))
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 0, -5),
+               to: Point(0, 0, 0),
+               up: Vector(0, 1, 0))
+        ImplicitSurface(center: (0.0, 0.0, 0.0),
+                        radius: 2.0) { x, y, z in
             4.0*(φ*φ*x*x-y*y)*(φ*φ*y*y-z*z)*(φ*φ*z*z-x*x) - (1.0+2.0*φ)*(x*x+y*y+z*z-1.0)*(x*x+y*y+z*z-1.0)
         }
             .material(.solidColor(0.9, 0.9, 0.0))
@@ -209,17 +219,20 @@ import ScintillaLib
 @main
 struct Hourglass: ScintillaApp {
     var world = World {
-        PointLight(Point(-10, 10, -10))
-        Camera(400, 400, PI/3, .view(
-            Point(0, 1, -5),
-            Point(0, 0, 0),
-            Vector(0, 1, 0)))
-        ParametricSurface(
-            (-1.0, -1.0, -1.0), (1.0, 1.0, 1.0),
-            (0, 2*PI), (0, 2*PI),
-            { (u, v) in cos(u)*sin(2*v) },
-            { (u, v) in sin(v) },
-            { (u, v) in sin(u)*sin(2*v) })
+        PointLight(position: Point(-10, 10, -10))
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 1, -5),
+               to: Point(0, 0, 0),
+               up: Vector(0, 1, 0))
+        ParametricSurface(bottomFrontLeft: (-1.0, -1.0, -1.0),
+                          topBackRight: (1.0, 1.0, 1.0),
+                          uRange: (0, 2*PI),
+                          vRange: (0, 2*PI),
+                          fx: { (u, v) in cos(u)*sin(2*v) },
+                          fy: { (u, v) in sin(v) },
+                          fz: { (u, v) in sin(u)*sin(2*v) })
             .material(.solidColor(0.9, 0.5, 0.5, .hsl))
         Plane()
             .material(.solidColor(1, 1, 1))
@@ -242,17 +255,22 @@ import ScintillaLib
 struct Hourglass: ScintillaApp {
     var world = World {
         PointLight(Point(-10, 10, -10))
-        Camera(400, 400, PI/3, .view(
-            Point(0, 1, -5),
-            Point(0, 0, 0),
-            Vector(0, 1, 0)))
-        ParametricSurface(
-            (-1.0, -1.0, -1.0), (1.0, 1.0, 1.0),
-            (0, 2*PI), (0, 2*PI),
-            0.1, 1.0,
-            { (u, v) in cos(u)*sin(2*v) },
-            { (u, v) in sin(v) },
-            { (u, v) in sin(u)*sin(2*v) })
+        PointLight(position: Point(-10, 10, -10))
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 1, -5),
+               to: Point(0, 0, 0),
+               up: Vector(0, 1, 0))
+        ParametricSurface(bottomFrontLeft: (-1.0, -1.0, -1.0),
+                          topBackRight: (1.0, 1.0, 1.0),
+                          uRange: (0, 2*PI),
+                          vRange: (0, 2*PI),
+                          accuracy: 0.1,
+                          maxGradient: 1.0,
+                          fx: { (u, v) in cos(u)*sin(2*v) },
+                          fy: { (u, v) in sin(v) },
+                          fz: { (u, v) in sin(u)*sin(2*v) })
             .material(.solidColor(0.9, 0.5, 0.5, .hsl))
         Plane()
             .material(.solidColor(1, 1, 1))
@@ -279,18 +297,22 @@ import ScintillaLib
 @main
 struct Hourglass: ScintillaApp {
     var world = World {
-        PointLight(Point(-10, 10, -10))
-        Camera(400, 400, PI/3, .view(
-            Point(0, 1, -5),
-            Point(0, 0, 0),
-            Vector(0, 1, 0)))
-        ParametricSurface(
-            (-1.0, -1.0, -1.0), (1.0, 1.0, 1.0),
-            (0, 2*PI), (0, 2*PI),
-            0.001, 0.3,
-            { (u, v) in cos(u)*sin(2*v) },
-            { (u, v) in sin(v) },
-            { (u, v) in sin(u)*sin(2*v) })
+        PointLight(position: Point(-10, 10, -10))
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 1, -5),
+               to: Point(0, 0, 0),
+               up: Vector(0, 1, 0))
+        ParametricSurface(bottomFrontLeft: (-1.0, -1.0, -1.0),
+                          topBackRight: (1.0, 1.0, 1.0),
+                          uRange: (0, 2*PI),
+                          vRange: (0, 2*PI),
+                          accuracy: 0.001,
+                          maxGradient: 0.3,
+                          fx: { (u, v) in cos(u)*sin(2*v) },
+                          fy: { (u, v) in sin(v) },
+                          fz: { (u, v) in sin(u)*sin(2*v) })
             .material(.solidColor(0.9, 0.5, 0.5, .hsl))
         Plane()
             .material(.solidColor(1, 1, 1))
@@ -321,16 +343,25 @@ import ScintillaLib
 @main
 struct PrismScene: ScintillaApp {
     var world: World {
-        PointLight(Point(-5, 5, -5))
-        Camera(400, 400, PI/3, .view(
-            Point(0, 5, -5),
-            Point(0, 1, 0),
-            Vector(0, 1, 0)))
-        Prism(
-            0.0, 2.0,
-            [(1.0, 0.0), (1.5, 0.5), (0.5, 0.5), (0.0, 1.0), (-0.5, 0.5),
-             (-1.5, 0.5), (-1.0, 0.0), (-1.0, -1.0), (0.0, -0.5), (1.0, -1.0)]
-        )
+        PointLight(position: Point(-5, 5, -5))
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 5, -5),
+               to: Point(0, 1, 0),
+               up: Vector(0, 1, 0))
+        Prism(bottomY: 0.0,
+              topY: 2.0,
+              xzPoints: [(1.0, 0.0),
+                         (1.5, 0.5),
+                         (0.5, 0.5),
+                         (0.0, 1.0),
+                         (-0.5, 0.5),
+                         (-1.5, 0.5),
+                         (-1.0, 0.0),
+                         (-1.0, -1.0),
+                         (0.0, -0.5),
+                         (1.0, -1.0)])
             .material(.solidColor(1, 0.5, 0))
         Plane()
             .material(.solidColor(1, 1, 1))
@@ -357,14 +388,18 @@ import ScintillaLib
 @main
 struct SorScene: ScintillaApp {
     var world = World {
-        PointLight(Point(-5, 5, -5))
-        Camera(400, 400, PI/3, .view(
-            Point(0, 7, -10),
-            Point(0, 2, 0),
-            Vector(0, 1, 0)))
-        SurfaceOfRevolution(
-            [(0.0, 2.0), (1.0, 2.0), (2.0, 1.0), (3.0, 0.5), (6.0, 0.5)]
-        )
+        PointLight(position: Point(-5, 5, -5))
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 7, -10),
+               to: Point(0, 2, 0),
+               up: Vector(0, 1, 0))
+        SurfaceOfRevolution(yzPoints: [(0.0, 2.0),
+                                       (1.0, 2.0),
+                                       (2.0, 1.0),
+                                       (3.0, 0.5),
+                                       (6.0, 0.5)])
             .material(.solidColor(0.5, 0.6, 0.8))
         Plane()
             .material(.solidColor(1, 1, 1))
@@ -610,14 +645,17 @@ import ScintillaLib
 @main
 struct MyWorld: ScintillaApp {
     var world: World {
-        AreaLight(
-            Point(-5, 5, -5),
-            Vector(2, 0, 0), 10,
-            Vector(0, 2, 0), 10)
-        Camera(400, 400, PI/3, .view(
-            Point(0, 2, -5),
-            Point(0, 1, 0),
-            Vector(0, 1, 0)))
+        AreaLight(corner: Point(-5, 5, -5),
+                  uVec: Vector(2, 0, 0),
+                  uSteps: 10,
+                  vVec: Vector(0, 2, 0),
+                  vSteps: 10)
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 2, -5),
+               to: Point(0, 1, 0),
+               up: Vector(0, 1, 0))
         Sphere()
             .translate(0, 1, 0)
             .material(.solidColor(1, 0, 0))
@@ -653,11 +691,13 @@ Lights and shapes are discussed above. A `Camera` takes the following four argum
 
 ```swift
 World {
-    PointLight(Point(-10, 10, -10))
-    Camera(800, 600, PI/3, .view(
-        Point(0, 3, -5),
-        Point(0, 0, 0),
-        Vector(0, 1, 0)))
+    PointLight(position: Point(-10, 10, -10))
+    Camera(width: 800,
+           height: 600,
+           viewAngle: PI/3,
+           from: Point(0, 3, -5),
+           to: Point(0, 0, 0),
+           up: Vector(0, 1, 0))
     Sphere()
         .material(.solidColor(1, 0, 0))
         .translate(-2, 0, 0)
@@ -686,11 +726,13 @@ import ScintillaLib
 @main
 struct MyWorld: ScintillaApp {
     var world = World {
-        PointLight(Point(-10, 10, -10))
-        Camera(800, 600, PI/3, .view(
-            Point(0, 1, -2),
-            Point(0, 0, 0),
-            Vector(0, 1, 0)))
+        PointLight(position: Point(-10, 10, -10))
+        Camera(width: 800,
+               height: 600,
+               viewAngle: PI/3,
+               from: Point(0, 1, -2),
+               to: Point(0, 0, 0),
+               up: Vector(0, 1, 0))
         Sphere()
             .material(.solidColor(0, 0, 1))
             .intersection {
@@ -729,11 +771,13 @@ import ScintillaLib
 @main
 struct CSGExample: ScintillaApp {
     var world = World {
-        PointLight(Point(-10, 10, -10))
-        Camera(400, 400, PI/3, .view(
-            Point(0, 1.5, -2),
-            Point(0, 0, 0),
-            Vector(0, 1, 0)))
+        PointLight(position: Point(-10, 10, -10))
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 1.5, -2),
+               to: Point(0, 0, 0),
+               up: Vector(0, 1, 0))
         Sphere()
             .material(.solidColor(0, 0, 1))
             .intersection {

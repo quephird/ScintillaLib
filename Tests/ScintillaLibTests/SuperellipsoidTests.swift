@@ -10,7 +10,7 @@ import XCTest
 
 class SuperellipsoidTests: XCTestCase {
     func testLocalIntersectRoundedCubeHitsMiddle() throws {
-        let shape = Superellipsoid(0.25, 0.25)
+        let shape = Superellipsoid(e: 0.25, n: 0.25)
         let ray = Ray(Point(0.0, 0.0, -2.0), Vector(0.0, 0.0, 1.0))
         let intersections = shape.localIntersect(ray)
         XCTAssertEqual(intersections.count, 2)
@@ -19,7 +19,7 @@ class SuperellipsoidTests: XCTestCase {
     }
 
     func testLocalIntersectRoundedCubeHitTopLeftCorner() throws {
-        let shape = Superellipsoid(0.25, 0.25)
+        let shape = Superellipsoid(e: 0.25, n: 0.25)
         let ray = Ray(Point(0.9, 0.9, -2.0), Vector(0.0, 0.0, 1.0))
         let intersections = shape.localIntersect(ray)
         XCTAssertEqual(intersections.count, 2)
@@ -31,14 +31,14 @@ class SuperellipsoidTests: XCTestCase {
     }
 
     func testLocalIntersectRoundedCubeMissesCorner() throws {
-        let shape = Superellipsoid(0.25, 0.25)
+        let shape = Superellipsoid(e: 0.25, n: 0.25)
         let ray = Ray(Point(0.99, 0.99, -2.0), Vector(0.0, 0.0, 1.0))
         let intersections = shape.localIntersect(ray)
         XCTAssertEqual(intersections.count, 0)
     }
 
     func testLocalIntersectRoundedCylinderHitsMiddle() throws {
-        let shape = Superellipsoid(1.0, 0.25)
+        let shape = Superellipsoid(e: 1.0, n: 0.25)
         let ray = Ray(Point(0.0, 0.0, -2.0), Vector(0.0, 0.0, 1.0))
         let intersections = shape.localIntersect(ray)
         XCTAssertEqual(intersections.count, 2)
@@ -47,7 +47,7 @@ class SuperellipsoidTests: XCTestCase {
     }
 
     func testLocalIntersectRoundedCylinderHitsTopLeft() throws {
-        let shape = Superellipsoid(1.0, 0.25)
+        let shape = Superellipsoid(e: 1.0, n: 0.25)
         let ray = Ray(Point(0.7071, 0.7071, -2.0), Vector(0.0, 0.0, 1.0))
         let intersections = shape.localIntersect(ray)
         XCTAssertEqual(intersections.count, 2)
@@ -56,7 +56,7 @@ class SuperellipsoidTests: XCTestCase {
     }
 
     func testLocalIntersectRoundedCylinderBarelyMissesTopLeft() throws {
-        let shape = Superellipsoid(1.0, 0.25)
+        let shape = Superellipsoid(e: 1.0, n: 0.25)
         let ray = Ray(Point(0.7072, 0.7072, -2.0), Vector(0.0, 0.0, 1.0))
         let intersections = shape.localIntersect(ray)
         XCTAssertEqual(intersections.count, 0)

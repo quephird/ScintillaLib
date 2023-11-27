@@ -9,7 +9,7 @@ public class Torus: Shape {
     var majorRadius: Double = 2.0
     var minorRadius: Double = 1.0
 
-    public init(_ majorRadius: Double, _ minorRadius: Double) {
+    public init(majorRadius: Double, minorRadius: Double) {
         self.majorRadius = majorRadius
         self.minorRadius = minorRadius
     }

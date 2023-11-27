@@ -10,9 +10,9 @@ import XCTest
 
 class ImplicitSurfaceTests: XCTestCase {
     func testLocalIntersectImplicitlyDefinedSphereShouldReturnTwoHits() throws {
-        let bottomLeftFront = (-1.1, -1.1, -1.1)
-        let topRightBack = (1.1, 1.1, 1.1)
-        let shape = ImplicitSurface(bottomLeftFront, topRightBack) { x, y, z in
+        let bottomFrontLeft = (-1.1, -1.1, -1.1)
+        let topBackRight = (1.1, 1.1, 1.1)
+        let shape = ImplicitSurface(bottomFrontLeft: bottomFrontLeft, topBackRight: topBackRight) { x, y, z in
             x*x + y*y + z*z - 1.0
         }
         let ray = Ray(Point(0.0, 0.0, -2.0), Vector(0.0, 0.0, 1.0))
@@ -23,9 +23,9 @@ class ImplicitSurfaceTests: XCTestCase {
     }
 
     func testLocalIntersectRingSurfaceWithTwoBlobsShouldReturnFourHits() throws {
-        let bottomLeftFront = (-3.0, -3.0, -3.0)
-        let topRightBack = (3.0, 3.0, 3.0)
-        let shape = ImplicitSurface(bottomLeftFront, topRightBack) { x, y, z in
+        let bottomFrontLeft = (-3.0, -3.0, -3.0)
+        let topBackRight = (3.0, 3.0, 3.0)
+        let shape = ImplicitSurface(bottomFrontLeft: bottomFrontLeft, topBackRight: topBackRight) { x, y, z in
             4.0*(x*x*x*x + (y*y + z*z)*(y*y + z*z)) + 20.0*x*x*(y*y + z*z) - 20.0*(x*x + y*y + z*z) + 20.0
         }
         let ray = Ray(Point(-5.0, 0.0, 0.0), Vector(1.0, 0.0, 0.0))
@@ -38,9 +38,9 @@ class ImplicitSurfaceTests: XCTestCase {
     }
 
     func testLocalIntersectRonAvitzursFavoriteShapeShouldReturnFourHits() throws {
-        let bottomLeftFront = (-3.0, -3.0, -3.0)
-        let topRightBack = (3.0, 3.0, 3.0)
-        let shape = ImplicitSurface(bottomLeftFront, topRightBack) { x, y, z in
+        let bottomFrontLeft = (-3.0, -3.0, -3.0)
+        let topBackRight = (3.0, 3.0, 3.0)
+        let shape = ImplicitSurface(bottomFrontLeft: bottomFrontLeft, topBackRight: topBackRight) { x, y, z in
             x*x + y*y + z*z + sin(4.0*x) + sin(4.0*y) + sin(4.0*z) - 1.0
         }
         let ray = Ray(Point(5.0, 1.0, 1.0), Vector(-1.0, 0.0, 0.0))
@@ -53,9 +53,9 @@ class ImplicitSurfaceTests: XCTestCase {
     }
 
     func testLocalIntersectCylinderWithBoundingBoxShouldMiss() throws {
-        let bottomLeftFront = (-1.01, -1.01, -1.01)
-        let topRightBack = (1.01, 1.01, 1.01)
-        let shape = ImplicitSurface(bottomLeftFront, topRightBack) { x, y, z in
+        let bottomFrontLeft = (-1.01, -1.01, -1.01)
+        let topBackRight = (1.01, 1.01, 1.01)
+        let shape = ImplicitSurface(bottomFrontLeft: bottomFrontLeft, topBackRight: topBackRight) { x, y, z in
             x*x + z*z - 1.0
         }
         let ray = Ray(Point(0.0, 1.01, -2.0), Vector(0.0, 0.0, 1.0))
@@ -64,9 +64,9 @@ class ImplicitSurfaceTests: XCTestCase {
     }
 
     func testLocalIntersectCylinderWithBoundingBoxShouldHitTwice() throws {
-        let bottomLeftFront = (-1.01, -1.01, -1.01)
-        let topRightBack = (1.01, 1.01, 1.0)
-        let shape = ImplicitSurface(bottomLeftFront, topRightBack) { x, y, z in
+        let bottomFrontLeft = (-1.01, -1.01, -1.01)
+        let topBackRight = (1.01, 1.01, 1.0)
+        let shape = ImplicitSurface(bottomFrontLeft: bottomFrontLeft, topBackRight: topBackRight) { x, y, z in
             x*x + z*z - 1.0
         }
         let ray = Ray(Point(0.0, 0.99, -2.0), Vector(0.0, 0.0, 1.0))
@@ -75,9 +75,9 @@ class ImplicitSurfaceTests: XCTestCase {
     }
 
     func testLocalIntersectSphereWithBoundingSphereShouldMiss() throws {
-        let boundingSphereCenter = (0.0, 0.0, 0.0)
-        let boundingSphereRadius = 0.99
-        let shape = ImplicitSurface(boundingSphereCenter, boundingSphereRadius) { x, y, z in
+        let center = (0.0, 0.0, 0.0)
+        let radius = 0.99
+        let shape = ImplicitSurface(center: center, radius: radius) { x, y, z in
             x*x + y*y + z*z - 1.0
         }
         let ray = Ray(Point(0.7071, 0.7071, -2.0), Vector(0.0, 0.0, 1.0))
@@ -86,9 +86,9 @@ class ImplicitSurfaceTests: XCTestCase {
     }
 
     func testLocalIntersectSphereWithBoundingSphereShouldHitTwice() throws {
-        let boundingSphereCenter = (0.0, 0.0, 0.0)
-        let boundingSphereRadius = 1.01
-        let shape = ImplicitSurface(boundingSphereCenter, boundingSphereRadius) { x, y, z in
+        let center = (0.0, 0.0, 0.0)
+        let radius = 1.01
+        let shape = ImplicitSurface(center: center, radius: radius) { x, y, z in
             x*x + y*y + z*z - 1.0
         }
         let ray = Ray(Point(0.7071, 0.7071, -2.0), Vector(0.0, 0.0, 1.0))

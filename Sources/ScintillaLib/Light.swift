@@ -16,12 +16,12 @@ public struct PointLight: Light {
     public var position: Point
     public var color: Color
 
-    public init(_ position: Point) {
+    public init(position: Point) {
         self.position = position
         self.color = .white
     }
 
-    public init(_ position: Point, _ color: Color) {
+    public init(position: Point, color: Color) {
         self.position = position
         self.color = color
     }
@@ -38,25 +38,37 @@ public struct AreaLight: Light {
     @_spi(Testing) public var samples: Int
     @_spi(Testing) public var jitter: Jitter
 
-    public init(_ corner: Point, _ fullUVec: Vector, _ uSteps: Int, _ fullVVec: Vector, _ vSteps: Int) {
-        self.init(corner, .white, fullUVec, uSteps, fullVVec, vSteps, RandomJitter())
+    public init(corner: Point, uVec: Vector, uSteps: Int, vVec: Vector, vSteps: Int) {
+        self.init(corner: corner,
+                  color: .white,
+                  uVec: uVec,
+                  uSteps: uSteps,
+                  vVec: vVec,
+                  vSteps: vSteps,
+                  jitter: RandomJitter())
     }
 
-    public init(_ corner: Point, _ color: Color, _ fullUVec: Vector, _ uSteps: Int, _ fullVVec: Vector, _ vSteps: Int) {
-        self.init(corner, color, fullUVec, uSteps, fullVVec, vSteps, RandomJitter())
+    public init(corner: Point, color: Color, uVec: Vector, uSteps: Int, vVec: Vector, vSteps: Int) {
+        self.init(corner: corner,
+                  color: color,
+                  uVec: uVec,
+                  uSteps: uSteps,
+                  vVec: vVec,
+                  vSteps: vSteps,
+                  jitter: RandomJitter())
     }
 
-    public init(_ corner: Point, _ color: Color, _ fullUVec: Vector, _ uSteps: Int, _ fullVVec: Vector, _ vSteps: Int, _ jitter: Jitter) {
+    public init(corner: Point, color: Color, uVec: Vector, uSteps: Int, vVec: Vector, vSteps: Int, jitter: Jitter) {
         self.corner = corner
         self.color = color
         self.uSteps = uSteps
-        self.uVec = fullUVec.divide(Double(uSteps))
+        self.uVec = uVec.divide(Double(uSteps))
         self.vSteps = vSteps
-        self.vVec = fullVVec.divide(Double(vSteps))
+        self.vVec = vVec.divide(Double(vSteps))
         self.samples = uSteps * vSteps
         self.position = corner
-            .add(uVec.multiply(Double(uSteps/2)))
-            .add(vVec.multiply(Double(vSteps/2)))
+            .add(self.uVec.multiply(Double(uSteps/2)))
+            .add(self.vVec.multiply(Double(vSteps/2)))
         self.jitter = jitter
     }
 

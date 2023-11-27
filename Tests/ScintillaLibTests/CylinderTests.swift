@@ -49,7 +49,7 @@ class CylinderTests: XCTestCase {
     }
 
     func testLocalIntersectHitsCaps() throws {
-        let cylinder = Cylinder(1, 2, true)
+        let cylinder = Cylinder(bottomY: 1, topY: 2, isCapped: true)
 
         let testCases = [
             (Point(0, 3, 0), Vector(0, -1, 0), 2),
@@ -67,7 +67,7 @@ class CylinderTests: XCTestCase {
     }
 
     func testLocalIntersectTruncated() throws {
-        let cylinder = Cylinder(1, 2)
+        let cylinder = Cylinder(bottomY: 1, topY: 2)
 
         let testCases = [
             (Point(0, 1.5, 0), Vector(0.1, 1, 0), 0),
@@ -102,7 +102,7 @@ class CylinderTests: XCTestCase {
     }
 
     func testLocalNormalOnCaps() throws {
-        let cylinder = Cylinder(1, 2, true)
+        let cylinder = Cylinder(bottomY: 1, topY: 2, isCapped: true)
 
         let testCases = [
             (Point(0, 1, 0), Vector(0, -1, 0)),

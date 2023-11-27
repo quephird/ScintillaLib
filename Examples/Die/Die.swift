@@ -15,25 +15,27 @@ struct Die: ScintillaApp {
             .reflective(0.2)
 
         return World {
-            PointLight(Point(-10, 10, -10))
-            Camera(800, 600, PI/3, .view(
-                Point(0, 5, -10),
-                Point(0, 0, 0),
-                Vector(0, 1, 0)))
+            PointLight(position: Point(-10, 10, -10))
+            Camera(width: 800,
+                   height: 600,
+                   viewAngle: PI/3,
+                   from: Point(0, 5, -10),
+                   to: Point(0, 0, 0),
+                   up: Vector(0, 1, 0))
             Cube()
                 .material(orange)
                 .intersection {
                     Sphere()
                         .material(orange)
                         .scale(1.55, 1.55, 1.55)
-                    Cylinder(-2, 2, true)
+                    Cylinder(bottomY: -2, topY: 2, isCapped: true)
                         .material(orange)
                         .scale(1.35, 1.35, 1.35)
-                    Cylinder(-2, 2, true)
+                    Cylinder(bottomY: -2, topY: 2, isCapped: true)
                         .material(orange)
                         .scale(1.35, 1.35, 1.35)
                         .rotateX(PI/2)
-                    Cylinder(-2, 2, true)
+                    Cylinder(bottomY: -2, topY: 2, isCapped: true)
                         .material(orange)
                         .scale(1.35, 1.35, 1.35)
                         .rotateZ(PI/2)
