@@ -12,10 +12,12 @@ import ScintillaLib
 struct Superellipsoids: ScintillaApp {
     var world: World = World {
         PointLight(Point(0, 5, -5))
-        Camera(400, 400, PI/3, .view(
-            Point(0, 0, -12),
-            Point(0, 0, 0),
-            Vector(0, 1, 0)))
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 0, -12),
+               to: Point(0, 0, 0),
+               up: Vector(0, 1, 0))
         for (i, e) in [0.25, 0.5, 1.0, 2.0, 2.5].enumerated() {
             for (j, n) in [0.25, 0.5, 1.0, 2.0, 2.5].enumerated() {
                 Superellipsoid(e: e, n: n)

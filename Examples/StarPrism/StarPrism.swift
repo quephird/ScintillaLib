@@ -12,10 +12,12 @@ import ScintillaLib
 struct StarPrism: ScintillaApp {
     var world = World {
         PointLight(Point(-5, 5, -5))
-        Camera(400, 400, PI/3, .view(
-            Point(0, 5, -5),
-            Point(0, 1, 0),
-            Vector(0, 1, 0)))
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 5, -5),
+               to: Point(0, 1, 0),
+               up: Vector(0, 1, 0))
         Prism(bottomY: 0.0,
               topY: 2.0,
               xzPoints: [

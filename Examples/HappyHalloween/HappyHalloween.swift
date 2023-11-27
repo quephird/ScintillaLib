@@ -25,10 +25,12 @@ func stem(x: Double, y: Double, z: Double) -> Double {
 struct HappyHalloween: ScintillaApp {
     var world: World = World {
         PointLight(Point(-2, 5, -5))
-        Camera(600, 600, PI/3, .view(
-            Point(0, 2, -5),
-            Point(0, 0, 0),
-            Vector(0, 1, 0)))
+        Camera(width: 600,
+               height: 600,
+               viewAngle: PI/3,
+               from: Point(0, 2, -5),
+               to: Point(0, 0, 0),
+               up: Vector(0, 1, 0))
         ImplicitSurface(center: (0.0, 0.0, 0.0), radius: 2.0) { x, y, z in
             pumpkin(x: x, y: y, z: z)
         }

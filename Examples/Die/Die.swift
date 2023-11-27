@@ -16,10 +16,12 @@ struct Die: ScintillaApp {
 
         return World {
             PointLight(Point(-10, 10, -10))
-            Camera(800, 600, PI/3, .view(
-                Point(0, 5, -10),
-                Point(0, 0, 0),
-                Vector(0, 1, 0)))
+            Camera(width: 800,
+                   height: 600,
+                   viewAngle: PI/3,
+                   from: Point(0, 5, -10),
+                   to: Point(0, 0, 0),
+                   up: Vector(0, 1, 0))
             Cube()
                 .material(orange)
                 .intersection {

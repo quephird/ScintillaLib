@@ -27,10 +27,12 @@ func z(u: Double, v: Double) -> Double {
 struct Breather: ScintillaApp {
     var world = World {
         PointLight(Point(-10, 10, -10))
-        Camera(400, 400, PI/3, .view(
-            Point(0, 0, -15),
-            Point(0, 0, 0),
-            Vector(0, 1, 0)))
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 0, -15),
+               to: Point(0, 0, 0),
+               up: Vector(0, 1, 0))
         ParametricSurface(bottomFrontLeft: (-8, -5, -5),
                           topBackRight: (8, 5, 5),
                           uRange: (-15, 15),
