@@ -41,7 +41,7 @@ class ConeTests: XCTestCase {
     }
 
     func testLocalIntersectWithRayThatHitsCaps() throws {
-        let cone = Cone(-0.5, 0.5, true)
+        let cone = Cone(bottomY: -0.5, topY: 0.5, isCapped: true)
 
         let testCases = [
             (Point(0, 0, -5), Vector(0, 1, 0), 0),
