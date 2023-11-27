@@ -10,7 +10,7 @@ import Darwin
 public class Superellipsoid: Shape {
     var underlyingImplicitSurface: ImplicitSurface
 
-    public init(_ e: Double, _ n: Double) {
+    public init(e: Double, n: Double) {
         let bottomFrontLeft = (-1.0 - EPSILON, -1.0 - EPSILON, -1.0 - EPSILON)
         let topBackRight = (1.0 + EPSILON, 1.0 + EPSILON, 1.0 + EPSILON)
 
