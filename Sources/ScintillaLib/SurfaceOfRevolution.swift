@@ -58,7 +58,7 @@ public class SurfaceOfRevolution: Shape {
         func f(_ x: Double, _ y: Double, _ z: Double) -> Double {
             x*x + z*z - g(y)*g(y)
         }
-        let underlyingImplicitSurface = ImplicitSurface((xMin, yMin, zMin), (xMax, yMax, zMax), f)
+        let underlyingImplicitSurface = ImplicitSurface(bottomFrontLeft: (xMin, yMin, zMin), topBackRight: (xMax, yMax, zMax), f)
 
         self.isCapped = isCapped
         self.yBottom = yMin

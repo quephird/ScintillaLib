@@ -18,15 +18,19 @@ public class ImplicitSurface: Shape {
     var f: SurfaceFunction
     var boundingShape: Shape
 
-    public convenience init(_ center: Point3D, _ radius: Double, _ f: @escaping SurfaceFunction) {
+    // This constructor is for creating an implicit surface with a bounding
+    // sphere with the specified center and radius
+    public convenience init(center: Point3D, radius: Double, _ f: @escaping SurfaceFunction) {
         let (translateX, translateY, translateZ) = center
         let boundingShape = Sphere()
             .scale(radius, radius, radius)
             .translate(translateX, translateY, translateZ)
-        self.init(boundingShape, f)
+        self.init(shape: boundingShape, f)
     }
 
-    public convenience init(_ bottomFrontLeft: Point3D, _ topBackRight: Point3D, _ f: @escaping SurfaceFunction) {
+    // This constructor is for creating an implicit surface with a bounding
+    // box with the specified bottom front left and top back right corners
+    public convenience init(bottomFrontLeft: Point3D, topBackRight: Point3D, _ f: @escaping SurfaceFunction) {
         let (xMin, yMin, zMin) = bottomFrontLeft
         let (xMax, yMax, zMax) = topBackRight
         let (scaleX, scaleY, scaleZ) = ((xMax-xMin)/2, (yMax-yMin)/2, (zMax-zMin)/2)
@@ -34,11 +38,13 @@ public class ImplicitSurface: Shape {
         let boundingShape = Cube()
             .scale(scaleX, scaleY, scaleZ)
             .translate(translateX, translateY, translateZ)
-        self.init(boundingShape, f)
+        self.init(shape: boundingShape, f)
     }
 
-    public init(_ boundingShape: Shape, _ f: @escaping SurfaceFunction) {
-        self.boundingShape = boundingShape
+    // This constructor is for creating an implicit surface with the
+    // specified bounding shape
+    public init(shape: Shape, _ f: @escaping SurfaceFunction) {
+        self.boundingShape = shape
         self.f = f
     }
 
