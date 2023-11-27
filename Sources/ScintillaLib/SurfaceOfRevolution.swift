@@ -24,11 +24,11 @@ public class SurfaceOfRevolution: Shape {
     var rTop: Double
     var isCapped: Bool
 
-    public convenience init(_ yzPoints: [Point2D]) {
-        self.init(yzPoints, false)
+    public convenience init(yzPoints: [Point2D]) {
+        self.init(yzPoints: yzPoints, isCapped: false)
     }
 
-    public init(_ yzPoints: [Point2D], _ isCapped: Bool) {
+    public init(yzPoints: [Point2D], isCapped: Bool) {
         let ys = yzPoints.map { point in
             point.0
         }

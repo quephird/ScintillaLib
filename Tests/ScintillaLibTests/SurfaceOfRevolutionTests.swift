@@ -82,7 +82,7 @@ class SurfaceOfRevolutionTests: XCTestCase {
 
     func testLocalIntersectForSurfaceOfRevolution() throws {
         let yzPoints = [(0.0, 2.0), (2.0, 1.5), (3.0, 0.5), (6.0, 0.5)]
-        let shape = SurfaceOfRevolution(yzPoints)
+        let shape = SurfaceOfRevolution(yzPoints: yzPoints)
 
         let ray = Ray(Point(0.0, 2.0, -2.0), Vector(0.0, 0.0, 1.0))
         let intersections = shape.localIntersect(ray)
@@ -93,7 +93,7 @@ class SurfaceOfRevolutionTests: XCTestCase {
 
     func testLocalIntersectForSurfaceOfRevolutionHitsBothCaps() throws {
         let yzPoints = [(0.0, 2.0), (1.0, 1.0), (2.0, 0.5)]
-        let shape = SurfaceOfRevolution(yzPoints, true)
+        let shape = SurfaceOfRevolution(yzPoints: yzPoints, isCapped: true)
 
         let ray = Ray(Point(0.0, -1.0, 0.0), Vector(0.0, 1.0, 0.0))
         let intersections = shape.localIntersect(ray)
@@ -104,7 +104,7 @@ class SurfaceOfRevolutionTests: XCTestCase {
 
     func testLocalIntersectForSurfaceOfRevolutionHitsOneCapAndWall() throws {
         let yzPoints = [(0.0, 2.0), (1.0, 1.0), (2.0, 0.5)]
-        let shape = SurfaceOfRevolution(yzPoints, true)
+        let shape = SurfaceOfRevolution(yzPoints: yzPoints, isCapped: true)
 
         let ray = Ray(Point(-0.70711, -0.70711, 0.0), Vector(0.70711, 0.70711, 0.0))
         let intersections = shape.localIntersect(ray)
@@ -114,7 +114,7 @@ class SurfaceOfRevolutionTests: XCTestCase {
 
     func testLocalNormalForSurfaceOfRevolutionForCylinderEquivalent() throws {
         let yzPoints = [(0.0, 2.0), (1.0, 2.0), (2.0, 2.0)]
-        let shape = SurfaceOfRevolution(yzPoints)
+        let shape = SurfaceOfRevolution(yzPoints: yzPoints)
 
         let testPoint = Point(0.0, 1.0, -2.0)
         let actualValue = shape.localNormal(testPoint)
@@ -124,7 +124,7 @@ class SurfaceOfRevolutionTests: XCTestCase {
 
     func testLocalNormalForSurfaceOfRevolutionForConeEquivalent() throws {
         let yzPoints = [(0.0, 2.0), (1.0, 1.0), (2.0, 0.0)]
-        let shape = SurfaceOfRevolution(yzPoints)
+        let shape = SurfaceOfRevolution(yzPoints: yzPoints)
 
         let testPoint = Point(0.0, 1.0, -1.0)
         let actualValue = shape.localNormal(testPoint)
@@ -134,7 +134,7 @@ class SurfaceOfRevolutionTests: XCTestCase {
 
     func testLocalNormalForSurfaceOfRevolutionForCurvedShape() throws {
         let yzPoints = [(0.0, 1.0), (1.0, 2.0), (2.0, 1.0)]
-        let shape = SurfaceOfRevolution(yzPoints)
+        let shape = SurfaceOfRevolution(yzPoints: yzPoints)
 
         let testPoint = Point(0.0, 0.5, -1.6875)
         let actualValue = shape.localNormal(testPoint)
