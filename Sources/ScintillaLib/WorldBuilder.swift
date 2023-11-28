@@ -7,31 +7,27 @@
 
 @resultBuilder
 public enum WorldBuilder {
-    public static func buildFinalResult(_ world: (Light, Camera, [Shape])) -> (Light, Camera, [Shape]) {
+    public static func buildFinalResult(_ world: (Camera, [WorldObject])) -> (Camera, [WorldObject]) {
         return world
     }
 
-    public static func buildBlock(_ light: Light, _ camera: Camera, _ shapes: [Shape]...) -> (Light, Camera, [Shape]) {
-        return (light, camera, Array(shapes.joined()))
-    }
-
-    public static func buildExpression(_ light: Light) -> Light {
-        return light
+    public static func buildBlock(_ camera: Camera, _ objects: [WorldObject]...) -> (Camera, [WorldObject]) {
+        return (camera, Array(objects.joined()))
     }
 
     public static func buildExpression(_ camera: Camera) -> Camera {
         return camera
     }
 
-    public static func buildExpression(_ shape: Shape) -> [Shape] {
-        return [shape]
+    public static func buildExpression(_ object: WorldObject) -> [WorldObject] {
+        return [object]
     }
 
-    public static func buildBlock(_ shapes: [Shape]...) -> [Shape] {
-        return Array(shapes.joined())
+    public static func buildBlock(_ objects: [WorldObject]...) -> [WorldObject] {
+        return Array(objects.joined())
     }
 
-    public static func buildArray(_ shapes: [[Shape]]) -> [Shape] {
-        return Array(shapes.joined())
+    public static func buildArray(_ objects: [[WorldObject]]) -> [WorldObject] {
+        return Array(objects.joined())
     }
 }

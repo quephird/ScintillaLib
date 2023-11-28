@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol Light {
+public protocol Light: WorldObject {
     var position: Point { get }
     var color: Color { get }
 }

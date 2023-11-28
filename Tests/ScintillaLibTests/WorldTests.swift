@@ -17,13 +17,13 @@ let testCamera = Camera(width: 800,
 
 func testWorld() -> World {
     World {
-        PointLight(position: Point(-10, 10, -10))
         Camera(width: 800,
                height: 600,
                viewAngle: PI/3,
                from: Point(0, 1, -1),
                to: Point(0, 0, 0),
                up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, -10))
         Sphere()
             .material(SolidColor(0.8, 1.0, 0.6)
                 .ambient(0.1)
@@ -50,7 +50,7 @@ class WorldTests: XCTestCase {
     func testShadeHit() async throws {
         let world = testWorld()
         let ray = Ray(Point(0, 0, -5), Vector(0, 0, 1))
-        let shape = await world.objects[0]
+        let shape = await world.shapes[0]
         let intersection = Intersection(4, shape)
         let computations = intersection.prepareComputations(ray, [intersection])
         let actualValue = await world.shadeHit(computations, MAX_RECURSIVE_CALLS)
@@ -60,13 +60,13 @@ class WorldTests: XCTestCase {
 
     func testShadeHitInside() async throws {
         let world = World {
-            PointLight(position: Point(0, 0.25, 0), color: Color(1, 1, 1))
             Camera(width: 800,
                    height: 600,
                    viewAngle: PI/3,
                    from: Point(0, 1, -1),
                    to: Point(0, 0, 0),
                    up: Vector(0, 1, 0))
+            PointLight(position: Point(0, 0.25, 0), color: Color(1, 1, 1))
             Sphere()
                 .material(SolidColor(0.8, 1.0, 0.6)
                     .ambient(0.1)
@@ -78,7 +78,7 @@ class WorldTests: XCTestCase {
         }
 
         let ray = Ray(Point(0, 0, 0), Vector(0, 0, 1))
-        let shape = await world.objects[1]
+        let shape = await world.shapes[1]
         let intersection = Intersection(0.5, shape)
         let computations = intersection.prepareComputations(ray, [intersection])
         let actualValue = await world.shadeHit(computations, MAX_RECURSIVE_CALLS)
@@ -91,13 +91,13 @@ class WorldTests: XCTestCase {
         let s2 = Sphere()
             .translate(0, 0, 10)
         let world = World {
-            PointLight(position: Point(0, 0, -10), color: Color(1, 1, 1))
             Camera(width: 800,
                    height: 600,
                    viewAngle: PI/3,
                    from: Point(0, 1, -1),
                    to: Point(0, 0, 0),
                    up: Vector(0, 1, 0))
+            PointLight(position: Point(0, 0, -10), color: Color(1, 1, 1))
             s1
             s2
         }
@@ -144,28 +144,32 @@ class WorldTests: XCTestCase {
     func testIsShadowedPointAndLightNotCollinear() async throws {
         let world = testWorld()
         let worldPoint = Point(0, 10, 0)
-        let result = await world.isShadowed(world.light.position, worldPoint)
+        let light = await world.lights[0]
+        let result = await world.isShadowed(light.position, worldPoint)
         XCTAssertFalse(result)
     }
 
     func testIsShadowedObjectBetweenPointAndLight() async throws {
         let world = testWorld()
         let worldPoint = Point(10, -10, 10)
-        let result = await world.isShadowed(world.light.position, worldPoint)
+        let light = await world.lights[0]
+        let result = await world.isShadowed(light.position, worldPoint)
         XCTAssertTrue(result)
     }
 
     func testIsShadowedObjectBehindLight() async throws {
         let world = testWorld()
         let worldPoint = Point(-20, 20, -20)
-        let result = await world.isShadowed(world.light.position, worldPoint)
+        let light = await world.lights[0]
+        let result = await world.isShadowed(light.position, worldPoint)
         XCTAssertFalse(result)
     }
 
     func testIsShadowedObjectBehindPoint() async throws {
         let world = testWorld()
         let worldPoint = Point(-2, 2, -2)
-        let result = await world.isShadowed(world.light.position, worldPoint)
+        let light = await world.lights[0]
+        let result = await world.isShadowed(light.position, worldPoint)
         XCTAssertFalse(result)
     }
 
@@ -181,7 +185,7 @@ class WorldTests: XCTestCase {
         ]
 
         let world = testWorld()
-        let light = await world.light
+        let light = await world.lights[0]
 
         for (worldPoint, expectedIntensity) in testCases {
             let actualIntesity = await world.intensity(light, worldPoint)
@@ -198,13 +202,13 @@ class WorldTests: XCTestCase {
                                   vSteps: 2,
                                   jitter: NoJitter())
         let world = World {
-            areaLight
             Camera(width: 800,
                    height: 600,
                    viewAngle: PI/3,
                    from: Point(0, 1, -1),
                    to: Point(0, 0, 0),
                    up: Vector(0, 1, 0))
+            areaLight
             Sphere()
                 .material(SolidColor(0.8, 1.0, 0.6)
                     .ambient(0.1)
@@ -237,13 +241,13 @@ class WorldTests: XCTestCase {
                                   vSteps: 2,
                                   jitter: PseudorandomJitter([0.7, 0.3, 0.9, 0.1, 0.5]))
         let world = World {
-            areaLight
             Camera(width: 800,
                    height: 600,
                    viewAngle: PI/3,
                    from: Point(0, 1, -1),
                    to: Point(0, 0, 0),
                    up: Vector(0, 1, 0))
+            areaLight
             Sphere()
                 .material(SolidColor(0.8, 1.0, 0.6)
                     .ambient(0.1)
@@ -270,7 +274,7 @@ class WorldTests: XCTestCase {
 
     func testReflectedColorForNonreflectiveMaterial() async {
         let world = testWorld()
-        let secondShape = await world.objects[1]
+        let secondShape = await world.shapes[1]
         secondShape.material.properties.ambient = 1
 
         let ray = Ray(Point(0, 0, 0), Vector(0, 0, 1))
@@ -287,13 +291,13 @@ class WorldTests: XCTestCase {
                 .reflective(0.5))
             .translate(0, -1, 0)
         let world = World {
-            PointLight(position: Point(-10, 10, -10))
             Camera(width: 800,
                    height: 600,
                    viewAngle: PI/3,
                    from: Point(0, 1, -1),
                    to: Point(0, 0, 0),
                    up: Vector(0, 1, 0))
+            PointLight(position: Point(-10, 10, -10))
             Sphere()
                 .material(SolidColor(0.8, 1.0, 0.6)
                     .ambient(0.1)
@@ -315,13 +319,13 @@ class WorldTests: XCTestCase {
 
     func testColorAtTerminatesForWorldWithMutuallyReflectiveSurfaces() async throws {
         let world = World {
-            PointLight(position: Point(0, 0, 0))
             Camera(width: 800,
                    height: 600,
                    viewAngle: PI/3,
                    from: Point(0, 1, -1),
                    to: Point(0, 0, 0),
                    up: Vector(0, 1, 0))
+            PointLight(position: Point(0, 0, 0))
             Plane()
                 .material(.basicMaterial().reflective(1.0))
                 .translate(0, -1, 0)
@@ -339,13 +343,13 @@ class WorldTests: XCTestCase {
             .material(.basicMaterial().reflective(0.5))
             .translate(0, -1, 0)
         let world = World {
-            PointLight(position: Point(-10, 10, -10))
             Camera(width: 800,
                    height: 600,
                    viewAngle: PI/3,
                    from: Point(0, 1, -1),
                    to: Point(0, 0, 0),
                    up: Vector(0, 1, 0))
+            PointLight(position: Point(-10, 10, -10))
             Sphere()
                 .material(SolidColor(0.8, 1.0, 0.6)
                     .ambient(0.1)
@@ -367,7 +371,7 @@ class WorldTests: XCTestCase {
 
     func testRefractedColorWithOpaqueSurface() async throws {
         let world = testWorld()
-        let firstShape = await world.objects[0]
+        let firstShape = await world.shapes[0]
         let ray = Ray(Point(0, 0, -5), Vector(0, 0, 1))
         let allIntersections = [
             Intersection(4, firstShape),
@@ -381,7 +385,7 @@ class WorldTests: XCTestCase {
 
     func testRefractedColorAtMaximumRecursiveDepth() async throws {
         let world = testWorld()
-        let firstShape = await world.objects[0]
+        let firstShape = await world.shapes[0]
         let material = SolidColor.basicMaterial()
             .transparency(1.0)
             .refractive(1.5)
@@ -399,7 +403,7 @@ class WorldTests: XCTestCase {
 
     func testRefractedColorUnderTotalInternalReflection() async throws {
         let world = testWorld()
-        let firstShape = await world.objects[0]
+        let firstShape = await world.shapes[0]
         let material = SolidColor.basicMaterial()
             .transparency(1.0)
             .refractive(1.5)
@@ -427,12 +431,12 @@ class WorldTests: XCTestCase {
         }
 
         let world = testWorld()
-        let shapeA = await world.objects[0]
+        let shapeA = await world.shapes[0]
         let materialA = TestPattern(.identity)
             .ambient(1.0)
         shapeA.material = materialA
 
-        let shapeB = await world.objects[1]
+        let shapeB = await world.shapes[1]
         let materialB = SolidColor.basicMaterial()
             .transparency(1.0)
             .refractive(1.5)
@@ -462,13 +466,13 @@ class WorldTests: XCTestCase {
                 .ambient(0.5))
             .translate(0, -3.5, -0.5)
         let world = World {
-            PointLight(position: Point(-10, 10, -10))
             Camera(width: 800,
                    height: 600,
                    viewAngle: PI/3,
                    from: Point(0, 1, -1),
                    to: Point(0, 0, 0),
                    up: Vector(0, 1, 0))
+            PointLight(position: Point(-10, 10, -10))
             Sphere()
                 .material(SolidColor(0.8, 1.0, 0.6)
                     .ambient(0.1)
@@ -496,13 +500,13 @@ class WorldTests: XCTestCase {
             .refractive(1.5)
         let glassySphere = Sphere().material(glass)
         let world = World {
-            PointLight(position: Point(-10, 10, -10))
             Camera(width: 800,
                    height: 600,
                    viewAngle: PI/3,
                    from: Point(0, 1, -1),
                    to: Point(0, 0, 0),
                    up: Vector(0, 1, 0))
+            PointLight(position: Point(-10, 10, -10))
             glassySphere
         }
 
@@ -523,13 +527,13 @@ class WorldTests: XCTestCase {
             .refractive(1.5)
         let glassySphere = Sphere().material(glass)
         let world = World {
-            PointLight(position: Point(-10, 10, -10))
             Camera(width: 800,
                    height: 600,
                    viewAngle: PI/3,
                    from: Point(0, 1, -1),
                    to: Point(0, 0, 0),
                    up: Vector(0, 1, 0))
+            PointLight(position: Point(-10, 10, -10))
             glassySphere
         }
 
@@ -550,13 +554,13 @@ class WorldTests: XCTestCase {
             .refractive(1.5)
         let glassySphere = Sphere().material(glass)
         let world = World {
-            PointLight(position: Point(-10, 10, -10))
             Camera(width: 800,
                    height: 600,
                    viewAngle: PI/3,
                    from: Point(0, 1, -1),
                    to: Point(0, 0, 0),
                    up: Vector(0, 1, 0))
+            PointLight(position: Point(-10, 10, -10))
             glassySphere
         }
 
@@ -581,13 +585,13 @@ class WorldTests: XCTestCase {
                 .ambient(0.5))
             .translate(0, -3.5, -0.5)
         let world = World {
-            PointLight(position: Point(-10, 10, -10))
             Camera(width: 800,
                    height: 600,
                    viewAngle: PI/3,
                    from: Point(0, 1, -1),
                    to: Point(0, 0, 0),
                    up: Vector(0, 1, 0))
+            PointLight(position: Point(-10, 10, -10))
             Sphere()
                 .material(SolidColor(0.8, 1.0, 0.6)
                     .ambient(0.1)
@@ -610,10 +614,10 @@ class WorldTests: XCTestCase {
     }
 
     func testRayForPixelForCenterOfCanvas() async throws {
-        let light = PointLight(position: Point(-10, 10, -10))
         let camera = Camera(width: 201, height: 101, viewAngle: PI/2, viewTransform: .identity)
-        let objects: [Shape] = []
-        let world = World(light, camera, objects)
+        let lights = [PointLight(position: Point(-10, 10, -10))]
+        let shapes: [Shape] = []
+        let world = World(camera, lights, shapes)
 
         let ray = await world.rayForPixel(100, 50)
         XCTAssert(ray.origin.isAlmostEqual(Point(0, 0, 0)))
@@ -621,10 +625,10 @@ class WorldTests: XCTestCase {
     }
 
     func testRayForPixelForCornerOfCanvas() async throws {
-        let light = PointLight(position: Point(-10, 10, -10))
         let camera = Camera(width: 201, height: 101, viewAngle: PI/2, viewTransform: .identity)
+        let lights = [PointLight(position: Point(-10, 10, -10))]
         let objects: [Shape] = []
-        let world = World(light, camera, objects)
+        let world = World(camera, lights, objects)
 
         let ray = await world.rayForPixel(0, 0)
         XCTAssert(ray.origin.isAlmostEqual(Point(0, 0, 0)))
@@ -632,12 +636,12 @@ class WorldTests: XCTestCase {
     }
 
     func testRayForPixelForTransformedCamera() async throws {
-        let light = PointLight(position: Point(-10, 10, -10))
         let transform = Matrix4.rotationY(PI/4)
             .multiply(.translation(0, -2, 5))
         let camera = Camera(width: 201, height: 101, viewAngle: PI/2, viewTransform: transform)
+        let lights = [PointLight(position: Point(-10, 10, -10))]
         let objects: [Shape] = []
-        let world = World(light, camera, objects)
+        let world = World(camera, lights, objects)
 
         let ray = await world.rayForPixel(100, 50)
         XCTAssert(ray.origin.isAlmostEqual(Point(0, 2, -5)))
