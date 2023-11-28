@@ -12,13 +12,13 @@ import ScintillaLib
 @main
 struct RainbowBall: ScintillaApp {
     var world = World {
-        PointLight(position: Point(-10, 10, -10))
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,
                from: Point(0, 2, -2),
                to: Point(0, 0, 0),
                up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, -10))
         Sphere()
             .material(.colorFunction(.hsl) { x, y, z in
                 ((atan2(z, x)+PI)/PI/2.0, 1.0, 0.5)

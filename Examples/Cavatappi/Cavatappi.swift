@@ -12,13 +12,13 @@ import ScintillaLib
 @main
 struct Cavatappi: ScintillaApp {
     var world = World {
-        PointLight(position: Point(-10, 10, -10))
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,
                from: Point(0, 7, -15),
                to: Point(0, 7, 0),
                up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, -10))
         ParametricSurface(bottomFrontLeft: (-3.5, 0, -3.5),
                           topBackRight: (3.5, 15.0, 3.5),
                           uRange: (0, 2*PI),

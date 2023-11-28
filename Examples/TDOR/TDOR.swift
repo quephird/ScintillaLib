@@ -12,13 +12,13 @@ import ScintillaLib
 @main
 struct TDOR: ScintillaApp {
     var world = World {
-        PointLight(position: Point(-10, 10, -10))
         Camera(width: 600,
                height: 600,
                viewAngle: PI/3,
                from: Point(0, 0, -5),
                to: Point(0, 0, 0),
                up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, -10))
         ImplicitSurface(bottomFrontLeft: (-0.5, 0.0, -0.5),
                         topBackRight: (0.5, 1.0, 0.5), { x, y, z in
             pow(x, 2.0) + pow(z, 2.0) - pow(y, 3.0) + pow(y, 4.0)
