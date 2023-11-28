@@ -33,6 +33,8 @@ public struct PseudorandomJitter: Jitter {
 }
 
 public struct RandomJitter: Jitter {
+    public init() {}
+
     public func next() -> Double {
         return Double.random(in: 0.0...1.0)
     }

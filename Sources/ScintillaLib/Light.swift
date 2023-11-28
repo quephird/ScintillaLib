@@ -10,26 +10,25 @@ import Foundation
 public protocol Light: WorldObject {
     var position: Point { get }
     var color: Color { get }
+    var fadeDistance: Double? { get }
 }
 
 public struct PointLight: Light {
     public var position: Point
     public var color: Color
+    public var fadeDistance: Double?
 
-    public init(position: Point) {
-        self.position = position
-        self.color = .white
-    }
-
-    public init(position: Point, color: Color) {
+    public init(position: Point, color: Color = .white, fadeDistance: Double? = nil) {
         self.position = position
         self.color = color
+        self.fadeDistance = fadeDistance
     }
 }
 
 public struct AreaLight: Light {
     public var position: Point
     public var color: Color
+    public var fadeDistance: Double?
     @_spi(Testing) public var corner: Point
     @_spi(Testing) public var uVec: Vector
     @_spi(Testing) public var uSteps: Int
@@ -38,27 +37,14 @@ public struct AreaLight: Light {
     @_spi(Testing) public var samples: Int
     @_spi(Testing) public var jitter: Jitter
 
-    public init(corner: Point, uVec: Vector, uSteps: Int, vVec: Vector, vSteps: Int) {
-        self.init(corner: corner,
-                  color: .white,
-                  uVec: uVec,
-                  uSteps: uSteps,
-                  vVec: vVec,
-                  vSteps: vSteps,
-                  jitter: RandomJitter())
-    }
-
-    public init(corner: Point, color: Color, uVec: Vector, uSteps: Int, vVec: Vector, vSteps: Int) {
-        self.init(corner: corner,
-                  color: color,
-                  uVec: uVec,
-                  uSteps: uSteps,
-                  vVec: vVec,
-                  vSteps: vSteps,
-                  jitter: RandomJitter())
-    }
-
-    public init(corner: Point, color: Color, uVec: Vector, uSteps: Int, vVec: Vector, vSteps: Int, jitter: Jitter) {
+    public init(corner: Point,
+                color: Color = .white,
+                uVec: Vector,
+                uSteps: Int,
+                vVec: Vector,
+                vSteps: Int,
+                jitter: Jitter = RandomJitter(),
+                fadeDistance: Double? = nil) {
         self.corner = corner
         self.color = color
         self.uSteps = uSteps
@@ -70,6 +56,7 @@ public struct AreaLight: Light {
             .add(self.uVec.multiply(Double(uSteps/2)))
             .add(self.vVec.multiply(Double(vSteps/2)))
         self.jitter = jitter
+        self.fadeDistance = fadeDistance
     }
 
     public mutating func pointAt(_ u: Int, _ v: Int) -> Point {
