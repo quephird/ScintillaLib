@@ -99,5 +99,9 @@ let package = Package(
             name: "DimlyLitScene",
             dependencies: ["ScintillaLib"],
             path: "Examples/DimlyLitScene"),
+        .executableTarget(
+            name: "FishEye",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/FishEye"),
     ]
 )
