@@ -5,4 +5,7 @@
 //  Created by Danielle Kefford on 11/27/23.
 //
 
-public protocol WorldObject {}
+public enum WorldObject {
+    case light(Light)
+    case shape(Shape)
+}

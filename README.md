@@ -670,7 +670,7 @@ struct MyWorld: ScintillaApp {
 
 You can also have multiple lights, which you can use to create scenes with multiple shadows and/or give shapes more highlights. Below is a pasta-like shape with two light sources, one to the left and one to the right:
 
-```
+```swift
 import Darwin
 import ScintillaLib
 
@@ -709,7 +709,7 @@ struct Cavatappi: ScintillaApp {
 
 Lights can also be configured to fade over the distance travelled to objects in the scene. You can use the optional `fadeDistance` parameter to govern how sharply the light intensity fades; larger values mean that light takes more distance to fade, smaller ones result in a sharper dropoff.
 
-```
+```swift
 import ScintillaLib
 
 @available(macOS 12.0, *)
@@ -830,7 +830,7 @@ If you've done all that, you now have a bona fide application and should be able
 
 You can also optionally render a scene with antialiasing. In the image above, you can see that the various edges of the object are pretty jagged and take away from the verisimilitude of the image. By adding a property modifier to the `World` object, `.antialiasing(true)`, we can improve its quality:
 
-```
+```swift
 import Darwin
 import ScintillaLib
 

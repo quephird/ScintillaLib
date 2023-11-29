@@ -13,8 +13,12 @@ public enum WorldObjectBuilder {
         return Array(components.joined())
     }
 
-    public static func buildExpression(_ expression: WorldObject) -> [WorldObject] {
-        return [expression]
+    public static func buildExpression(_ light: Light) -> [WorldObject] {
+        return [.light(light)]
+    }
+
+    public static func buildExpression(_ shape: Shape) -> [WorldObject] {
+        return [.shape(shape)]
     }
 
     public static func buildArray(_ components: [[WorldObject]]) -> [WorldObject] {
