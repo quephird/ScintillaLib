@@ -8,8 +8,7 @@
 import Foundation
 
 public class Shape {
-    static var latestId: Int = 0
-    @_spi(Testing) public var id: Int
+    @_spi(Testing) public var id: UUID
     var transform: Matrix4 {
         didSet {
             self.inverseTransform = transform.inverse()
@@ -23,12 +22,11 @@ public class Shape {
     var castsShadow: Bool
 
     public init() {
-        self.id = Self.latestId
+        self.id = UUID()
         self.transform = .identity
         self.inverseTransform = transform.inverse()
         self.inverseTransposeTransform = transform.inverse().transpose()
         self.castsShadow = true
-        Self.latestId += 1
     }
 
     public func union(@ShapeBuilder _ otherShapesBuilder: () -> [Shape]) -> Shape {
