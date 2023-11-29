@@ -146,4 +146,21 @@ class MaterialTests: XCTestCase {
             XCTAssert(actualColor.isAlmostEqual(expectedColor))
         }
     }
+
+    func testColorIsAttenuatedForALightWithAFadeDistance() throws {
+        let light = PointLight(position: Point(0, 0, -10), fadeDistance: 5)
+        let material: Material = .solidColor(1, 1, 1)
+            .ambient(0.1)
+            .diffuse(0.9)
+            .specular(0.0)
+        let shape = Sphere().material(material)
+        let point  = Point(0, 0, -1)
+        let eye    = Vector(0, 0, -1)
+        let normal = Vector(0, 0, -1)
+        let intensity = 1.0
+
+        let actualLighting = shape.material.lighting(light, shape, point, eye, normal, intensity)
+        let expectedLighting = Color(0.47170, 0.47170, 0.47170)
+        XCTAssertTrue(actualLighting.isAlmostEqual(expectedLighting))
+    }
 }

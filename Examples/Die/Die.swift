@@ -15,13 +15,13 @@ struct Die: ScintillaApp {
             .reflective(0.2)
 
         return World {
-            PointLight(position: Point(-10, 10, -10))
             Camera(width: 800,
                    height: 600,
                    viewAngle: PI/3,
                    from: Point(0, 5, -10),
                    to: Point(0, 0, 0),
                    up: Vector(0, 1, 0))
+            PointLight(position: Point(-10, 10, -10))
             Cube()
                 .material(orange)
                 .intersection {

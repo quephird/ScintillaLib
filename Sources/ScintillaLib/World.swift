@@ -11,29 +11,60 @@ import Foundation
 
 @available(macOS 10.15, *)
 public actor World {
-    @_spi(Testing) public var light: Light
     @_spi(Testing) public var camera: Camera
-    @_spi(Testing) public var objects: [Shape]
+    @_spi(Testing) public var lights: [Light]
+    @_spi(Testing) public var shapes: [Shape]
     var antialiasing: Bool = false
 
     var totalPixels: Int
 
-    public init(@WorldBuilder builder: () -> (Light, Camera, [Shape])) {
-        (self.light, self.camera, self.objects) = builder()
+    public init(@WorldBuilder builder: () -> (Camera, [WorldObject])) {
+        let (camera, objects) = builder()
+
+        var lights: [Light] = []
+        var shapes: [Shape] = []
+        for object in objects {
+            switch object {
+            case let light as Light:
+                lights.append(light)
+            case let shape as Shape:
+                shapes.append(shape)
+            default:
+                fatalError("Whoops! Encountered unexpected WorldObject!")
+            }
+        }
+
+        self.camera = camera
+        self.lights = lights
+        self.shapes = shapes
         self.totalPixels = camera.horizontalSize * camera.verticalSize
     }
 
-    public init(_ light: Light, _ camera: Camera, @ShapeBuilder builder: () -> [Shape]) {
-        self.light = light
+    public init(_ camera: Camera, @WorldObjectBuilder builder: () -> [WorldObject]) {
+        let objects = builder()
+        var lights: [Light] = []
+        var shapes: [Shape] = []
+        for object in objects {
+            switch object {
+            case let light as Light:
+                lights.append(light)
+            case let shape as Shape:
+                shapes.append(shape)
+            default:
+                fatalError("Whoops! Encountered unexpected WorldObject!")
+            }
+        }
+
+        self.lights = lights
+        self.shapes = shapes
         self.camera = camera
-        self.objects = builder()
         self.totalPixels = camera.horizontalSize * camera.verticalSize
     }
 
-    public init(_ light: Light, _ camera: Camera, _ objects: [Shape]) {
-        self.light = light
+    public init(_ camera: Camera, _ lights: [Light], _ shapes: [Shape]) {
         self.camera = camera
-        self.objects = objects
+        self.lights = lights
+        self.shapes = shapes
         self.totalPixels = camera.horizontalSize * camera.verticalSize
     }
 
@@ -43,7 +74,7 @@ public actor World {
     }
 
     @_spi(Testing) public func intersect(_ ray: Ray) -> [Intersection] {
-        var intersections = objects.flatMap({object in object.intersect(ray)})
+        var intersections = self.shapes.flatMap({shape in shape.intersect(ray)})
         intersections
             .sort(by: { i1, i2 in
                 i1.t < i2.t
@@ -80,16 +111,26 @@ public actor World {
 
     @_spi(Testing) public func shadeHit(_ computations: Computations, _ remainingCalls: Int) -> Color {
         let material = computations.object.material
-        let intensity = self.intensity(self.light, computations.overPoint)
 
-        let surfaceColor = material.lighting(
-            self.light,
-            computations.object,
-            computations.point,
-            computations.eye,
-            computations.normal,
-            intensity
-        )
+        var surfaceColor = Color(0, 0, 0)
+        for light in self.lights {
+            let intensity = self.intensity(light, computations.overPoint)
+
+            let tempColor = material.lighting(light,
+                                              computations.object,
+                                              computations.point,
+                                              computations.eye,
+                                              computations.normal,
+                                              intensity)
+
+            // This may or may not be a hack to combine colors instead of simply
+            // adding them and potentially winding up with color components
+            // greater than 255 and a scene that is way too bright. It was inspired
+            // by the following post on Stack Overflow:
+            //
+            // https://stackoverflow.com/questions/4133351/how-to-blend-colors
+            surfaceColor = surfaceColor.blend(tempColor)
+        }
 
         let reflectedColor = self.reflectedColorAt(computations, remainingCalls)
         let refractedColor = self.refractedColorAt(computations, remainingCalls)

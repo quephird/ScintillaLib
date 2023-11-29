@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class Shape {
+public class Shape: WorldObject {
     static var latestId: Int = 0
     @_spi(Testing) public var id: Int
     var transform: Matrix4 {

@@ -11,13 +11,13 @@ import ScintillaLib
 @main
 struct HollowedSphere: ScintillaApp {
     var world = World {
-        PointLight(position: Point(-10, 10, -10))
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,
                from: Point(0, 1.5, -2),
                to: Point(0, 0, 0),
                up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, -10))
         Sphere()
             .material(.solidColor(0, 0, 1))
             .intersection {

@@ -66,6 +66,10 @@ public struct Color {
         return ColorSpace.hsl.makeColor(h, s, l)
     }
 
+    @_spi(Testing) public func blend(_ other: Self) -> Self {
+        return self.add(other).subtract(self.hadamard(other))
+    }
+
     @_spi(Testing) public func add(_ other: Self) -> Self {
         Color(self.r+other.r, self.g+other.g, self.b+other.b)
     }

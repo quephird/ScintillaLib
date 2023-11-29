@@ -87,6 +87,14 @@ public struct Point: Tuple4 {
             self.z - other.z
         )
     }
+
+    @_spi(Testing) public func distanceBetween(_ other: Self) -> Double {
+        let deltaX = self.x - other.x
+        let deltaY = self.y - other.y
+        let deltaZ = self.z - other.z
+
+        return sqrt(deltaX*deltaX + deltaY*deltaY + deltaZ*deltaZ)
+    }
 }
 
 public struct Vector: Tuple4 {
