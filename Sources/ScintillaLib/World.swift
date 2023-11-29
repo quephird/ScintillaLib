@@ -24,12 +24,10 @@ public actor World {
         var shapes: [Shape] = []
         for object in objects {
             switch object {
-            case let light as Light:
+            case .light(let light):
                 lights.append(light)
-            case let shape as Shape:
+            case .shape(let shape):
                 shapes.append(shape)
-            default:
-                fatalError("Whoops! Encountered unexpected WorldObject!")
             }
         }
 
@@ -45,12 +43,10 @@ public actor World {
         var shapes: [Shape] = []
         for object in objects {
             switch object {
-            case let light as Light:
+            case .light(let light):
                 lights.append(light)
-            case let shape as Shape:
+            case .shape(let shape):
                 shapes.append(shape)
-            default:
-                fatalError("Whoops! Encountered unexpected WorldObject!")
             }
         }
 

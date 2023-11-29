@@ -19,8 +19,12 @@ public enum WorldBuilder {
         return camera
     }
 
-    public static func buildExpression(_ object: WorldObject) -> [WorldObject] {
-        return [object]
+    public static func buildExpression(_ light: Light) -> [WorldObject] {
+        return [.light(light)]
+    }
+
+    public static func buildExpression(_ shape: Shape) -> [WorldObject] {
+        return [.shape(shape)]
     }
 
     public static func buildBlock(_ objects: [WorldObject]...) -> [WorldObject] {
