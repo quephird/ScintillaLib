@@ -703,10 +703,37 @@ struct Cavatappi: ScintillaApp {
 }
 ```
 
-... and the result is quite startling:
+... and the result is quite dramatic:
 
 ![](./images/Cavatappi.png)
 
+Lights can also be configured to fade over the distance travelled to objects in the scene. You can use the optional `fadeDistance` parameter to govern how sharply the light intensity fades; larger values mean that light takes more distance to fade, smaller ones result in a sharper dropoff.
+
+```
+import ScintillaLib
+
+@available(macOS 12.0, *)
+@main
+struct DimlyLitScene: ScintillaApp {
+    var world = World {
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 0, -5),
+               to: Point(0, 0, 0),
+               up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, 0),
+                   fadeDistance: 10)
+        Sphere()
+            .material(.solidColor(1, 0.5, 0))
+        Plane()
+            .translate(0, -1, 0)
+    }
+}
+```
+![](./images/DimlyLitScene.png)
+
+As with the accuracy and max gradient parameters for parametric surfaces, you might have to experiment with various values in order to get the effect you want.
 
 ## Constructing a scene
 

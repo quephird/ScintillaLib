@@ -95,5 +95,9 @@ let package = Package(
             name: "DecoCube",
             dependencies: ["ScintillaLib"],
             path: "Examples/DecoCube"),
+        .executableTarget(
+            name: "DimlyLitScene",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/DimlyLitScene"),
     ]
 )
