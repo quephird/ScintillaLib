@@ -831,37 +831,36 @@ If you've done all that, you now have a bona fide application and should be able
 You can also optionally render a scene with antialiasing. In the image above, you can see that the various edges of the object are pretty jagged and take away from the verisimilitude of the image. By adding a property modifier to the `World` object, `.antialiasing(true)`, we can improve its quality:
 
 ```
+import Darwin
 import ScintillaLib
 
+@available(macOS 12.0, *)
 @main
-struct CSGExample: ScintillaApp {
+struct Cavatappi: ScintillaApp {
     var world = World {
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,
-               from: Point(0, 1.5, -2),
-               to: Point(0, 0, 0),
-               up: Vector(0, 1, 0))
+               from: Point(0, 7, -15),
+               to: Point(0, 7, 0),
+               up: Vector(0, 1, 0),
+               antialiasing: true)
         PointLight(position: Point(-10, 10, -10))
-        Sphere()
-            .material(.solidColor(0, 0, 1))
-            .intersection {
-                Cube()
-                    .material(.solidColor(1, 0, 0))
-                    .scale(0.8, 0.8, 0.8)
-            }
-            .difference {
-                for (thetaX, thetaZ) in [(0, 0), (0, PI/2), (PI/2, 0)] {
-                    Cylinder()
-                        .material(.solidColor(0, 1, 0))
-                        .scale(0.5, 0.5, 0.5)
-                        .rotateX(thetaX)
-                        .rotateZ(thetaZ)
-                }
-            }
-            .rotateY(PI/6)
+        PointLight(position: Point(10, 10, -10))
+        ParametricSurface(bottomFrontLeft: (-3.5, 0, -3.5),
+                          topBackRight: (3.5, 15.0, 3.5),
+                          uRange: (0, 2*PI),
+                          vRange: (0, 7*PI),
+                          accuracy: 0.001,
+                          maxGradient: 1.0,
+                          fx: { (u, v) in (2 + cos(u) + 0.1*cos(8*u))*cos(v) },
+                          fy: { (u, v) in 2 + sin(u) + 0.1*sin(8*u) + 0.5*v },
+                          fz: { (u, v) in (2 + cos(u) + 0.1*cos(8*u))*sin(v) })
+            .material(.solidColor(1.0, 0.8, 0))
+        Plane()
+            .material(.solidColor(1, 1, 1))
+            .translate(0, -3.0, 0)
     }
-        .antialiasing(true)
 }
 ```
 
@@ -871,7 +870,7 @@ struct CSGExample: ScintillaApp {
 
 You should be able to see that it is far less "jaggy" than the orignal image shown further up in this README.
 
-Because rendering times are much slower with antialiasing turned out, you should make sure that the run configuration is set to Release in order to run Swift in the fastest fashion. To get there, go to Product -> Scheme -> Edit Scheme...
+Because rendering times are much slower with antialiasing turned on, you should make sure that the run configuration is set to Release in order to run Swift in the fastest fashion. To get there, go to Product -> Scheme -> Edit Scheme...
 
 ![](./images/SchemeSettings.png)
 
