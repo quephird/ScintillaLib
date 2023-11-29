@@ -101,7 +101,10 @@ extension Material {
 
     @_spi(Testing) public func lighting(_ light: Light, _ object: Shape, _ point: Point, _ eye: Vector, _ normal: Vector, _ intensity: Double) -> Color {
         // Account for the attenuation of the light source over distance
-        // if it has the fadeDistance property set
+        // if it has the fadeDistance property set. This is very similar
+        // to the approach that POV-Ray uses, documented here:
+        //
+        // http://www.povray.org/documentation/3.7.0/r3_4.html#r3_4_4_1_9
         var lightColor = light.color
         if let fadeDistance = light.fadeDistance {
             let distance = light.position.distanceBetween(point)

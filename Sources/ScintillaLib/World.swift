@@ -125,7 +125,10 @@ public actor World {
 
             // This may or may not be a hack to combine colors instead of simply
             // adding them and potentially winding up with color components
-            // greater than 255 and a scene that is way too bright.
+            // greater than 255 and a scene that is way too bright. It was inspired
+            // by the following post on Stack Overflow:
+            //
+            // https://stackoverflow.com/questions/4133351/how-to-blend-colors
             surfaceColor = surfaceColor.blend(tempColor)
         }
 
