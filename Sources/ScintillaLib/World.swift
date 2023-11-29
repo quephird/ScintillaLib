@@ -14,7 +14,6 @@ public actor World {
     @_spi(Testing) public var camera: Camera
     @_spi(Testing) public var lights: [Light]
     @_spi(Testing) public var shapes: [Shape]
-    var antialiasing: Bool = false
 
     var totalPixels: Int
 
@@ -66,11 +65,6 @@ public actor World {
         self.lights = lights
         self.shapes = shapes
         self.totalPixels = camera.horizontalSize * camera.verticalSize
-    }
-
-    public func antialiasing(_ antialiasing: Bool) -> Self {
-        self.antialiasing = antialiasing
-        return self
     }
 
     @_spi(Testing) public func intersect(_ ray: Ray) -> [Intersection] {
@@ -278,7 +272,7 @@ public actor World {
             for x in 0..<self.camera.horizontalSize {
                 let color: Color
 
-                if self.antialiasing {
+                if self.camera.antialiasing {
                     let subpixelSamplesX = 4
                     let subpixelSamplesY = 4
 

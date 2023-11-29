@@ -16,24 +16,28 @@ public struct Camera {
     var halfWidth: Double
     var halfHeight: Double
     @_spi(Testing) public var pixelSize: Double
+    var antialiasing: Bool
 
     public init(width horizontalSize: Int,
                 height verticalSize: Int,
                 viewAngle fieldOfView: Double,
                 from: Point,
                 to: Point,
-                up: Vector) {
+                up: Vector,
+                antialiasing: Bool = false) {
         let viewTransform = Matrix4.view(from, to, up)
         self.init(width: horizontalSize,
                   height: verticalSize,
                   viewAngle: fieldOfView,
-                  viewTransform: viewTransform)
+                  viewTransform: viewTransform,
+                  antialiasing: antialiasing)
     }
 
     public init(width horizontalSize: Int,
                 height verticalSize: Int,
                 viewAngle fieldOfView: Double,
-                viewTransform: Matrix4) {
+                viewTransform: Matrix4,
+                antialiasing: Bool = false) {
         self.horizontalSize = horizontalSize
         self.verticalSize = verticalSize
         self.fieldOfView = fieldOfView
@@ -56,5 +60,6 @@ public struct Camera {
         self.halfWidth = halfWidth
         self.halfHeight = halfHeight
         self.pixelSize = pixelSize
+        self.antialiasing = antialiasing
     }
 }
