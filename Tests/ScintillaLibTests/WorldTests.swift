@@ -613,6 +613,41 @@ class WorldTests: XCTestCase {
         XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
     }
 
+    func testShadeHitWithTwoLightsAndVerifyThereAreTwoShadows() async throws {
+        let floor = Plane().translate(0, -1, 0)
+        let world = World {
+            Camera(width: 400,
+                   height: 400,
+                   viewAngle: PI/3,
+                   from: Point(0, 0, -5),
+                   to: Point(0, 0, 0),
+                   up: Vector(0, 1, 0))
+            // Light above and to the left of the sphere
+            PointLight(position: Point(-10, 10, 0))
+            // Light above and to the right of the sphere
+            PointLight(position: Point(10, 10, 0))
+            Sphere()
+                .material(.solidColor(1.0, 1.0, 1.0))
+            floor
+        }
+
+        for (direction, t, expectedColor) in [
+            // Spot on the plane in the left shadow
+            (Vector(-1/sqrt(27), -1/sqrt(27), 5/sqrt(27)), sqrt(27), Color(0.81691, 0.81691, 0.81691)),
+            // Spot on the plane in the right shadow
+            (Vector(1/sqrt(27), -1/sqrt(27), 5/sqrt(27)), sqrt(27), Color(0.81691, 0.81691, 0.81691)),
+            // Spot on the plane in between camera and sphere not in any shadow
+            (Vector(0, -1/sqrt(17), 4/sqrt(17)), sqrt(17), Color(0.94451, 0.94451, 0.94451)),
+        ] {
+            let ray = Ray(Point(0, 0, -5), direction)
+            let intersection = Intersection(t, floor)
+            let allIntersections = [intersection]
+            let computations = intersection.prepareComputations(ray, allIntersections)
+            let actualColor = await world.shadeHit(computations, MAX_RECURSIVE_CALLS)
+            XCTAssertTrue(actualColor.isAlmostEqual(expectedColor))
+        }
+    }
+
     func testRayForPixelForCenterOfCanvas() async throws {
         let camera = Camera(width: 201, height: 101, viewAngle: PI/2, viewTransform: .identity)
         let lights = [PointLight(position: Point(-10, 10, -10))]
