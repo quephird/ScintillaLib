@@ -20,13 +20,13 @@ import ScintillaLib
 @main
 struct QuickStart: ScintillaApp {
     var world = World {
-        PointLight(position: Point(-10, 10, -10))
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,
                from: Point(0, 2, -2),
                to: Point(0, 0, 0),
                up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, -10))
         Sphere()
             .material(.solidColor(1, 0, 0))
     }
@@ -99,13 +99,13 @@ import ScintillaLib
 @main
 struct SuperellipsoidScene: ScintillaApp {
     var world: World = World {
-        PointLight(position: Point(0, 5, -5))
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,
                from: Point(0, 0, -12),
                to: Point(0, 0, 0),
                up: Vector(0, 1, 0))
+        PointLight(position: Point(0, 5, -5))
         for (i, e) in [0.25, 0.5, 1.0, 2.0, 2.5].enumerated() {
             for (j, n) in [0.25, 0.5, 1.0, 2.0, 2.5].enumerated() {
                 Superellipsoid(e: e, n: n)
@@ -142,13 +142,13 @@ import ScintillaLib
 @main
 struct MyWorld: ScintillaApp {
     var world = World {
-        PointLight(position: Point(-10, 10, -10))
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,
                from: Point(0, 0, -5),
                to: Point(0, 0, 0),
                up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, -10))
         ImplicitSurface(bottomFrontLeft: (-2, -2, -2),
                         topBackRight: (2, 2, 2), { x, y, z in
             x*x + y*y + z*z + sin(4*x) + sin(4*y) + sin(4*z) - 1
@@ -178,13 +178,13 @@ let φ: Double = 1.61833987
 @main
 struct MyImplicitSurface: ScintillaApp {
     var world: World {
-        PointLight(position: Point(-5, 5, -5))
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,
                from: Point(0, 0, -5),
                to: Point(0, 0, 0),
                up: Vector(0, 1, 0))
+        PointLight(position: Point(-5, 5, -5))
         ImplicitSurface(center: (0.0, 0.0, 0.0),
                         radius: 2.0) { x, y, z in
             4.0*(φ*φ*x*x-y*y)*(φ*φ*y*y-z*z)*(φ*φ*z*z-x*x) - (1.0+2.0*φ)*(x*x+y*y+z*z-1.0)*(x*x+y*y+z*z-1.0)
@@ -219,13 +219,13 @@ import ScintillaLib
 @main
 struct Hourglass: ScintillaApp {
     var world = World {
-        PointLight(position: Point(-10, 10, -10))
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,
                from: Point(0, 1, -5),
                to: Point(0, 0, 0),
                up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, -10))
         ParametricSurface(bottomFrontLeft: (-1.0, -1.0, -1.0),
                           topBackRight: (1.0, 1.0, 1.0),
                           uRange: (0, 2*PI),
@@ -254,14 +254,13 @@ import ScintillaLib
 @main
 struct Hourglass: ScintillaApp {
     var world = World {
-        PointLight(Point(-10, 10, -10))
-        PointLight(position: Point(-10, 10, -10))
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,
                from: Point(0, 1, -5),
                to: Point(0, 0, 0),
                up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, -10))
         ParametricSurface(bottomFrontLeft: (-1.0, -1.0, -1.0),
                           topBackRight: (1.0, 1.0, 1.0),
                           uRange: (0, 2*PI),
@@ -297,13 +296,13 @@ import ScintillaLib
 @main
 struct Hourglass: ScintillaApp {
     var world = World {
-        PointLight(position: Point(-10, 10, -10))
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,
                from: Point(0, 1, -5),
                to: Point(0, 0, 0),
                up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, -10))
         ParametricSurface(bottomFrontLeft: (-1.0, -1.0, -1.0),
                           topBackRight: (1.0, 1.0, 1.0),
                           uRange: (0, 2*PI),
@@ -343,13 +342,13 @@ import ScintillaLib
 @main
 struct PrismScene: ScintillaApp {
     var world: World {
-        PointLight(position: Point(-5, 5, -5))
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,
                from: Point(0, 5, -5),
                to: Point(0, 1, 0),
                up: Vector(0, 1, 0))
+        PointLight(position: Point(-5, 5, -5))
         Prism(bottomY: 0.0,
               topY: 2.0,
               xzPoints: [(1.0, 0.0),
@@ -388,13 +387,13 @@ import ScintillaLib
 @main
 struct SorScene: ScintillaApp {
     var world = World {
-        PointLight(position: Point(-5, 5, -5))
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,
                from: Point(0, 7, -10),
                to: Point(0, 2, 0),
                up: Vector(0, 1, 0))
+        PointLight(position: Point(-5, 5, -5))
         SurfaceOfRevolution(yzPoints: [(0.0, 2.0),
                                        (1.0, 2.0),
                                        (2.0, 1.0),
@@ -645,17 +644,17 @@ import ScintillaLib
 @main
 struct MyWorld: ScintillaApp {
     var world: World {
-        AreaLight(corner: Point(-5, 5, -5),
-                  uVec: Vector(2, 0, 0),
-                  uSteps: 10,
-                  vVec: Vector(0, 2, 0),
-                  vSteps: 10)
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,
                from: Point(0, 2, -5),
                to: Point(0, 1, 0),
                up: Vector(0, 1, 0))
+        AreaLight(corner: Point(-5, 5, -5),
+                  uVec: Vector(2, 0, 0),
+                  uSteps: 10,
+                  vVec: Vector(0, 2, 0),
+                  vSteps: 10)
         Sphere()
             .translate(0, 1, 0)
             .material(.solidColor(1, 0, 0))
@@ -669,35 +668,74 @@ struct MyWorld: ScintillaApp {
 
 **NOTA BENE**: Using an `AreaLight` results in longer rendering times that are proportional to the values of the `uSteps` and `vSteps` parameters.
 
+You can also have multiple lights, which you can use to create scenes with multiple shadows and/or give shapes more highlights. Below is a pasta-like shape with two light sources, one to the left and one to the right:
+
+```
+import Darwin
+import ScintillaLib
+
+@available(macOS 12.0, *)
+@main
+struct Cavatappi: ScintillaApp {
+    var world = World {
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 7, -15),
+               to: Point(0, 7, 0),
+               up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, -10))
+        PointLight(position: Point(10, 10, -10))
+        ParametricSurface(bottomFrontLeft: (-3.5, 0, -3.5),
+                          topBackRight: (3.5, 15.0, 3.5),
+                          uRange: (0, 2*PI),
+                          vRange: (0, 7*PI),
+                          accuracy: 0.001,
+                          maxGradient: 1.0,
+                          fx: { (u, v) in (2 + cos(u) + 0.1*cos(8*u))*cos(v) },
+                          fy: { (u, v) in 2 + sin(u) + 0.1*sin(8*u) + 0.5*v },
+                          fz: { (u, v) in (2 + cos(u) + 0.1*cos(8*u))*sin(v) })
+            .material(.solidColor(1.0, 0.8, 0))
+        Plane()
+            .material(.solidColor(1, 1, 1))
+            .translate(0, -3.0, 0)
+    }
+}
+```
+
+... and the result is quite startling:
+
+![](./images/Cavatappi.png)
+
+
 ## Constructing a scene
 
 To construct a scene, you need to create a `World` instance with the following objects
 
-* a `Light`
-* a `Camera`
-* a body of `Shape`s
+* one `Camera`
+* one or more `Light`s
+* one or more `Shape`s
 
 Lights and shapes are discussed above. A `Camera` takes the following four arguments:
 
-* The width of the resultant image in pixels
-* The height of the resultant image in pixels
-* The solid angle in radians specifying the field of view
-* A view matrix that consists of:
-  * the point designating its origin
-  * the point designating where it is pointing at
-  * a vector representing which way is up.
+* the width of the resultant image in pixels
+* the height of the resultant image in pixels
+* the solid angle in radians specifying the field of view
+* the point designating its origin
+* the point designating where it is pointing at
+* the vector representing which way is up.
 
 `World` also supports enumerating shapes using result builders, so you can do the following:
 
 ```swift
 World {
-    PointLight(position: Point(-10, 10, -10))
     Camera(width: 800,
            height: 600,
            viewAngle: PI/3,
            from: Point(0, 3, -5),
            to: Point(0, 0, 0),
            up: Vector(0, 1, 0))
+    PointLight(position: Point(-10, 10, -10))
     Sphere()
         .material(.solidColor(1, 0, 0))
         .translate(-2, 0, 0)
@@ -726,13 +764,13 @@ import ScintillaLib
 @main
 struct MyWorld: ScintillaApp {
     var world = World {
-        PointLight(position: Point(-10, 10, -10))
         Camera(width: 800,
                height: 600,
                viewAngle: PI/3,
                from: Point(0, 1, -2),
                to: Point(0, 0, 0),
                up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, -10))
         Sphere()
             .material(.solidColor(0, 0, 1))
             .intersection {
@@ -771,13 +809,13 @@ import ScintillaLib
 @main
 struct CSGExample: ScintillaApp {
     var world = World {
-        PointLight(position: Point(-10, 10, -10))
         Camera(width: 400,
                height: 400,
                viewAngle: PI/3,
                from: Point(0, 1.5, -2),
                to: Point(0, 0, 0),
                up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, -10))
         Sphere()
             .material(.solidColor(0, 0, 1))
             .intersection {

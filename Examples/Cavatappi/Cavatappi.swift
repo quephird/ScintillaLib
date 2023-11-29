@@ -19,6 +19,7 @@ struct Cavatappi: ScintillaApp {
                to: Point(0, 7, 0),
                up: Vector(0, 1, 0))
         PointLight(position: Point(-10, 10, -10))
+        PointLight(position: Point(10, 10, -10))
         ParametricSurface(bottomFrontLeft: (-3.5, 0, -3.5),
                           topBackRight: (3.5, 15.0, 3.5),
                           uRange: (0, 2*PI),
