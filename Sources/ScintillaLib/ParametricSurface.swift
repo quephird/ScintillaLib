@@ -28,6 +28,7 @@ enum ComputeTRangeReturnValue {
     case value(Double, Double)
 }
 
+@available(macOS 10.15, *)
 public struct ParametricSurface: Shape {
     public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
 

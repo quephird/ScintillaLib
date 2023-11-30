@@ -7,6 +7,7 @@
 
 import Foundation
 
+@available(macOS 10.15, *)
 public class Sphere: Shape {
     public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
 

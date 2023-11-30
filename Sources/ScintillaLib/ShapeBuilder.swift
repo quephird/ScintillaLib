@@ -7,6 +7,7 @@
 
 import Foundation
 
+@available(macOS 10.15, *)
 @resultBuilder
 public enum ShapeBuilder {
     public static func buildBlock(_ components: [Shape]...) -> [Shape] {

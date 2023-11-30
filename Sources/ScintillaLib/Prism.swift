@@ -7,6 +7,7 @@
 
 import Darwin
 
+@available(macOS 10.15, *)
 public struct Prism: Shape {
     public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
 

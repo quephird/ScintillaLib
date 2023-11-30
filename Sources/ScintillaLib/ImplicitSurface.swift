@@ -14,6 +14,7 @@ let DELTA = 0.0000000001
 let NUM_BOUNDING_BOX_SUBDIVISIONS = 100
 let MAX_ITERATIONS_BISECTION = 100
 
+@available(macOS 10.15, *)
 public struct ImplicitSurface: Shape {
     public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
 

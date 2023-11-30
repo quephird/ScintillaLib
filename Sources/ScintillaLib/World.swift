@@ -63,6 +63,29 @@ public actor World {
         self.totalPixels = camera.horizontalSize * camera.verticalSize
     }
 
+    public func findShape(_ shapeId: UUID) -> Shape? {
+        for shape in self.shapes {
+            if shape.id == shapeId {
+                return shape
+            }
+
+            switch shape {
+            case let csg as CSG:
+                if let shape = csg.findShape(shapeId) {
+                    return shape
+                }
+            case let group as Group:
+                if let shape = group.findShape(shapeId) {
+                    return shape
+                }
+            default:
+                continue
+            }
+        }
+
+        return nil
+    }
+
     @_spi(Testing) public func intersect(_ ray: Ray) -> [Intersection] {
         var intersections = self.shapes.flatMap({shape in shape.intersect(ray)})
         intersections
@@ -99,7 +122,7 @@ public actor World {
         }
     }
 
-    @_spi(Testing) public func shadeHit(_ computations: Computations, _ remainingCalls: Int) -> Color {
+    @_spi(Testing) public func shadeHit(_ computations: Computations, _ remainingCalls: Int) async -> Color {
         let material = computations.object.material
 
         var surfaceColor = Color(0, 0, 0)
@@ -122,8 +145,8 @@ public actor World {
             surfaceColor = surfaceColor.blend(tempColor)
         }
 
-        let reflectedColor = self.reflectedColorAt(computations, remainingCalls)
-        let refractedColor = self.refractedColorAt(computations, remainingCalls)
+        let reflectedColor = await self.reflectedColorAt(computations, remainingCalls)
+        let refractedColor = await self.refractedColorAt(computations, remainingCalls)
 
         if material.properties.reflective > 0 && material.properties.transparency > 0 {
             let reflectance = self.schlickReflectance(computations)
@@ -135,18 +158,18 @@ public actor World {
         }
     }
 
-    @_spi(Testing) public func reflectedColorAt(_ computations: Computations, _ remainingCalls: Int) -> Color {
+    @_spi(Testing) public func reflectedColorAt(_ computations: Computations, _ remainingCalls: Int) async -> Color {
         if remainingCalls == 0 {
             return .black
         } else if computations.object.material.properties.reflective == 0 {
             return .black
         } else {
             let reflected = Ray(computations.overPoint, computations.reflected)
-            return self.colorAt(reflected, remainingCalls-1).multiplyScalar(computations.object.material.properties.reflective)
+            return await self.colorAt(reflected, remainingCalls-1).multiplyScalar(computations.object.material.properties.reflective)
         }
     }
 
-    @_spi(Testing) public func refractedColorAt(_ computations: Computations, _ remainingCalls: Int) -> Color {
+    @_spi(Testing) public func refractedColorAt(_ computations: Computations, _ remainingCalls: Int) async -> Color {
         if remainingCalls == 0 {
             return .black
         } else if computations.object.material.properties.transparency == 0 {
@@ -178,21 +201,21 @@ public actor World {
 
                 // Find the color of the refracted ray, making sure to multiply
                 // by the transparency value to account for any opacity
-                return self.colorAt(refracted, remainingCalls - 1)
+                return await self.colorAt(refracted, remainingCalls - 1)
                     .multiplyScalar(computations.object.material.properties.transparency)
             }
         }
     }
 
-    @_spi(Testing) public func colorAt(_ ray: Ray, _ remainingCalls: Int) -> Color {
+    @_spi(Testing) public func colorAt(_ ray: Ray, _ remainingCalls: Int) async -> Color {
         let allIntersections = self.intersect(ray)
         let hit = hit(allIntersections)
         switch hit {
         case .none:
             return .black
         case .some(let intersection):
-            let computations = intersection.prepareComputations(ray, allIntersections)
-            return self.shadeHit(computations, remainingCalls)
+            let computations = await intersection.prepareComputations(self, ray, allIntersections)
+            return await self.shadeHit(computations, remainingCalls)
         }
     }
 
@@ -282,7 +305,7 @@ public actor World {
                             let dx = Double(i)*subpixelWidth + jitterX
                             let dy = Double(j)*subpixelHeight + jitterY
                             let ray = self.rayForPixel(x, y, dx, dy)
-                            let colorSample = self.colorAt(ray, MAX_RECURSIVE_CALLS)
+                            let colorSample = await self.colorAt(ray, MAX_RECURSIVE_CALLS)
                             colorSamples = colorSamples.add(colorSample)
                         }
                     }
@@ -291,7 +314,7 @@ public actor World {
                     color = colorSamples.divideScalar(Double(totalSamples))
                 } else {
                     let ray = self.rayForPixel(x, y)
-                    color = self.colorAt(ray, MAX_RECURSIVE_CALLS)
+                    color = await self.colorAt(ray, MAX_RECURSIVE_CALLS)
                 }
                 canvas.setPixel(x, y, color)
                 renderedPixels += 1

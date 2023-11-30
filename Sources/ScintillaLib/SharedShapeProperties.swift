@@ -7,14 +7,7 @@
 
 import Foundation
 
-public final class ParentBox<Container> {
-    let parent: Container
-
-    init(_ parent: Container) {
-        self.parent = parent
-    }
-}
-
+@available(macOS 10.15, *)
 public struct SharedShapeProperties {
     public init() {
         self.inverseTransform = transform.inverse()
@@ -33,6 +26,6 @@ public struct SharedShapeProperties {
 
     public private(set) var inverseTransform: Matrix4
     public private(set) var inverseTransposeTransform: Matrix4
-    public var parentBox: ParentBox<Container>?
+    public var parentID: UUID?
     public var castsShadow: Bool = true
 }

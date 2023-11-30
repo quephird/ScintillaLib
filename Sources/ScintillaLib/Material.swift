@@ -36,12 +36,14 @@ public struct MaterialProperties {
 
 }
 
+@available(macOS 10.15, *)
 public protocol Material {
     func copy() -> Self
     func colorAt(_ object: Shape, _ worldPoint: Point) -> Color
     var properties: MaterialProperties { get set }
 }
 
+@available(macOS 10.15, *)
 extension Material where Self == SolidColor {
     public static func basicMaterial() -> Self {
         return SolidColor(1, 1, 1)
@@ -52,18 +54,21 @@ extension Material where Self == SolidColor {
     }
 }
 
+@available(macOS 10.15, *)
 extension Material where Self == Pattern {
     public static func pattern(_ pattern: Pattern) -> Self {
         return pattern
     }
 }
 
+@available(macOS 10.15, *)
 extension Material where Self == ColorFunction {
     public static func colorFunction(_ colorSpace: ColorSpace = .rgb, _ colorFunction: @escaping ColorFunctionType) -> Self {
         return ColorFunction(colorSpace, colorFunction)
     }
 }
 
+@available(macOS 10.15, *)
 extension Material {
     func modifyingProperties(_ body: (inout MaterialProperties) -> Void) -> Self {
         var copy = self

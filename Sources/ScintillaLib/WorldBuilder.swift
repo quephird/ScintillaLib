@@ -5,6 +5,7 @@
 //  Created by Danielle Kefford on 9/15/22.
 //
 
+@available(macOS 10.15, *)
 @resultBuilder
 public enum WorldBuilder {
     public static func buildFinalResult(_ world: (Camera, [WorldObject])) -> (Camera, [WorldObject]) {

@@ -7,6 +7,7 @@
 
 import Foundation
 
+@available(macOS 10.15, *)
 @resultBuilder
 public enum WorldObjectBuilder {
     public static func buildBlock(_ components: [WorldObject]...) -> [WorldObject] {

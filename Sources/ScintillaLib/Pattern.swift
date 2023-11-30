@@ -7,6 +7,7 @@
 
 import Foundation
 
+@available(macOS 10.15, *)
 open class Pattern: Material {
     var transform: Matrix4
     var inverseTransform: Matrix4
@@ -32,6 +33,7 @@ open class Pattern: Material {
     }
 }
 
+@available(macOS 10.15, *)
 final public class Striped: Pattern {
     var firstColor: Color
     var secondColor: Color
@@ -55,6 +57,7 @@ final public class Striped: Pattern {
     }
 }
 
+@available(macOS 10.15, *)
 final public class Checkered2D: Pattern {
     var firstColor: Color
     var secondColor: Color
@@ -78,6 +81,7 @@ final public class Checkered2D: Pattern {
     }
 }
 
+@available(macOS 10.15, *)
 final public class Checkered3D: Pattern {
     var firstColor: Color
     var secondColor: Color
@@ -101,6 +105,7 @@ final public class Checkered3D: Pattern {
     }
 }
 
+@available(macOS 10.15, *)
 final public class Gradient: Pattern {
     var firstColor: Color
     var secondColor: Color

@@ -7,6 +7,7 @@
 
 import Foundation
 
+@available(macOS 10.15, *)
 public enum ColorStrategy {
     case solidColor(Color)
     case pattern(Pattern)

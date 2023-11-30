@@ -7,6 +7,7 @@
 
 import Foundation
 
+@available(macOS 10.15, *)
 public struct Intersection {
     @_spi(Testing) public var t: Double
     @_spi(Testing) public var shape: Shape
@@ -55,10 +56,10 @@ public struct Intersection {
         return (n1, n2)
     }
 
-    @_spi(Testing) public func prepareComputations(_ ray: Ray, _ allIntersections: [Intersection]) -> Computations {
+    @_spi(Testing) public func prepareComputations(_ world: World, _ ray: Ray, _ allIntersections: [Intersection]) async -> Computations {
         let point = ray.position(self.t)
         let eye = ray.direction.negate()
-        var normal = self.shape.normal(point, self.uv)
+        var normal = await self.shape.normal(world, point, self.uv)
         let isInside: Bool
         if normal.dot(eye) < 0 {
             isInside = true
@@ -87,6 +88,7 @@ public struct Intersection {
     }
 }
 
+@available(macOS 10.15, *)
 @_spi(Testing) public func hit(_ intersections: [Intersection], includeOnlyShadowingObjects: Bool = false) -> Optional<Intersection> {
     return intersections
         .sorted(by: { i1, i2 in

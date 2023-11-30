@@ -7,6 +7,7 @@
 
 import Foundation
 
+@available(macOS 10.15, *)
 public struct CSG: Shape {
     public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
 
@@ -19,9 +20,31 @@ public struct CSG: Shape {
         self.left = left
         self.right = right
 
-        self.left.parentBox = ParentBox(.csg(self))
-        self.right.parentBox = ParentBox(.csg(self))
+        self.left.parentId = self.id
+        self.right.parentId = self.id
+    }
 
+    public func findShape(_ shapeId: UUID) -> Shape? {
+        for shape in [self.left, self.right] {
+            if shape.id == shapeId {
+                return shape
+            }
+
+            switch shape {
+            case let csg as CSG:
+                if let shape = csg.findShape(shapeId) {
+                    return shape
+                }
+            case let group as Group:
+                if let shape = group.findShape(shapeId) {
+                    return shape
+                }
+            default:
+                continue
+            }
+        }
+
+        return nil
     }
 
     static func makeCSG(_ operation: Operation, _ baseShape: Shape, @ShapeBuilder _ otherShapesBuilder: () -> [Shape]) -> Shape {
@@ -85,9 +108,8 @@ public struct CSG: Shape {
         return self.filterIntersections(allIntersections)
     }
 
-    // The concept of a normal vector to a CSG object is somewhat meaningless
-    // but we have to fulfill the contract of Shape here
+    // The concept of a normal vector to a CSG object is meaningless and should never be called
     @_spi(Testing) public func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
-        return Vector(0, 0, 1)
+        fatalError("Whoops... this should never be called for a Group shape")
     }
 }
