@@ -61,11 +61,22 @@ class IntersectionTests: XCTestCase {
         XCTAssertEqual(h.shape.id, s2.id)
     }
 
-    func testPrepareComputationsOutside() throws {
+    let testCamera = Camera(width: 800,
+                            height: 600,
+                            viewAngle:PI/3,
+                            from: Point(0, 1, -1),
+                            to: Point(0, 0, 0),
+                            up: Vector(0, 1, 0))
+
+    func testPrepareComputationsOutside() async throws {
         let ray = Ray(Point(0, 0, -5), Vector(0, 0, 1))
         let shape = Sphere()
+        let world = World {
+            testCamera
+            shape
+        }
         let intersection = Intersection(4, shape)
-        let computations = intersection.prepareComputations(ray, [intersection])
+        let computations = await intersection.prepareComputations(world, ray, [intersection])
         XCTAssertEqual(computations.t, intersection.t)
         XCTAssertEqual(computations.object.id, shape.id)
         XCTAssert(computations.point.isAlmostEqual(Point(0, 0, -1)))
@@ -74,11 +85,15 @@ class IntersectionTests: XCTestCase {
         XCTAssertEqual(computations.isInside, false)
     }
 
-    func testPrepareComputationsInside() throws {
+    func testPrepareComputationsInside() async throws {
         let ray = Ray(Point(0, 0, 0), Vector(0, 0, 1))
         let shape = Sphere()
+        let world = World {
+            testCamera
+            shape
+        }
         let intersection = Intersection(1, shape)
-        let computations = intersection.prepareComputations(ray, [intersection])
+        let computations = await intersection.prepareComputations(world, ray, [intersection])
         XCTAssertEqual(computations.t, intersection.t)
         XCTAssertEqual(computations.object.id, shape.id)
         XCTAssert(computations.point.isAlmostEqual(Point(0, 0, 1)))
@@ -87,35 +102,47 @@ class IntersectionTests: XCTestCase {
         XCTAssertEqual(computations.isInside, true)
     }
 
-    func testPrepareComputationsShouldComputeOverPoint() throws {
+    func testPrepareComputationsShouldComputeOverPoint() async throws {
         let ray = Ray(Point(0, 0, -5), Vector(0, 0, 1))
         let shape = Sphere()
             .translate(0, 0, 1)
+        let world = World {
+            testCamera
+            shape
+        }
         let intersection = Intersection(5, shape)
-        let computations = intersection.prepareComputations(ray, [intersection])
+        let computations = await intersection.prepareComputations(world, ray, [intersection])
         XCTAssertTrue(computations.overPoint[2] < -EPSILON/2)
         XCTAssertTrue(computations.point[2] > computations.overPoint[2])
     }
 
-    func testPrepareComputationsShouldComputeUnderPoint() throws {
+    func testPrepareComputationsShouldComputeUnderPoint() async throws {
         let ray = Ray(Point(0, 0, -5), Vector(0, 0, 1))
         let shape = Sphere()
             .translate(0, 0, 1)
+        let world = World {
+            testCamera
+            shape
+        }
         let intersection = Intersection(5, shape)
-        let computations = intersection.prepareComputations(ray, [intersection])
+        let computations = await intersection.prepareComputations(world, ray, [intersection])
         XCTAssertTrue(computations.underPoint[2] > EPSILON/2)
         XCTAssertTrue(computations.point[2] < computations.underPoint[2])
     }
 
-    func testPrepareComputationsReflected() throws {
+    func testPrepareComputationsReflected() async throws {
         let shape = Plane()
+        let world = World {
+            testCamera
+            shape
+        }
         let ray = Ray(Point(0, 1, -1), Vector(0, -sqrt(2)/2, sqrt(2)/2))
         let intersection = Intersection(sqrt(2), shape)
-        let computations = intersection.prepareComputations(ray, [intersection])
+        let computations = await intersection.prepareComputations(world, ray, [intersection])
         XCTAssertTrue(computations.reflected.isAlmostEqual(Vector(0, sqrt(2)/2, sqrt(2)/2)))
     }
 
-    func testPrepareComputationsForN1AndN2() throws {
+    func testPrepareComputationsForN1AndN2() async throws {
         let glassSphereA = Sphere()
             .material(.basicMaterial().refractive(1.5))
             .scale(2, 2, 2)
@@ -125,6 +152,12 @@ class IntersectionTests: XCTestCase {
         let glassSphereC = Sphere()
             .material(.basicMaterial().refractive(2.5))
             .translate(0, 0, 0.25)
+        let world = World {
+            testCamera
+            glassSphereA
+            glassSphereB
+            glassSphereC
+        }
 
         let ray = Ray(Point(0, 0, -4), Vector(0, 0, 1))
         let allIntersections = [
@@ -146,7 +179,7 @@ class IntersectionTests: XCTestCase {
 
         for index in 0...5 {
             let intersection = allIntersections[index]
-            let computations = intersection.prepareComputations(ray, allIntersections)
+            let computations = await intersection.prepareComputations(world, ray, allIntersections)
             let actualValue = (computations.n1, computations.n2)
             let expectedValue = expectedValues[index]
             XCTAssertTrue(actualValue == expectedValue)
