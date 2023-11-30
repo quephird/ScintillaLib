@@ -7,7 +7,9 @@
 
 import Darwin
 
-public class Prism: Shape {
+public struct Prism: Shape {
+    public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
+
     var xzPoints: [(Double, Double)]
     var yBase: Double
     var yTop: Double
@@ -26,10 +28,9 @@ public class Prism: Shape {
         self.boundingBox = Cube()
             .scale(scaleX, scaleY, scaleZ)
             .translate(translateX, translateY, translateZ)
-        super.init()
     }
 
-    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    @_spi(Testing) public func localIntersect(_ localRay: Ray) -> [Intersection] {
         // Check bounding box and bail if the ray misses
         let boundingBoxIntersections = self.boundingBox.intersect(localRay)
         guard boundingBoxIntersections.count == 2 else {
@@ -73,7 +74,7 @@ public class Prism: Shape {
     // Only points that actually exist somewhere on the shape should ever be
     // passed in, so all we should have to do is figure out which side
     // or cap it exists on.
-    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
+    @_spi(Testing) public func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         // Check if the point resides on one of the sides
         for (i, (x1, z1)) in self.xzPoints.enumerated() {
             let (x2, z2) = self.xzPoints[(i+1)%self.xzPoints.count]

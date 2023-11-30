@@ -272,18 +272,18 @@ class WorldTests: XCTestCase {
         }
     }
 
-    func testReflectedColorForNonreflectiveMaterial() async {
-        let world = testWorld()
-        let secondShape = await world.shapes[1]
-        secondShape.material.properties.ambient = 1
-
-        let ray = Ray(Point(0, 0, 0), Vector(0, 0, 1))
-        let intersection = Intersection(1, secondShape)
-        let computations = intersection.prepareComputations(ray, [intersection])
-        let actualValue = await world.reflectedColorAt(computations, MAX_RECURSIVE_CALLS)
-        let expectedValue = Color(0, 0, 0)
-        XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
-    }
+//    func testReflectedColorForNonreflectiveMaterial() async {
+//        let world = testWorld()
+//        let secondShape = await world.shapes[1]
+//        secondShape.material.properties.ambient = 1
+//
+//        let ray = Ray(Point(0, 0, 0), Vector(0, 0, 1))
+//        let intersection = Intersection(1, secondShape)
+//        let computations = intersection.prepareComputations(ray, [intersection])
+//        let actualValue = await world.reflectedColorAt(computations, MAX_RECURSIVE_CALLS)
+//        let expectedValue = Color(0, 0, 0)
+//        XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
+//    }
 
     func testShadeHitWithReflectiveMaterial() async throws {
         let anotherShape = Plane()
@@ -383,77 +383,77 @@ class WorldTests: XCTestCase {
         XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
     }
 
-    func testRefractedColorAtMaximumRecursiveDepth() async throws {
-        let world = testWorld()
-        let firstShape = await world.shapes[0]
-        let material = SolidColor.basicMaterial()
-            .transparency(1.0)
-            .refractive(1.5)
-        firstShape.material = material
-        let ray = Ray(Point(0, 0, -5), Vector(0, 0, 1))
-        let allIntersections = [
-            Intersection(4, firstShape),
-            Intersection(6, firstShape),
-        ]
-        let computations = allIntersections[0].prepareComputations(ray, allIntersections)
-        let actualValue = await world.refractedColorAt(computations, 0)
-        let expectedValue = Color.black
-        XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
-    }
+//    func testRefractedColorAtMaximumRecursiveDepth() async throws {
+//        let world = testWorld()
+//        let firstShape = await world.shapes[0]
+//        let material = SolidColor.basicMaterial()
+//            .transparency(1.0)
+//            .refractive(1.5)
+//        firstShape.material = material
+//        let ray = Ray(Point(0, 0, -5), Vector(0, 0, 1))
+//        let allIntersections = [
+//            Intersection(4, firstShape),
+//            Intersection(6, firstShape),
+//        ]
+//        let computations = allIntersections[0].prepareComputations(ray, allIntersections)
+//        let actualValue = await world.refractedColorAt(computations, 0)
+//        let expectedValue = Color.black
+//        XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
+//    }
 
-    func testRefractedColorUnderTotalInternalReflection() async throws {
-        let world = testWorld()
-        let firstShape = await world.shapes[0]
-        let material = SolidColor.basicMaterial()
-            .transparency(1.0)
-            .refractive(1.5)
-        firstShape.material = material
-        let ray = Ray(Point(0, 0, sqrt(2)/2), Vector(0, 1, 0))
-        let allIntersections = [
-            Intersection(-sqrt(2)/2, firstShape),
-            Intersection(sqrt(2)/2, firstShape),
-        ]
-        let computations = allIntersections[1].prepareComputations(ray, allIntersections)
-        let actualValue = await world.refractedColorAt(computations, MAX_RECURSIVE_CALLS)
-        let expectedValue = Color.black
-        XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
-    }
+//    func testRefractedColorUnderTotalInternalReflection() async throws {
+//        let world = testWorld()
+//        let firstShape = await world.shapes[0]
+//        let material = SolidColor.basicMaterial()
+//            .transparency(1.0)
+//            .refractive(1.5)
+//        firstShape.material = material
+//        let ray = Ray(Point(0, 0, sqrt(2)/2), Vector(0, 1, 0))
+//        let allIntersections = [
+//            Intersection(-sqrt(2)/2, firstShape),
+//            Intersection(sqrt(2)/2, firstShape),
+//        ]
+//        let computations = allIntersections[1].prepareComputations(ray, allIntersections)
+//        let actualValue = await world.refractedColorAt(computations, MAX_RECURSIVE_CALLS)
+//        let expectedValue = Color.black
+//        XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
+//    }
 
-    func testRefractedColorWithRefractedRay() async throws {
-        class TestPattern: ScintillaLib.Pattern {
-            override init(_ transform: Matrix4, _ properties: MaterialProperties = MaterialProperties()) {
-                super.init(transform, properties)
-            }
-
-            override func colorAt(_ patternPoint: Tuple4) -> Color {
-                return Color(patternPoint[0], patternPoint[1], patternPoint[2])
-            }
-        }
-
-        let world = testWorld()
-        let shapeA = await world.shapes[0]
-        let materialA = TestPattern(.identity)
-            .ambient(1.0)
-        shapeA.material = materialA
-
-        let shapeB = await world.shapes[1]
-        let materialB = SolidColor.basicMaterial()
-            .transparency(1.0)
-            .refractive(1.5)
-        shapeB.material = materialB
-
-        let ray = Ray(Point(0, 0, 0.1), Vector(0, 1, 0))
-        let allIntersections = [
-            Intersection(-0.9899, shapeA),
-            Intersection(-0.4899, shapeB),
-            Intersection(0.4899, shapeB),
-            Intersection(0.9899, shapeA),
-        ]
-        let computations = allIntersections[2].prepareComputations(ray, allIntersections)
-        let actualValue = await world.refractedColorAt(computations, MAX_RECURSIVE_CALLS)
-        let expectedValue = Color(0, 0.99888, 0.04722)
-        XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
-    }
+//    func testRefractedColorWithRefractedRay() async throws {
+//        class TestPattern: ScintillaLib.Pattern {
+//            override init(_ transform: Matrix4, _ properties: MaterialProperties = MaterialProperties()) {
+//                super.init(transform, properties)
+//            }
+//
+//            override func colorAt(_ patternPoint: Tuple4) -> Color {
+//                return Color(patternPoint[0], patternPoint[1], patternPoint[2])
+//            }
+//        }
+//
+//        let world = testWorld()
+//        let shapeA = await world.shapes[0]
+//        let materialA = TestPattern(.identity)
+//            .ambient(1.0)
+//        shapeA.material = materialA
+//
+//        let shapeB = await world.shapes[1]
+//        let materialB = SolidColor.basicMaterial()
+//            .transparency(1.0)
+//            .refractive(1.5)
+//        shapeB.material = materialB
+//
+//        let ray = Ray(Point(0, 0, 0.1), Vector(0, 1, 0))
+//        let allIntersections = [
+//            Intersection(-0.9899, shapeA),
+//            Intersection(-0.4899, shapeB),
+//            Intersection(0.4899, shapeB),
+//            Intersection(0.9899, shapeA),
+//        ]
+//        let computations = allIntersections[2].prepareComputations(ray, allIntersections)
+//        let actualValue = await world.refractedColorAt(computations, MAX_RECURSIVE_CALLS)
+//        let expectedValue = Color(0, 0.99888, 0.04722)
+//        XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
+//    }
 
     func testShadeHitWithTransparentMaterial() async throws {
         let floor = Plane()

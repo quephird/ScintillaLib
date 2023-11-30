@@ -9,11 +9,10 @@ import Darwin
 
 public typealias ParametricFunction = (Double, Double) -> Double
 
-let MAX_SECTOR_NUM = 10_000_000
 let DEFAULT_ACCURACY = 0.001
 let DEFAULT_MAX_GRADIENT = 1.0
 
-@_spi(Testing) public enum UV {
+public enum UV {
     case none
     case value(Double, Double)
 }
@@ -29,7 +28,9 @@ enum ComputeTRangeReturnValue {
     case value(Double, Double)
 }
 
-public class ParametricSurface: Shape {
+public struct ParametricSurface: Shape {
+    public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
+
     var fx: ParametricFunction
     var fy: ParametricFunction
     var fz: ParametricFunction
@@ -44,13 +45,13 @@ public class ParametricSurface: Shape {
     // corners, the two ranges for u and v parameters, and the three
     // parametric functions for x, y, and z coordinates, all using
     // default values for accuracy and maximum gradient.
-    public convenience init(bottomFrontLeft: Point3D,
-                            topBackRight: Point3D,
-                            uRange: (Double, Double),
-                            vRange: (Double, Double),
-                            fx: @escaping ParametricFunction,
-                            fy: @escaping ParametricFunction,
-                            fz: @escaping ParametricFunction) {
+    public init(bottomFrontLeft: Point3D,
+                topBackRight: Point3D,
+                uRange: (Double, Double),
+                vRange: (Double, Double),
+                fx: @escaping ParametricFunction,
+                fy: @escaping ParametricFunction,
+                fz: @escaping ParametricFunction) {
         self.init(bottomFrontLeft: bottomFrontLeft,
                   topBackRight: topBackRight,
                   uRange: uRange,
@@ -62,15 +63,15 @@ public class ParametricSurface: Shape {
 
     // This constructor constructs a parametric surface shape as the above
     // but with specified values for accuracy and maximum gradient.
-    public convenience init(bottomFrontLeft: Point3D,
-                            topBackRight: Point3D,
-                            uRange: (Double, Double),
-                            vRange: (Double, Double),
-                            accuracy: Double,
-                            maxGradient: Double,
-                            fx: @escaping ParametricFunction,
-                            fy: @escaping ParametricFunction,
-                            fz: @escaping ParametricFunction) {
+    public init(bottomFrontLeft: Point3D,
+                topBackRight: Point3D,
+                uRange: (Double, Double),
+                vRange: (Double, Double),
+                accuracy: Double,
+                maxGradient: Double,
+                fx: @escaping ParametricFunction,
+                fy: @escaping ParametricFunction,
+                fz: @escaping ParametricFunction) {
         let (xMin, yMin, zMin) = bottomFrontLeft
         let (xMax, yMax, zMax) = topBackRight
         let (scaleX, scaleY, scaleZ) = ((xMax-xMin)/2, (yMax-yMin)/2, (zMax-zMin)/2)
@@ -112,7 +113,7 @@ public class ParametricSurface: Shape {
     //
     // NOTA BENE: This method only ever returns a maximum of one intersection,
     // that being the closest one to the camera.
-    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    @_spi(Testing) public func localIntersect(_ localRay: Ray) -> [Intersection] {
         // First we check to see if the ray intersects the bounding shape;
         // note that we need a pair of hits in order to construct a range
         // of values for t below...
@@ -449,7 +450,7 @@ public class ParametricSurface: Shape {
         return (min(coordinateValue1, coordinateValue2)-offset, max(coordinateValue1, coordinateValue2)+offset)
     }
 
-    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV) -> Vector {
+    @_spi(Testing) public func localNormal(_ localPoint: Point, _ uv: UV) -> Vector {
         // We compute the normal vector by first numerically approximating all the partial
         // derivatives: ∂Fx/∂u, ∂Fy/∂u, ∂Fz/∂u, ∂Fx/∂v, ∂Fy/∂v, ∂Fz/∂v. Then we form the vectors:
         //

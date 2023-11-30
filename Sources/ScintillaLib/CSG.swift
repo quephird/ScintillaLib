@@ -7,7 +7,9 @@
 
 import Foundation
 
-public class CSG: Shape {
+public struct CSG: Shape {
+    public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
+
     var operation: Operation
     var left: Shape
     var right: Shape
@@ -16,9 +18,10 @@ public class CSG: Shape {
         self.operation = operation
         self.left = left
         self.right = right
-        super.init()
-        left.parent = .csg(self)
-        right.parent = .csg(self)
+
+        self.left.parentBox = ParentBox(.csg(self))
+        self.right.parentBox = ParentBox(.csg(self))
+
     }
 
     static func makeCSG(_ operation: Operation, _ baseShape: Shape, @ShapeBuilder _ otherShapesBuilder: () -> [Shape]) -> Shape {
@@ -69,7 +72,7 @@ public class CSG: Shape {
         return filteredIntersections
     }
 
-    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    @_spi(Testing) public func localIntersect(_ localRay: Ray) -> [Intersection] {
         let leftIntersections = self.left.intersect(localRay)
         let rightIntersections = self.right.intersect(localRay)
 
@@ -80,5 +83,11 @@ public class CSG: Shape {
         })
 
         return self.filterIntersections(allIntersections)
+    }
+
+    // The concept of a normal vector to a CSG object is somewhat meaningless
+    // but we have to fulfill the contract of Shape here
+    @_spi(Testing) public func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
+        return Vector(0, 0, 1)
     }
 }

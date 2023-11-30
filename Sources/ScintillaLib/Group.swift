@@ -7,18 +7,19 @@
 
 import Foundation
 
-public class Group: Shape {
+public struct Group: Shape {
+    public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
     var children: [Shape] = []
 
     public init(@ShapeBuilder builder: () -> [Shape]) {
-        self.children = builder()
-        super.init()
-        for child in children {
-            child.parent = .group(self)
+        let children = builder()
+        for var child in children {
+            child.parentBox = ParentBox(.group(self))
         }
+        self.children = children
     }
 
-    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    @_spi(Testing) public func localIntersect(_ localRay: Ray) -> [Intersection] {
         var allIntersections: [Intersection] = []
 
         for child in children {
@@ -32,12 +33,15 @@ public class Group: Shape {
         return allIntersections
     }
 
-    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
+    // The concept of a normal vector to a Group is somewhat meaningless
+    // but we have to fulfill the contract of Shape here
+    @_spi(Testing) public func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         return Vector(0, 0, 1)
     }
 
-    func addChild(_ childObject: Shape) {
-        self.children.append(childObject)
-        childObject.parent = .group(self)
+    mutating func addChild(_ childObject: Shape) {
+        var copy = childObject
+        copy.parentBox = ParentBox(Container.group(self))
+        children.append(childObject)
     }
 }

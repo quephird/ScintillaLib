@@ -16,7 +16,9 @@ public typealias Point2D = (Double, Double)
 // namely, x² + z² - g²(y). The implicit surface shape is then
 // subsequently used for all computations for ray intersections
 // and normal vectors.
-public class SurfaceOfRevolution: Shape {
+public struct SurfaceOfRevolution: Shape {
+    public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
+
     var underlyingImplicitSurface: ImplicitSurface
     var yBottom: Double
     var yTop: Double
@@ -24,7 +26,7 @@ public class SurfaceOfRevolution: Shape {
     var rTop: Double
     var isCapped: Bool
 
-    public convenience init(yzPoints: [Point2D]) {
+    public init(yzPoints: [Point2D]) {
         self.init(yzPoints: yzPoints, isCapped: false)
     }
 
@@ -83,7 +85,7 @@ public class SurfaceOfRevolution: Shape {
         return intersections
     }
 
-    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    @_spi(Testing) public func localIntersect(_ localRay: Ray) -> [Intersection] {
         var intersections: [Intersection] = []
 
         if isCapped {
@@ -106,7 +108,7 @@ public class SurfaceOfRevolution: Shape {
         return intersections
     }
 
-    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
+    @_spi(Testing) public func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         if isCapped {
             let (x, y, z) = (localPoint.x, localPoint.y, localPoint.z)
             if abs(y - self.yBottom) < DELTA && (x*x + z*z) <= rBottom*rBottom {

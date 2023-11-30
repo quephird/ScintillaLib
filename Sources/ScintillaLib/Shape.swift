@@ -7,28 +7,44 @@
 
 import Foundation
 
-public class Shape {
-    @_spi(Testing) public var id: UUID
-    var transform: Matrix4 {
-        didSet {
-            self.inverseTransform = transform.inverse()
-            self.inverseTransposeTransform = transform.inverse().transpose()
-        }
-    }
-    @_spi(Testing) public var material: Material = .basicMaterial()
-    var inverseTransform: Matrix4
-    var inverseTransposeTransform: Matrix4
-    var parent: Container?
-    var castsShadow: Bool
+public protocol Shape {
+    var sharedProperties: SharedShapeProperties { get set }
 
-    public init() {
-        self.id = UUID()
-        self.transform = .identity
-        self.inverseTransform = transform.inverse()
-        self.inverseTransposeTransform = transform.inverse().transpose()
-        self.castsShadow = true
-    }
+    func localIntersect(_ localRay: Ray) -> [Intersection]
+    func localNormal(_ localPoint: Point, _ uv: UV) -> Vector
+}
 
+extension Shape {
+    @_spi(Testing) public var id: UUID {
+        get { sharedProperties.id }
+        set { sharedProperties.id = newValue }
+    }
+    public var material: Material {
+        get { sharedProperties.material }
+        set { sharedProperties.material = newValue }
+    }
+    public var transform: Matrix4 {
+        get { sharedProperties.transform }
+        set { sharedProperties.transform = newValue }
+    }
+    public var inverseTransform: Matrix4 {
+        get { sharedProperties.inverseTransform }
+    }
+    public var inverseTransposeTransform: Matrix4 {
+        get { sharedProperties.inverseTransposeTransform }
+    }
+    public var parentBox: ParentBox<Container>? {
+        get { sharedProperties.parentBox }
+        set { sharedProperties.parentBox = newValue }
+    }
+    public var castsShadow: Bool  {
+        get { sharedProperties.castsShadow }
+        set { sharedProperties.castsShadow = newValue }
+    }
+}
+
+// CSG extensions
+extension Shape {
     public func union(@ShapeBuilder _ otherShapesBuilder: () -> [Shape]) -> Shape {
         return CSG.makeCSG(.union, self, otherShapesBuilder)
     }
@@ -40,68 +56,72 @@ public class Shape {
     public func intersection(@ShapeBuilder _ otherShapesBuilder: () -> [Shape]) -> Shape {
         return CSG.makeCSG(.intersection, self, otherShapesBuilder)
     }
+}
 
+// Property modification extensions
+extension Shape {
     public func material(_ material: Material) -> Self {
-        self.material = material
+        var copy = self
+        copy.material = material
 
-        return self
+        return copy
     }
 
     public func castsShadow(_ castsShadow: Bool) -> Self {
-        self.castsShadow = castsShadow
+        var copy = self
+        copy.castsShadow = castsShadow
 
-        return self
+        return copy
     }
 
     public func translate(_ x: Double, _ y: Double, _ z: Double) -> Self {
-        self.transform = .translation(x, y, z)
-            .multiply(self.transform)
+        var copy = self
+        copy.transform = .translation(x, y, z).multiply(copy.transform)
 
-        return self
+        return copy
     }
 
     public func scale(_ x: Double, _ y: Double, _ z: Double) -> Self {
-        self.transform = .scaling(x, y, z)
-            .multiply(self.transform)
+        var copy = self
+        copy.transform = .scaling(x, y, z).multiply(copy.transform)
 
-        return self
+        return copy
     }
 
     public func rotateX(_ t: Double) -> Self {
-        self.transform = .rotationX(t)
-            .multiply(self.transform)
+        var copy = self
+        copy.transform = .rotationX(t).multiply(copy.transform)
 
-        return self
+        return copy
     }
 
     public func rotateY(_ t: Double) -> Self {
-        self.transform = .rotationY(t)
-            .multiply(self.transform)
+        var copy = self
+        copy.transform = .rotationY(t).multiply(copy.transform)
 
-        return self
+        return copy
     }
 
     public func rotateZ(_ t: Double) -> Self {
-        self.transform = .rotationZ(t)
-            .multiply(self.transform)
+        var copy = self
+        copy.transform = .rotationZ(t).multiply(copy.transform)
 
-        return self
+        return copy
     }
 
     public func shear(_ xy: Double, _ xz: Double, _ yx: Double, _ yz: Double, _ zx: Double, _ zy: Double) -> Self {
-        self.transform = .shearing(xy, xz, yx, yz, zx, zy)
-            .multiply(self.transform)
+        var copy = self
+        copy.transform = .shearing(xy, xz, yx, yz, zx, zy).multiply(copy.transform)
 
-        return self
+        return copy
     }
+}
 
+// Shared implementations
+extension Shape {
     @_spi(Testing) public func intersect(_ worldRay: Ray) -> [Intersection] {
         let localRay = worldRay.transform(self.inverseTransform)
         return self.localIntersect(localRay)
-    }
-
-    func localIntersect(_ localRay: Ray) -> [Intersection] {
-        fatalError("Subclasses must override this method!")
     }
 
     @_spi(Testing) public func normal(_ worldPoint: Point, _ uv: UV = .none) -> Vector {
@@ -109,16 +129,15 @@ public class Shape {
         let localNormal = self.localNormal(localPoint, uv)
         return self.objectToWorld(localNormal)
     }
+}
 
-    func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
-        fatalError("Subclasses must override this method!")
-    }
-
+// CSG and group extensions
+extension Shape {
     @_spi(Testing) public func worldToObject(_ worldPoint: Point) -> Point {
         var objectPoint = worldPoint
-        if case .group(let group) = parent {
+        if let parentBox = self.parentBox, case .group(let group) = parentBox.parent {
             objectPoint = group.worldToObject(worldPoint)
-        } else if case .csg(let csg) = parent {
+        } else if let parentBox = self.parentBox, case .csg(let csg) = parentBox.parent {
             objectPoint = csg.worldToObject(worldPoint)
         }
         return self.inverseTransform.multiply(objectPoint)
@@ -129,9 +148,9 @@ public class Shape {
         worldNormal[3] = 0
         worldNormal = worldNormal.normalize()
 
-        if case .group(let group) = parent {
+        if let parentBox = self.parentBox, case .group(let group) = parentBox.parent {
             worldNormal = group.objectToWorld(worldNormal)
-        } else if case .csg(let csg) = parent {
+        } else if let parentBox = self.parentBox, case .csg(let csg) = parentBox.parent {
             worldNormal = csg.objectToWorld(worldNormal)
         }
 

@@ -8,7 +8,11 @@
 import Foundation
 
 public class Sphere: Shape {
-    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
+
+    public init() {}
+
+    @_spi(Testing) public func localIntersect(_ localRay: Ray) -> [Intersection] {
         // The vector from the sphere's center, to the ray origin
         // remember: the sphere is centered at the world origin
         let sphereToRay = localRay.origin.subtract(Point(0, 0, 0))
@@ -30,7 +34,7 @@ public class Sphere: Shape {
         }
     }
 
-    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
+    @_spi(Testing) public func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         return localPoint.subtract(Point(0, 0, 0))
     }
 }

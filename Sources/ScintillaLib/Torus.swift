@@ -5,7 +5,9 @@
 //  Created by Danielle Kefford on 9/8/22.
 //
 
-public class Torus: Shape {
+public struct Torus: Shape {
+    public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
+
     var majorRadius: Double = 2.0
     var minorRadius: Double = 1.0
 
@@ -14,7 +16,7 @@ public class Torus: Shape {
         self.minorRadius = minorRadius
     }
 
-    override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    public func localIntersect(_ localRay: Ray) -> [Intersection] {
         // NOTA BENE: We need to exclude the fourth "component" when
         // taking the dot product of the origin point with itself
         // because points are represented with a fourth component of 1.
@@ -48,7 +50,7 @@ public class Torus: Shape {
             }
     }
 
-    override func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
+    public func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         let r2PlusR2 = self.majorRadius*self.majorRadius + self.minorRadius*self.minorRadius
         let pDotP = localPoint.x*localPoint.x +
                     localPoint.y*localPoint.y +
