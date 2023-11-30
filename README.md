@@ -205,9 +205,9 @@ Parametric surfaces are also a subclass of `Shape` and are also used a little di
 However, unlike implicit surfaces, parametric surfaces are expressed with _three_ closures taking two parameters, one for each of the coordinates. For example, an hourglass like surface is defined by the following parametric functions:
 
 <p align="center">
-  x(u, v) = cos(u)sin(2v)<br />
-  y(u, v) = sin(v)<br />
-  z(u, v) = sin(u)sin(2v)<br />
+  F<sub>x</sub>(u, v) = cos(u)sin(2v)<br />
+  F<sub>y</sub>(u, v) = sin(v)<br />
+  F<sub>z</sub>(u, v) = sin(u)sin(2v)<br />
 </p>
 
 ... and this can be expressed in Scintilla like the following:
@@ -285,7 +285,7 @@ One thing to remember: smaller values of accuracy mean both a higher quality ren
 
 Similarly, you may need to override the default value of the maximum gradient to  increase the fidelity of certain parametric surfaces. Generally speaking, the maximum gradient affects how Scintilla handles the bendiness of shapes; for less curvy shapes, you can get away with lower values of the max gradient, but for more curvy shapes, using too _low_ a value can cause parts of certain shapes to "drop" out.
 
-(Specifically, the max gradient is an estimate of the maximum value of all the partial derivatives of the parametic functions at each point, namely `∂x/∂u`, `∂x/∂v`, `∂y/∂u`, `∂y/∂v`, `∂z/∂u`, and `∂z/∂v`. It is used to compute the minimum and maximum values of each coordinate for a given range of values for `u` and `v`, which ultimately is done when searching for a point of intersection by each ray from the camera toward the shape. If you are not sure how to choose an optimal value, you should start with the default value (1.0) and keep experimenting by raising or lowering it to find the lowest value that does not create unwanted artifacts.)
+(Specifically, the max gradient is an estimate of the maximum value of all the partial derivatives of the parametic functions at each point, namely ∂F<sub>x</sub>/∂u, ∂F<sub>x</sub>/∂v, ∂F<sub>y</sub>/∂u, ∂F<sub>y</sub>/∂v, ∂F<sub>z</sub>/∂u, and ∂F<sub>z</sub>/∂v. It is used to compute the minimum and maximum values of each coordinate for a given range of values for `u` and `v`, which ultimately is done when searching for a point of intersection by each ray from the camera toward the shape. If you are not sure how to choose an optimal value, you should start with the default value (1.0) and keep experimenting by raising or lowering it to find the lowest value that does not create unwanted artifacts.)
 
 As an example, below we have taken our shape from above of and set the maximum gradient set to 0.3:
 
