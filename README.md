@@ -596,6 +596,104 @@ Sphere()
 
 ![](./images/CSG.png)
 
+## Groups
+
+There are times when you do not necessarily want to combine shapes to make new shapes like the above; sometimes you just want to be able to group them together so that they can be moved or otherwise transformed together. For example, if you wanted to take two spheres and rotate them both about each other around the z-axis, you could do this:
+
+```swift
+import ScintillaLib
+
+@available(macOS 12.0, *)
+@main
+struct QuickStart: ScintillaApp {
+    var world = World {
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 0, -5),
+               to: Point(0, 0, 0),
+               up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, -10))
+        Sphere()
+            .material(.solidColor(1, 0, 0))
+            .translate(-1, 0, 0)
+            .rotateZ(PI/2)
+        Sphere()
+            .material(.solidColor(0, 1, 0))
+            .translate(1, 0, 0)
+            .rotateZ(PI/2)
+    }
+}
+```
+
+![](./images/TwoSpheresNotGrouped.png)
+
+Notice that we have to apply the same rotation twice. We can do better than this by putting the two spheres in a group and rotate that:
+
+```swift
+import ScintillaLib
+
+@available(macOS 12.0, *)
+@main
+struct QuickStart: ScintillaApp {
+    var world = World {
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 0, -5),
+               to: Point(0, 0, 0),
+               up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, -10))
+        Group {
+            Sphere()
+                .material(.solidColor(1, 0, 0))
+                .translate(-1, 0, 0)
+            Sphere()
+                .material(.solidColor(0, 1, 0))
+                .translate(1, 0, 0)
+        }
+            .rotateZ(PI/2)
+    }
+}
+```
+
+It's not a huge gain in this example but if you are constructing scenes with many more objects, you can save a _lot_ of code duplication. Even in the example below, you can see the savings because you don't have to create and transform four spheres individually; you can just group together two of them, and create translate two copies of the group:
+
+```swift
+import ScintillaLib
+
+@available(macOS 12.0, *)
+@main
+struct QuickStart: ScintillaApp {
+    var world = World {
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 0, -5),
+               to: Point(0, 0, 0),
+               up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, -10))
+        for x in [-1.5, 1.5] {
+            Group {
+                Sphere()
+                    .material(.solidColor(1, 0, 0))
+                    .translate(-1, 0, 0)
+                Sphere()
+                    .material(.solidColor(0, 1, 0))
+                    .translate(1, 0, 0)
+            }
+                .rotateZ(PI/2)
+                .translate(x, 0, 0)
+        }
+    }
+}
+```
+
+Note that groups can also take advantage of result builders, as you can see above, in that you can list multiple objects of a group all at once instead of nesting groups of pairs of objects.
+
+![](./images/TwoGroupsOfTwoSpheres.png)
+
+
 ## Lights
 
 Scintilla currently supports two kinds of `Light`s: `PointLight` and `AreaLight`. `PointLight` minimally requires a position to be constructed and defaults to a white color if no other one is specified. Light rays emanate from a single point, the `PointLight`'s position, and are cast on the world.
