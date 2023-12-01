@@ -17,34 +17,41 @@ public protocol Shape {
 
 @available(macOS 10.15, *)
 extension Shape {
+    @inlinable
     @_spi(Testing) public var id: UUID {
         get { sharedProperties.id }
         set { sharedProperties.id = newValue }
     }
 
+    @inlinable
     public var material: Material {
         get { sharedProperties.material }
         set { sharedProperties.material = newValue }
     }
 
+    @inlinable
     public var transform: Matrix4 {
         get { sharedProperties.transform }
         set { sharedProperties.transform = newValue }
     }
 
+    @inlinable
     public var inverseTransform: Matrix4 {
         get { sharedProperties.inverseTransform }
     }
 
+    @inlinable
     public var inverseTransposeTransform: Matrix4 {
         get { sharedProperties.inverseTransposeTransform }
     }
 
+    @inlinable
     public var parentId: UUID? {
         get { sharedProperties.parentID }
         set { sharedProperties.parentID = newValue }
     }
 
+    @inlinable
     public var castsShadow: Bool  {
         get { sharedProperties.castsShadow }
         set { sharedProperties.castsShadow = newValue }
