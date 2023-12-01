@@ -103,5 +103,9 @@ let package = Package(
             name: "FishEye",
             dependencies: ["ScintillaLib"],
             path: "Examples/FishEye"),
+        .executableTarget(
+            name: "Wine",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/Wine"),
     ]
 )
