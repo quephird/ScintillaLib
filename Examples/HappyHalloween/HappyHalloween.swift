@@ -20,7 +20,6 @@ func stem(x: Double, y: Double, z: Double) -> Double {
     0.2*sin(5.0*atan2(x, z)) - 1 // Adds periodic ribbing on the surface
 }
 
-@available(macOS 12.0, *)
 @main
 struct HappyHalloween: ScintillaApp {
     var world: World = World {

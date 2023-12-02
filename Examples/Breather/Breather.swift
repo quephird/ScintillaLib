@@ -22,7 +22,6 @@ func z(u: Double, v: Double) -> Double {
 }
 
 // ACHTUNG: This takes a while to render!
-@available(macOS 12.0, *)
 @main
 struct Breather: ScintillaApp {
     var world = World {

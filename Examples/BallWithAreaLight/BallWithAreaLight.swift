@@ -7,7 +7,6 @@
 
 import ScintillaLib
 
-@available(macOS 12.0, *)
 @main
 struct BallWithAreaLight: ScintillaApp {
     var world: World = World {

@@ -8,7 +8,6 @@
 import Darwin
 import ScintillaLib
 
-@available(macOS 12.0, *)
 @main
 struct Rings: ScintillaApp {
     var world = World {

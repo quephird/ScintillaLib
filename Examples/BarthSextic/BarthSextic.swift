@@ -10,7 +10,6 @@ import ScintillaLib
 
 let φ: Double = 1.61833987
 
-@available(macOS 12.0, *)
 @main
 struct BarthSextic: ScintillaApp {
     var world: World = World {

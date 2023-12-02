@@ -7,7 +7,6 @@
 
 import ScintillaLib
 
-@available(macOS 12.0, *)
 @main
 struct Superellipsoids: ScintillaApp {
     var world: World = World {

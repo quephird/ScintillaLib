@@ -8,7 +8,6 @@
 import Darwin
 import ScintillaLib
 
-@available(macOS 12.0, *)
 @main
 struct TDOR: ScintillaApp {
     var world = World {

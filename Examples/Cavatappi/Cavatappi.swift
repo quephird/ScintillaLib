@@ -8,7 +8,6 @@
 import Darwin
 import ScintillaLib
 
-@available(macOS 12.0, *)
 @main
 struct Cavatappi: ScintillaApp {
     var world = World {

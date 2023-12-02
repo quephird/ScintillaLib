@@ -19,7 +19,6 @@ func decoCubeColor(_ x: Double, _ y: Double, _ z: Double) -> (Double, Double, Do
     return (pow(x*x + y*y + z*z, 0.5)/3.0, 1.0, 0.5)
 }
 
-@available(macOS 12.0, *)
 @main
 struct DecoCube: ScintillaApp {
     var world = World {

@@ -7,7 +7,6 @@
 
 import ScintillaLib
 
-@available(macOS 12.0, *)
 @main
 struct QuickStart: ScintillaApp {
     var world = World {
