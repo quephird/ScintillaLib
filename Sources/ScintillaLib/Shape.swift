@@ -137,28 +137,28 @@ extension Shape {
         return self.localIntersect(localRay)
     }
 
-    @_spi(Testing) public func normal(_ world: World, _ worldPoint: Point, _ uv: UV = .none) async -> Vector {
-        let localPoint = await self.worldToObject(world, worldPoint)
+    @_spi(Testing) public func normal(_ world: World, _ worldPoint: Point, _ uv: UV = .none) -> Vector {
+        let localPoint = self.worldToObject(world, worldPoint)
         let localNormal = self.localNormal(localPoint, uv)
-        return await self.objectToWorld(world, localNormal)
+        return self.objectToWorld(world, localNormal)
     }
 }
 
 // CSG and group extensions
 extension Shape {
-    @_spi(Testing) public func worldToObject(_ world: World, _ worldPoint: Point) async -> Point {
+    @_spi(Testing) public func worldToObject(_ world: World, _ worldPoint: Point) -> Point {
         var objectPoint = worldPoint
 
         if let parentId = self.parentId {
-            guard let parentShape = await world.findShape(parentId) else {
+            guard let parentShape = world.findShape(parentId) else {
                 fatalError("Whoops... unable to find parent shape!")
             }
 
             switch parentShape {
             case let group as Group:
-                objectPoint = await group.worldToObject(world, worldPoint)
+                objectPoint = group.worldToObject(world, worldPoint)
             case let csg as CSG:
-                objectPoint = await csg.worldToObject(world, worldPoint)
+                objectPoint = csg.worldToObject(world, worldPoint)
             default:
                 fatalError("Whoops... parent object is somehow neither a Group nor CSG")
             }
@@ -167,21 +167,21 @@ extension Shape {
         return self.inverseTransform.multiply(objectPoint)
     }
 
-    @_spi(Testing) public func objectToWorld(_ world: World, _ objectNormal: Vector) async -> Vector {
+    @_spi(Testing) public func objectToWorld(_ world: World, _ objectNormal: Vector) -> Vector {
         var worldNormal = self.inverseTransposeTransform.multiply(objectNormal)
         worldNormal[3] = 0
         worldNormal = worldNormal.normalize()
 
         if let parentId = self.parentId {
-            guard let parentShape = await world.findShape(parentId) else {
+            guard let parentShape = world.findShape(parentId) else {
                 fatalError("Whoops... unable ot find parent shape!")
             }
 
             switch parentShape {
             case let group as Group:
-                worldNormal = await group.objectToWorld(world, worldNormal)
+                worldNormal = group.objectToWorld(world, worldNormal)
             case let csg as CSG:
-                worldNormal = await csg.objectToWorld(world, worldNormal)
+                worldNormal = csg.objectToWorld(world, worldNormal)
             default:
                 fatalError("Whoops... parent object is somehow neither a Group nor CSG")
             }

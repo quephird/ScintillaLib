@@ -13,9 +13,11 @@ import SwiftUI
     @State var elapsedTime: Range<Date> = Date()..<Date()
 
     @WorldBuilder var world: World
+    var camera: Camera
     var fileName: String
 
-    public init(world: World, fileName: String) {
+    public init(camera: Camera, world: World, fileName: String) {
+        self.camera = camera
         self.world = world
         self.fileName = fileName
     }
@@ -60,7 +62,7 @@ import SwiftUI
     }
 
     func renderImage() async {
-        let canvas = await world.render(updateClosure: updateProgress)
+        let canvas = await camera.render(world: world, updateClosure: updateProgress)
         self.nsImage = canvas.toNSImage()
         canvas.save(to: self.fileName)
     }

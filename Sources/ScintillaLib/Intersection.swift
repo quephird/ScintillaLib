@@ -55,10 +55,10 @@ public struct Intersection {
         return (n1, n2)
     }
 
-    @_spi(Testing) public func prepareComputations(_ world: World, _ ray: Ray, _ allIntersections: [Intersection]) async -> Computations {
+    @_spi(Testing) public func prepareComputations(_ world: World, _ ray: Ray, _ allIntersections: [Intersection]) -> Computations {
         let point = ray.position(self.t)
         let eye = ray.direction.negate()
-        var normal = await self.shape.normal(world, point, self.uv)
+        var normal = self.shape.normal(world, point, self.uv)
         let isInside: Bool
         if normal.dot(eye) < 0 {
             isInside = true

@@ -9,35 +9,13 @@ import Foundation
 
 @_spi(Testing) public let MAX_RECURSIVE_CALLS = 5
 
-public actor World {
-    @_spi(Testing) public var camera: Camera
+public struct World {
     @_spi(Testing) public var lights: [Light]
     @_spi(Testing) public var shapes: [Shape]
 
-    var totalPixels: Int
-
-    public init(@WorldBuilder builder: () -> (Camera, [WorldObject])) {
-        let (camera, objects) = builder()
-
-        var lights: [Light] = []
-        var shapes: [Shape] = []
-        for object in objects {
-            switch object {
-            case .light(let light):
-                lights.append(light)
-            case .shape(let shape):
-                shapes.append(shape)
-            }
-        }
-
-        self.camera = camera
-        self.lights = lights
-        self.shapes = shapes
-        self.totalPixels = camera.horizontalSize * camera.verticalSize
-    }
-
-    public init(_ camera: Camera, @WorldObjectBuilder builder: () -> [WorldObject]) {
+    public init(@WorldBuilder builder: () -> [WorldObject]) {
         let objects = builder()
+
         var lights: [Light] = []
         var shapes: [Shape] = []
         for object in objects {
@@ -51,15 +29,11 @@ public actor World {
 
         self.lights = lights
         self.shapes = shapes
-        self.camera = camera
-        self.totalPixels = camera.horizontalSize * camera.verticalSize
     }
 
-    public init(_ camera: Camera, _ lights: [Light], _ shapes: [Shape]) {
-        self.camera = camera
+    public init(_ lights: [Light], _ shapes: [Shape]) {
         self.lights = lights
         self.shapes = shapes
-        self.totalPixels = camera.horizontalSize * camera.verticalSize
     }
 
     public func findShape(_ shapeId: UUID) -> Shape? {
@@ -121,7 +95,7 @@ public actor World {
         }
     }
 
-    @_spi(Testing) public func shadeHit(_ computations: Computations, _ remainingCalls: Int) async -> Color {
+    @_spi(Testing) public func shadeHit(_ computations: Computations, _ remainingCalls: Int) -> Color {
         let material = computations.object.material
 
         var surfaceColor = Color(0, 0, 0)
@@ -144,8 +118,8 @@ public actor World {
             surfaceColor = surfaceColor.blend(tempColor)
         }
 
-        let reflectedColor = await self.reflectedColorAt(computations, remainingCalls)
-        let refractedColor = await self.refractedColorAt(computations, remainingCalls)
+        let reflectedColor = self.reflectedColorAt(computations, remainingCalls)
+        let refractedColor = self.refractedColorAt(computations, remainingCalls)
 
         if material.properties.reflective > 0 && material.properties.transparency > 0 {
             let reflectance = self.schlickReflectance(computations)
@@ -157,18 +131,18 @@ public actor World {
         }
     }
 
-    @_spi(Testing) public func reflectedColorAt(_ computations: Computations, _ remainingCalls: Int) async -> Color {
+    @_spi(Testing) public func reflectedColorAt(_ computations: Computations, _ remainingCalls: Int) -> Color {
         if remainingCalls == 0 {
             return .black
         } else if computations.object.material.properties.reflective == 0 {
             return .black
         } else {
             let reflected = Ray(computations.overPoint, computations.reflected)
-            return await self.colorAt(reflected, remainingCalls-1).multiplyScalar(computations.object.material.properties.reflective)
+            return self.colorAt(reflected, remainingCalls-1).multiplyScalar(computations.object.material.properties.reflective)
         }
     }
 
-    @_spi(Testing) public func refractedColorAt(_ computations: Computations, _ remainingCalls: Int) async -> Color {
+    @_spi(Testing) public func refractedColorAt(_ computations: Computations, _ remainingCalls: Int) -> Color {
         if remainingCalls == 0 {
             return .black
         } else if computations.object.material.properties.transparency == 0 {
@@ -200,21 +174,21 @@ public actor World {
 
                 // Find the color of the refracted ray, making sure to multiply
                 // by the transparency value to account for any opacity
-                return await self.colorAt(refracted, remainingCalls - 1)
+                return self.colorAt(refracted, remainingCalls - 1)
                     .multiplyScalar(computations.object.material.properties.transparency)
             }
         }
     }
 
-    @_spi(Testing) public func colorAt(_ ray: Ray, _ remainingCalls: Int) async -> Color {
+    @_spi(Testing) public func colorAt(_ ray: Ray, _ remainingCalls: Int) -> Color {
         let allIntersections = self.intersect(ray)
         let hit = hit(allIntersections)
         switch hit {
         case .none:
             return .black
         case .some(let intersection):
-            let computations = await intersection.prepareComputations(self, ray, allIntersections)
-            return await self.shadeHit(computations, remainingCalls)
+            let computations = intersection.prepareComputations(self, ray, allIntersections)
+            return self.shadeHit(computations, remainingCalls)
         }
     }
 
@@ -250,79 +224,5 @@ public actor World {
         default:
             fatalError("Whoops! Encountered unsupported light implementation!")
         }
-    }
-
-    @_spi(Testing) public func rayForPixel(_ pixelX: Int, _ pixelY: Int, _ dx: Double = 0.5, _ dy: Double = 0.5) -> Ray {
-        // The offset from the edge of the canvas to the pixel's center
-        let offsetX = (Double(pixelX) + dx) * self.camera.pixelSize
-        let offsetY = (Double(pixelY) + dy) * self.camera.pixelSize
-
-        // The untransformed coordinates of the pixel in world space.
-        // (Remember that the camera looks toward -z, so +x is to the *left*.)
-        let worldX = self.camera.halfWidth - offsetX
-        let worldY = self.camera.halfHeight - offsetY
-
-        // Using the camera matrix, transform the canvas point and the origin,
-        // and then compute the ray's direction vector.
-        // (Remember that the canvas is at z=-1)
-        let pixel = self.camera.inverseViewTransform.multiply(Point(worldX, worldY, -1))
-        let origin = self.camera.inverseViewTransform.multiply(Point(0, 0, 0))
-        let direction = pixel.subtract(origin).normalize()
-
-        return Ray(origin, direction)
-    }
-
-    private func sendProgress(newPercentRendered: Double,
-                              newElapsedTime: Range<Date>,
-                              to updateClosure: @MainActor @escaping (Double, Range<Date>) -> Void) {
-        Task { await updateClosure(newPercentRendered, newElapsedTime) }
-    }
-
-    public func render(updateClosure: @MainActor @escaping (Double, Range<Date>) -> Void) async -> Canvas {
-        var renderedPixels = 0
-        var percentRendered = 0.0
-        let startingTime = Date()
-        sendProgress(newPercentRendered: percentRendered,
-                     newElapsedTime: startingTime..<startingTime,
-                     to: updateClosure)
-        var canvas = Canvas(self.camera.horizontalSize, self.camera.verticalSize)
-        for y in 0..<self.camera.verticalSize {
-            for x in 0..<self.camera.horizontalSize {
-                let color: Color
-
-                if self.camera.antialiasing {
-                    let subpixelSamplesX = 4
-                    let subpixelSamplesY = 4
-
-                    var colorSamples: Color = .black
-                    for i in 0..<subpixelSamplesX {
-                        for j in 0..<subpixelSamplesY {
-                            let subpixelWidth = 1.0/Double(subpixelSamplesX)
-                            let subpixelHeight = 1.0/Double(subpixelSamplesY)
-                            let jitterX = Double.random(in: 0.0...subpixelWidth)
-                            let jitterY = Double.random(in: 0.0...subpixelHeight)
-                            let dx = Double(i)*subpixelWidth + jitterX
-                            let dy = Double(j)*subpixelHeight + jitterY
-                            let ray = self.rayForPixel(x, y, dx, dy)
-                            let colorSample = await self.colorAt(ray, MAX_RECURSIVE_CALLS)
-                            colorSamples = colorSamples.add(colorSample)
-                        }
-                    }
-
-                    let totalSamples = subpixelSamplesX*subpixelSamplesX
-                    color = colorSamples.divideScalar(Double(totalSamples))
-                } else {
-                    let ray = self.rayForPixel(x, y)
-                    color = await self.colorAt(ray, MAX_RECURSIVE_CALLS)
-                }
-                canvas.setPixel(x, y, color)
-                renderedPixels += 1
-            }
-            percentRendered = Double(renderedPixels)/Double(self.totalPixels)
-            sendProgress(newPercentRendered: percentRendered,
-                         newElapsedTime: startingTime ..< Date(),
-                         to: updateClosure)
-        }
-        return canvas
     }
 }
