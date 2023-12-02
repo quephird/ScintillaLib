@@ -603,7 +603,6 @@ There are times when you do not necessarily want to combine shapes to make new s
 ```swift
 import ScintillaLib
 
-@available(macOS 12.0, *)
 @main
 struct QuickStart: ScintillaApp {
     var world = World {
@@ -633,7 +632,6 @@ Notice that we have to apply the same rotation twice. We can do better than this
 ```swift
 import ScintillaLib
 
-@available(macOS 12.0, *)
 @main
 struct QuickStart: ScintillaApp {
     var world = World {
@@ -662,7 +660,6 @@ It's not a huge gain in this example but if you are constructing scenes with man
 ```swift
 import ScintillaLib
 
-@available(macOS 12.0, *)
 @main
 struct QuickStart: ScintillaApp {
     var world = World {
@@ -772,7 +769,6 @@ You can also have multiple lights, which you can use to create scenes with multi
 import Darwin
 import ScintillaLib
 
-@available(macOS 12.0, *)
 @main
 struct Cavatappi: ScintillaApp {
     var world = World {
@@ -810,7 +806,6 @@ Lights can also be configured to fade over the distance travelled to objects in 
 ```swift
 import ScintillaLib
 
-@available(macOS 12.0, *)
 @main
 struct DimlyLitScene: ScintillaApp {
     var world = World {
@@ -932,7 +927,6 @@ You can also optionally render a scene with antialiasing. In the image above, yo
 import Darwin
 import ScintillaLib
 
-@available(macOS 12.0, *)
 @main
 struct Cavatappi: ScintillaApp {
     var world = World {
