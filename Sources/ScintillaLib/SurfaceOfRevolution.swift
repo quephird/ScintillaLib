@@ -16,7 +16,6 @@ public typealias Point2D = (Double, Double)
 // namely, x² + z² - g²(y). The implicit surface shape is then
 // subsequently used for all computations for ray intersections
 // and normal vectors.
-@available(macOS 10.15, *)
 public struct SurfaceOfRevolution: Shape {
     public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
 

@@ -7,7 +7,6 @@
 
 import Foundation
 
-@available(macOS 10.15, *)
 public protocol Shape {
     var sharedProperties: SharedShapeProperties { get set }
 
@@ -15,7 +14,6 @@ public protocol Shape {
     func localNormal(_ localPoint: Point, _ uv: UV) -> Vector
 }
 
-@available(macOS 10.15, *)
 extension Shape {
     @inlinable
     @_spi(Testing) public var id: UUID {
@@ -59,7 +57,6 @@ extension Shape {
 }
 
 // CSG extensions
-@available(macOS 10.15, *)
 extension Shape {
     public func union(@ShapeBuilder _ otherShapesBuilder: () -> [Shape]) -> Shape {
         return CSG.makeCSG(.union, self, otherShapesBuilder)
@@ -75,7 +72,6 @@ extension Shape {
 }
 
 // Property modification extensions
-@available(macOS 10.15, *)
 extension Shape {
     public func material(_ material: Material) -> Self {
         var copy = self
@@ -135,7 +131,6 @@ extension Shape {
 }
 
 // Shared implementations
-@available(macOS 10.15, *)
 extension Shape {
     @_spi(Testing) public func intersect(_ worldRay: Ray) -> [Intersection] {
         let localRay = worldRay.transform(self.inverseTransform)
@@ -150,7 +145,6 @@ extension Shape {
 }
 
 // CSG and group extensions
-@available(macOS 10.15, *)
 extension Shape {
     @_spi(Testing) public func worldToObject(_ world: World, _ worldPoint: Point) async -> Point {
         var objectPoint = worldPoint

@@ -7,7 +7,6 @@
 
 import Foundation
 
-@available(macOS 10.15, *)
 public struct Computations {
     @_spi(Testing) public var t: Double
     @_spi(Testing) public var object: Shape

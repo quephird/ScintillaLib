@@ -5,7 +5,6 @@
 //  Created by Danielle Kefford on 12/20/22.
 //
 
-@available(macOS 10.15, *)
 public struct SolidColor: Material {
     var color: Color
     public var properties = MaterialProperties()

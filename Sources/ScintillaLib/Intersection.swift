@@ -7,7 +7,6 @@
 
 import Foundation
 
-@available(macOS 10.15, *)
 public struct Intersection {
     @_spi(Testing) public var t: Double
     @_spi(Testing) public var shape: Shape
@@ -88,7 +87,6 @@ public struct Intersection {
     }
 }
 
-@available(macOS 10.15, *)
 @_spi(Testing) public func hit(_ intersections: [Intersection], includeOnlyShadowingObjects: Bool = false) -> Optional<Intersection> {
     return intersections
         .sorted(by: { i1, i2 in

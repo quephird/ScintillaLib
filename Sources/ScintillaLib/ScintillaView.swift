@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-@available(macOS 12.0, *)
 @MainActor public struct ScintillaView: View {
     @State private var nsImage: NSImage?
     @State var percentRendered: Double = 0.0

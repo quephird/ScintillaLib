@@ -7,7 +7,6 @@
 
 import Foundation
 
-@available(macOS 10.15, *)
 public struct Group: Shape {
     public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
     var children: [Shape] = []

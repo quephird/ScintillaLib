@@ -9,7 +9,6 @@ import Foundation
 
 @_spi(Testing) public let MAX_RECURSIVE_CALLS = 5
 
-@available(macOS 10.15, *)
 public actor World {
     @_spi(Testing) public var camera: Camera
     @_spi(Testing) public var lights: [Light]

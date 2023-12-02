@@ -7,7 +7,6 @@
 
 import Foundation
 
-@available(macOS 10.15, *)
 public struct Cylinder: Shape {
     public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
 
