@@ -27,8 +27,7 @@ public struct World {
             }
         }
 
-        self.lights = lights
-        self.shapes = shapes
+        self.init(lights, shapes)
     }
 
     public init(_ lights: [Light], _ shapes: [Shape]) {
