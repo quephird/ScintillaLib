@@ -23,27 +23,27 @@ public struct CSG: Shape {
         self.right.parentId = self.id
     }
 
-    public func findShape(_ shapeId: UUID) -> Shape? {
+    public func getAllChildren() -> [Shape] {
+        var allChildren: [Shape] = []
+
         for shape in [self.left, self.right] {
-            if shape.id == shapeId {
-                return shape
-            }
+            allChildren.append(shape)
 
             switch shape {
             case let csg as CSG:
-                if let shape = csg.findShape(shapeId) {
-                    return shape
+                for childShape in csg.getAllChildren() {
+                    allChildren.append(childShape)
                 }
             case let group as Group:
-                if let shape = group.findShape(shapeId) {
-                    return shape
+                for childShape in group.getAllChildren() {
+                    allChildren.append(childShape)
                 }
             default:
-                continue
+                break
             }
         }
 
-        return nil
+        return allChildren
     }
 
     static func makeCSG(_ operation: Operation, _ baseShape: Shape, @ShapeBuilder _ otherShapesBuilder: () -> [Shape]) -> Shape {
