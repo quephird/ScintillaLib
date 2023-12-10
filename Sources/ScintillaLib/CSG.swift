@@ -67,7 +67,6 @@ public struct CSG: Shape {
 
     @_spi(Testing) public func filterIntersections(_ allIntersections: [Intersection]) -> [Intersection] {
         // Begin outside of both children
-        var leftHit = false
         var insideLeft = false
         var insideRight = false
 
@@ -77,7 +76,7 @@ public struct CSG: Shape {
         for intersection in allIntersections {
             // If the intersection's object is part of the "left" child,
             // then leftHit is true
-            leftHit = self.left.includes(intersection.shape)
+            let leftHit = self.left.includes(intersection.shape)
 
             if self.isIntersectionAllowed(leftHit, insideLeft, insideRight) {
                 filteredIntersections.append(intersection)
