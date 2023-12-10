@@ -12,6 +12,8 @@ public protocol Shape {
 
     func localIntersect(_ localRay: Ray) -> [Intersection]
     func localNormal(_ localPoint: Point, _ uv: UV) -> Vector
+
+    func includes(_ otherID: UUID) -> Bool
 }
 
 extension Shape {
@@ -190,14 +192,11 @@ extension Shape {
         return worldNormal
     }
 
-    func includes(_ other: Shape) -> Bool {
-        switch self {
-        case let group as Group:
-            return group.children.contains(where: {shape in shape.includes(other)})
-        case let csg as CSG:
-            return csg.left.includes(other) || csg.right.includes(other)
-        default:
-            return self.id == other.id
-        }
+    public func includes(_ otherID: UUID) -> Bool {
+        return self.id == otherID
+    }
+
+    internal func includes(_ other: some Shape) -> Bool {
+        return includes(other.id)
     }
 }

@@ -56,6 +56,10 @@ public struct Group: Shape {
         return allIntersections
     }
 
+    public func includes(_ otherID: UUID) -> Bool {
+        return id == otherID || children.contains(where: { shape in shape.includes(otherID) })
+    }
+
     // The concept of a normal vector to a Group is meaningless and should never be called
     @_spi(Testing) public func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         fatalError("Whoops... this should never be called for a Group shape")
