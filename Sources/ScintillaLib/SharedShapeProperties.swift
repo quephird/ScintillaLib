@@ -13,9 +13,6 @@ public struct SharedShapeProperties {
         self.inverseTransposeTransform = transform.inverse().transpose()
     }
 
-    @_spi(Testing) public var id: UUID = UUID()
-    public var material: Material = .basicMaterial()
-
     public var transform: Matrix4 = .identity {
         didSet {
             self.inverseTransform = transform.inverse()
@@ -25,6 +22,9 @@ public struct SharedShapeProperties {
 
     public private(set) var inverseTransform: Matrix4
     public private(set) var inverseTransposeTransform: Matrix4
-    public var parentID: UUID?
+
+    @_spi(Testing) public var id: UUID = UUID()
+    public var material: Material = .basicMaterial()
+
     public var castsShadow: Bool = true
 }

@@ -14,6 +14,8 @@ public protocol Shape {
     func localNormal(_ localPoint: Point, _ uv: UV) -> Vector
 
     func includes(_ otherID: UUID) -> Bool
+
+    func populateParentCache(_ cache: inout [UUID: Shape], parent: Shape?)
 }
 
 extension Shape {
@@ -43,12 +45,6 @@ extension Shape {
     @inlinable
     public var inverseTransposeTransform: Matrix4 {
         get { sharedProperties.inverseTransposeTransform }
-    }
-
-    @inlinable
-    public var parentId: UUID? {
-        get { sharedProperties.parentID }
-        set { sharedProperties.parentID = newValue }
     }
 
     @inlinable
@@ -148,22 +144,17 @@ extension Shape {
 
 // CSG and group extensions
 extension Shape {
+    public func populateParentCache(_ cache: inout [UUID : Shape], parent: Shape?) {
+        if let parent {
+            cache[self.id] = parent
+        }
+    }
+
     @_spi(Testing) public func worldToObject(_ world: World, _ worldPoint: Point) -> Point {
         var objectPoint = worldPoint
 
-        if let parentId = self.parentId {
-            guard let parentShape = world.findShape(parentId) else {
-                fatalError("Whoops... unable to find parent shape!")
-            }
-
-            switch parentShape {
-            case let group as Group:
-                objectPoint = group.worldToObject(world, worldPoint)
-            case let csg as CSG:
-                objectPoint = csg.worldToObject(world, worldPoint)
-            default:
-                fatalError("Whoops... parent object is somehow neither a Group nor CSG")
-            }
+        if let parentShape = world.parent(of: self.id) {
+            objectPoint = parentShape.worldToObject(world, worldPoint)
         }
 
         return self.inverseTransform.multiply(objectPoint)
@@ -174,19 +165,8 @@ extension Shape {
         worldNormal[3] = 0
         worldNormal = worldNormal.normalize()
 
-        if let parentId = self.parentId {
-            guard let parentShape = world.findShape(parentId) else {
-                fatalError("Whoops... unable ot find parent shape!")
-            }
-
-            switch parentShape {
-            case let group as Group:
-                worldNormal = group.objectToWorld(world, worldNormal)
-            case let csg as CSG:
-                worldNormal = csg.objectToWorld(world, worldNormal)
-            default:
-                fatalError("Whoops... parent object is somehow neither a Group nor CSG")
-            }
+        if let parentShape = world.parent(of: self.id) {
+            worldNormal = parentShape.objectToWorld(world, worldNormal)
         }
 
         return worldNormal

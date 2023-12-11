@@ -13,7 +13,7 @@ public struct World {
     @_spi(Testing) public var lights: [Light]
     @_spi(Testing) public var shapes: [Shape]
 
-    private var shapeCache: [UUID: Shape]
+    private var parentCache: [UUID: Shape]
 
     public init(@WorldBuilder builder: () -> [WorldObject]) {
         let objects = builder()
@@ -38,27 +38,13 @@ public struct World {
 
         var newCache: [UUID: Shape] = [:]
         for shape in shapes {
-            newCache[shape.id] = shape
-
-            switch shape {
-            case let csg as CSG:
-                for childShape in csg.getAllChildren() {
-                    newCache[childShape.id] = childShape
-                }
-            case let group as Group:
-                for childShape in group.getAllChildren() {
-                    newCache[childShape.id] = childShape
-                }
-            default:
-                break
-            }
+            shape.populateParentCache(&newCache, parent: nil)
         }
-
-        self.shapeCache = newCache
+        self.parentCache = newCache
     }
 
-    public func findShape(_ shapeId: UUID) -> Shape? {
-        return self.shapeCache[shapeId]
+    public func parent(of shapeId: UUID) -> Shape? {
+        return self.parentCache[shapeId]
     }
 
     @_spi(Testing) public func intersect(_ ray: Ray) -> [Intersection] {

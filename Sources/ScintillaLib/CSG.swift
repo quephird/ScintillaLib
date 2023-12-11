@@ -18,32 +18,15 @@ public struct CSG: Shape {
         self.operation = operation
         self.left = left
         self.right = right
-
-        self.left.parentId = self.id
-        self.right.parentId = self.id
     }
 
-    public func getAllChildren() -> [Shape] {
-        var allChildren: [Shape] = []
-
-        for shape in [self.left, self.right] {
-            allChildren.append(shape)
-
-            switch shape {
-            case let csg as CSG:
-                for childShape in csg.getAllChildren() {
-                    allChildren.append(childShape)
-                }
-            case let group as Group:
-                for childShape in group.getAllChildren() {
-                    allChildren.append(childShape)
-                }
-            default:
-                break
-            }
+    public func populateParentCache(_ cache: inout [UUID : Shape], parent: Shape?) {
+        if let parent {
+            cache[self.id] = parent
         }
 
-        return allChildren
+        left.populateParentCache(&cache, parent: self)
+        right.populateParentCache(&cache, parent: self)
     }
 
     static func makeCSG(_ operation: Operation, _ baseShape: Shape, @ShapeBuilder _ otherShapesBuilder: () -> [Shape]) -> Shape {

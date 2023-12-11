@@ -12,34 +12,17 @@ public struct Group: Shape {
     var children: [Shape] = []
 
     public init(@ShapeBuilder builder: () -> [Shape]) {
-        let children = builder()
-        for var child in children {
-            child.parentId = self.id
-            self.children.append(child)
-        }
+        self.children = builder()
     }
 
-    public func getAllChildren() -> [Shape] {
-        var allChildren: [Shape] = []
-
-        for shape in self.children {
-            allChildren.append(shape)
-
-            switch shape {
-            case let csg as CSG:
-                for childShape in csg.getAllChildren() {
-                    allChildren.append(childShape)
-                }
-            case let group as Group:
-                for childShape in group.getAllChildren() {
-                    allChildren.append(childShape)
-                }
-            default:
-                break
-            }
+    public func populateParentCache(_ cache: inout [UUID : Shape], parent: Shape?) {
+        if let parent {
+            cache[self.id] = parent
         }
 
-        return allChildren
+        for child in children {
+            child.populateParentCache(&cache, parent: self)
+        }
     }
 
     @_spi(Testing) public func localIntersect(_ localRay: Ray) -> [Intersection] {
