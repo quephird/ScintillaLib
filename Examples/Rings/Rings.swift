@@ -10,13 +10,14 @@ import ScintillaLib
 
 @main
 struct Rings: ScintillaApp {
+    var camera = Camera(width: 400,
+                        height: 400,
+                        viewAngle: PI/3,
+                        from: Point(-10, 7, -10),
+                        to: Point(0, 0, 0),
+                        up: Vector(0, 1, 0))
+
     var world = World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(-10, 7, -10),
-               to: Point(0, 0, 0),
-               up: Vector(0, 1, 0))
         PointLight(position: Point(-10, 10, -10))
         ParametricSurface(bottomFrontLeft: (-6, -3, -6),
                           topBackRight: (6, 3, 6),
