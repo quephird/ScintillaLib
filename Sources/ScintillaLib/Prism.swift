@@ -32,7 +32,7 @@ public struct Prism: Shape {
 
     @_spi(Testing) public func localIntersect(_ localRay: Ray) -> [Intersection] {
         // Check bounding box and bail if the ray misses
-        let boundingBoxIntersections = self.boundingBox.intersect(localRay)
+        let boundingBoxIntersections = self.boundingBox._intersect(localRay)
         guard boundingBoxIntersections.count == 2 else {
             return []
         }
@@ -52,7 +52,7 @@ public struct Prism: Shape {
 
         // Check if ray hits base of prism
         let basePlane = Plane().translate(0, yBase, 0)
-        if let planeIntersection = basePlane.intersect(localRay).first {
+        if let planeIntersection = basePlane._intersect(localRay).first {
             let maybeHitPoint = localRay.position(planeIntersection.t)
             if isInsidePolygon(maybeHitPoint, self.xzPoints, yBase) {
                 intersections.append(Intersection(planeIntersection.t, self))
@@ -61,7 +61,7 @@ public struct Prism: Shape {
 
         // Check if ray hits top of prism
         let topPlane = Plane().translate(0, yTop, 0)
-        if let planeIntersection = topPlane.intersect(localRay).first {
+        if let planeIntersection = topPlane._intersect(localRay).first {
             let maybeHitPoint = localRay.position(planeIntersection.t)
             if isInsidePolygon(maybeHitPoint, self.xzPoints, yTop) {
                 intersections.append(Intersection(planeIntersection.t, self))

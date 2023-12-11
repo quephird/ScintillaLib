@@ -48,7 +48,7 @@ public struct World {
     }
 
     @_spi(Testing) public func intersect(_ ray: Ray) -> [Intersection] {
-        var intersections = self.shapes.flatMap({shape in shape.intersect(ray)})
+        var intersections = self.shapes.flatMap({shape in shape._intersect(ray)})
         intersections
             .sort(by: { i1, i2 in
                 i1.t < i2.t

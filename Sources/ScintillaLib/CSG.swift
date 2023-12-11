@@ -13,11 +13,20 @@ public struct CSG: Shape {
     var operation: Operation
     var left: Shape
     var right: Shape
+    var rightChildIDs: Set<UUID>
 
     public init(_ operation: Operation, _ left: Shape, _ right: Shape) {
         self.operation = operation
         self.left = left
         self.right = right
+        self.rightChildIDs = Set(right.getAllChildIDs())
+    }
+
+    public func getAllChildIDs() -> [UUID] {
+        var childIDs = [self.id]
+        childIDs.append(contentsOf: self.left.getAllChildIDs())
+        childIDs.append(contentsOf: self.rightChildIDs)
+        return childIDs
     }
 
     public func populateParentCache(_ cache: inout [UUID : Shape], parent: Shape?) {
@@ -57,9 +66,9 @@ public struct CSG: Shape {
         var filteredIntersections: [Intersection] = []
 
         for intersection in allIntersections {
-            // If the intersection's object is part of the "left" child,
+            // If the intersection's object is _not_ part of the right child,
             // then leftHit is true
-            let leftHit = self.left.includes(intersection.shape)
+            let leftHit = !self.rightChildIDs.contains(intersection.shape.id)
 
             if self.isIntersectionAllowed(leftHit, insideLeft, insideRight) {
                 filteredIntersections.append(intersection)
@@ -77,8 +86,8 @@ public struct CSG: Shape {
     }
 
     @_spi(Testing) public func localIntersect(_ localRay: Ray) -> [Intersection] {
-        let leftIntersections = self.left.intersect(localRay)
-        let rightIntersections = self.right.intersect(localRay)
+        let leftIntersections = self.left._intersect(localRay)
+        let rightIntersections = self.right._intersect(localRay)
 
         var allIntersections = leftIntersections
         allIntersections.append(contentsOf: rightIntersections)
@@ -87,10 +96,6 @@ public struct CSG: Shape {
         })
 
         return self.filterIntersections(allIntersections)
-    }
-
-    public func includes(_ otherID: UUID) -> Bool {
-        return id == otherID || left.includes(otherID) || right.includes(otherID)
     }
 
     // The concept of a normal vector to a CSG object is meaningless and should never be called

@@ -10,12 +10,18 @@ import Foundation
 public protocol Shape {
     var sharedProperties: SharedShapeProperties { get set }
 
+    // The method below is not intended to be overridden but is here to allow Swift
+    // to give each Shape a copy of the default implementation, instead of having
+    // all Shape types indirectly accessing the shared implementation and incurring
+    // more copying in the process, and thus ultimately improving performance.
+    func _intersect(_ worldRay: Ray) -> [Intersection]
+
     func localIntersect(_ localRay: Ray) -> [Intersection]
     func localNormal(_ localPoint: Point, _ uv: UV) -> Vector
 
-    func includes(_ otherID: UUID) -> Bool
-
     func populateParentCache(_ cache: inout [UUID: Shape], parent: Shape?)
+
+    func getAllChildIDs() -> [UUID]
 }
 
 extension Shape {
@@ -130,7 +136,7 @@ extension Shape {
 
 // Shared implementations
 extension Shape {
-    @_spi(Testing) public func intersect(_ worldRay: Ray) -> [Intersection] {
+    @_spi(Testing) public func _intersect(_ worldRay: Ray) -> [Intersection] {
         let localRay = worldRay.transform(self.inverseTransform)
         return self.localIntersect(localRay)
     }
@@ -172,11 +178,7 @@ extension Shape {
         return worldNormal
     }
 
-    public func includes(_ otherID: UUID) -> Bool {
-        return self.id == otherID
-    }
-
-    internal func includes(_ other: some Shape) -> Bool {
-        return includes(other.id)
+    public func getAllChildIDs() -> [UUID] {
+        return [self.id]
     }
 }

@@ -54,7 +54,7 @@ public struct ImplicitSurface: Shape {
         // First we check to see if the ray intersects the bounding shape;
         // note that we need a pair of hits in order to construct a range
         // of values for t below...
-        let boundingBoxIntersections = self.boundingShape.intersect(localRay)
+        let boundingBoxIntersections = self.boundingShape._intersect(localRay)
         guard boundingBoxIntersections.count == 2 else {
             return []
         }
