@@ -7,18 +7,42 @@
 
 import Foundation
 
-public class Group: Shape {
+public struct Group: Shape {
+    public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
     var children: [Shape] = []
 
     public init(@ShapeBuilder builder: () -> [Shape]) {
-        self.children = builder()
-        super.init()
-        for child in children {
-            child.parent = .group(self)
+        let children = builder()
+        for var child in children {
+            child.parentId = self.id
+            self.children.append(child)
         }
     }
 
-    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    public func findShape(_ shapeId: UUID) -> Shape? {
+        for shape in self.children {
+            if shape.id == shapeId {
+                return shape
+            }
+
+            switch shape {
+            case let csg as CSG:
+                if let shape = csg.findShape(shapeId) {
+                    return shape
+                }
+            case let group as Group:
+                if let shape = group.findShape(shapeId) {
+                    return shape
+                }
+            default:
+                continue
+            }
+        }
+
+        return nil
+    }
+
+    @_spi(Testing) public func localIntersect(_ localRay: Ray) -> [Intersection] {
         var allIntersections: [Intersection] = []
 
         for child in children {
@@ -32,12 +56,8 @@ public class Group: Shape {
         return allIntersections
     }
 
-    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
-        return Vector(0, 0, 1)
-    }
-
-    func addChild(_ childObject: Shape) {
-        self.children.append(childObject)
-        childObject.parent = .group(self)
+    // The concept of a normal vector to a Group is meaningless and should never be called
+    @_spi(Testing) public func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
+        fatalError("Whoops... this should never be called for a Group shape")
     }
 }

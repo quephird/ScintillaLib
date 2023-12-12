@@ -7,8 +7,12 @@
 
 import Foundation
 
-public class Plane: Shape {
-    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
+public struct Plane: Shape {
+    public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
+
+    public init() {}
+
+    @_spi(Testing) public func localIntersect(_ localRay: Ray) -> [Intersection] {
         if abs(localRay.direction[1]) < EPSILON {
             return []
         } else {
@@ -17,7 +21,7 @@ public class Plane: Shape {
         }
     }
 
-    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
+    @_spi(Testing) public func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         return Vector(0, 1, 0)
     }
 }

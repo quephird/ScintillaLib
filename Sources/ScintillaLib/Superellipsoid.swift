@@ -7,7 +7,9 @@
 
 import Darwin
 
-public class Superellipsoid: Shape {
+public struct Superellipsoid: Shape {
+    public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
+
     var underlyingImplicitSurface: ImplicitSurface
 
     public init(e: Double, n: Double) {
@@ -22,7 +24,7 @@ public class Superellipsoid: Shape {
         self.underlyingImplicitSurface = underlyingImplicitSurface
     }
 
-    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    @_spi(Testing) public func localIntersect(_ localRay: Ray) -> [Intersection] {
         return self.underlyingImplicitSurface
             .localIntersect(localRay)
             .map { intersection in
@@ -30,7 +32,7 @@ public class Superellipsoid: Shape {
             }
     }
 
-    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
+    @_spi(Testing) public func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         return self.underlyingImplicitSurface.localNormal(localPoint)
     }
 }

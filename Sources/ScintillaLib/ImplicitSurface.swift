@@ -14,13 +14,15 @@ let DELTA = 0.0000000001
 let NUM_BOUNDING_BOX_SUBDIVISIONS = 100
 let MAX_ITERATIONS_BISECTION = 100
 
-public class ImplicitSurface: Shape {
+public struct ImplicitSurface: Shape {
+    public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
+
     var f: SurfaceFunction
     var boundingShape: Shape
 
     // This constructor is for creating an implicit surface with a bounding
     // sphere with the specified center and radius
-    public convenience init(center: Point3D, radius: Double, _ f: @escaping SurfaceFunction) {
+    public init(center: Point3D, radius: Double, _ f: @escaping SurfaceFunction) {
         let (translateX, translateY, translateZ) = center
         let boundingShape = Sphere()
             .scale(radius, radius, radius)
@@ -30,7 +32,7 @@ public class ImplicitSurface: Shape {
 
     // This constructor is for creating an implicit surface with a bounding
     // box with the specified bottom front left and top back right corners
-    public convenience init(bottomFrontLeft: Point3D, topBackRight: Point3D, _ f: @escaping SurfaceFunction) {
+    public init(bottomFrontLeft: Point3D, topBackRight: Point3D, _ f: @escaping SurfaceFunction) {
         let (xMin, yMin, zMin) = bottomFrontLeft
         let (xMax, yMax, zMax) = topBackRight
         let (scaleX, scaleY, scaleZ) = ((xMax-xMin)/2, (yMax-yMin)/2, (zMax-zMin)/2)
@@ -48,7 +50,7 @@ public class ImplicitSurface: Shape {
         self.f = f
     }
 
-    @_spi(Testing) public override func localIntersect(_ localRay: Ray) -> [Intersection] {
+    @_spi(Testing) public func localIntersect(_ localRay: Ray) -> [Intersection] {
         // First we check to see if the ray intersects the bounding shape;
         // note that we need a pair of hits in order to construct a range
         // of values for t below...
@@ -143,7 +145,7 @@ public class ImplicitSurface: Shape {
             }
     }
 
-    @_spi(Testing) public override func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
+    @_spi(Testing) public func localNormal(_ localPoint: Point, _ uv: UV = .none) -> Vector {
         // We take an approach below in approximating ∂F/∂x, ∂F/∂y, and ∂F/∂z
         // by computing the simple derivative using a very small value for Δx,
         // Δy, and Δz, respectively.

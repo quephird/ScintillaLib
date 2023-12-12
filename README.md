@@ -205,9 +205,9 @@ Parametric surfaces are also a subclass of `Shape` and are also used a little di
 However, unlike implicit surfaces, parametric surfaces are expressed with _three_ closures taking two parameters, one for each of the coordinates. For example, an hourglass like surface is defined by the following parametric functions:
 
 <p align="center">
-  x(u, v) = cos(u)sin(2v)<br />
-  y(u, v) = sin(v)<br />
-  z(u, v) = sin(u)sin(2v)<br />
+  F<sub>x</sub>(u, v) = cos(u)sin(2v)<br />
+  F<sub>y</sub>(u, v) = sin(v)<br />
+  F<sub>z</sub>(u, v) = sin(u)sin(2v)<br />
 </p>
 
 ... and this can be expressed in Scintilla like the following:
@@ -285,7 +285,7 @@ One thing to remember: smaller values of accuracy mean both a higher quality ren
 
 Similarly, you may need to override the default value of the maximum gradient to  increase the fidelity of certain parametric surfaces. Generally speaking, the maximum gradient affects how Scintilla handles the bendiness of shapes; for less curvy shapes, you can get away with lower values of the max gradient, but for more curvy shapes, using too _low_ a value can cause parts of certain shapes to "drop" out.
 
-(Specifically, the max gradient is an estimate of the maximum value of all the partial derivatives of the parametic functions at each point, namely `∂x/∂u`, `∂x/∂v`, `∂y/∂u`, `∂y/∂v`, `∂z/∂u`, and `∂z/∂v`. It is used to compute the minimum and maximum values of each coordinate for a given range of values for `u` and `v`, which ultimately is done when searching for a point of intersection by each ray from the camera toward the shape. If you are not sure how to choose an optimal value, you should start with the default value (1.0) and keep experimenting by raising or lowering it to find the lowest value that does not create unwanted artifacts.)
+(Specifically, the max gradient is an estimate of the maximum value of all the partial derivatives of the parametic functions at each point, namely ∂F<sub>x</sub>/∂u, ∂F<sub>x</sub>/∂v, ∂F<sub>y</sub>/∂u, ∂F<sub>y</sub>/∂v, ∂F<sub>z</sub>/∂u, and ∂F<sub>z</sub>/∂v. It is used to compute the minimum and maximum values of each coordinate for a given range of values for `u` and `v`, which ultimately is done when searching for a point of intersection by each ray from the camera toward the shape. If you are not sure how to choose an optimal value, you should start with the default value (1.0) and keep experimenting by raising or lowering it to find the lowest value that does not create unwanted artifacts.)
 
 As an example, below we have taken our shape from above of and set the maximum gradient set to 0.3:
 
@@ -595,6 +595,104 @@ Sphere()
 ```
 
 ![](./images/CSG.png)
+
+## Groups
+
+There are times when you do not necessarily want to combine shapes to make new shapes like the above; sometimes you just want to be able to group them together so that they can be moved or otherwise transformed together. For example, if you wanted to take two spheres and rotate them both about each other around the z-axis, you could do this:
+
+```swift
+import ScintillaLib
+
+@available(macOS 12.0, *)
+@main
+struct QuickStart: ScintillaApp {
+    var world = World {
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 0, -5),
+               to: Point(0, 0, 0),
+               up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, -10))
+        Sphere()
+            .material(.solidColor(1, 0, 0))
+            .translate(-1, 0, 0)
+            .rotateZ(PI/2)
+        Sphere()
+            .material(.solidColor(0, 1, 0))
+            .translate(1, 0, 0)
+            .rotateZ(PI/2)
+    }
+}
+```
+
+![](./images/TwoSpheresNotGrouped.png)
+
+Notice that we have to apply the same rotation twice. We can do better than this by putting the two spheres in a group and rotate that:
+
+```swift
+import ScintillaLib
+
+@available(macOS 12.0, *)
+@main
+struct QuickStart: ScintillaApp {
+    var world = World {
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 0, -5),
+               to: Point(0, 0, 0),
+               up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, -10))
+        Group {
+            Sphere()
+                .material(.solidColor(1, 0, 0))
+                .translate(-1, 0, 0)
+            Sphere()
+                .material(.solidColor(0, 1, 0))
+                .translate(1, 0, 0)
+        }
+            .rotateZ(PI/2)
+    }
+}
+```
+
+It's not a huge gain in this example but if you are constructing scenes with many more objects, you can save a _lot_ of code duplication. Even in the example below, you can see the savings because you don't have to create and transform four spheres individually; you can just group together two of them, and create translate two copies of the group:
+
+```swift
+import ScintillaLib
+
+@available(macOS 12.0, *)
+@main
+struct QuickStart: ScintillaApp {
+    var world = World {
+        Camera(width: 400,
+               height: 400,
+               viewAngle: PI/3,
+               from: Point(0, 0, -5),
+               to: Point(0, 0, 0),
+               up: Vector(0, 1, 0))
+        PointLight(position: Point(-10, 10, -10))
+        for x in [-1.5, 1.5] {
+            Group {
+                Sphere()
+                    .material(.solidColor(1, 0, 0))
+                    .translate(-1, 0, 0)
+                Sphere()
+                    .material(.solidColor(0, 1, 0))
+                    .translate(1, 0, 0)
+            }
+                .rotateZ(PI/2)
+                .translate(x, 0, 0)
+        }
+    }
+}
+```
+
+Note that groups can also take advantage of result builders, as you can see above, in that you can list multiple objects of a group all at once instead of nesting groups of pairs of objects.
+
+![](./images/TwoGroupsOfTwoSpheres.png)
+
 
 ## Lights
 
