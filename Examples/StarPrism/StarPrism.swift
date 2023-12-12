@@ -7,16 +7,16 @@
 
 import ScintillaLib
 
-@available(macOS 12.0, *)
 @main
 struct StarPrism: ScintillaApp {
+    var camera = Camera(width: 400,
+                        height: 400,
+                        viewAngle: PI/3,
+                        from: Point(0, 5, -5),
+                        to: Point(0, 1, 0),
+                        up: Vector(0, 1, 0))
+
     var world = World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(0, 5, -5),
-               to: Point(0, 1, 0),
-               up: Vector(0, 1, 0))
         PointLight(position: Point(-5, 5, -5))
         Prism(bottomY: 0.0,
               topY: 2.0,

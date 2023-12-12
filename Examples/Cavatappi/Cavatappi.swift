@@ -8,16 +8,16 @@
 import Darwin
 import ScintillaLib
 
-@available(macOS 12.0, *)
 @main
 struct Cavatappi: ScintillaApp {
+    var camera = Camera(width: 400,
+                        height: 400,
+                        viewAngle: PI/3,
+                        from: Point(0, 7, -15),
+                        to: Point(0, 7, 0),
+                        up: Vector(0, 1, 0))
+
     var world = World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(0, 7, -15),
-               to: Point(0, 7, 0),
-               up: Vector(0, 1, 0))
         PointLight(position: Point(-10, 10, -10))
         PointLight(position: Point(10, 10, -10))
         ParametricSurface(bottomFrontLeft: (-3.5, 0, -3.5),

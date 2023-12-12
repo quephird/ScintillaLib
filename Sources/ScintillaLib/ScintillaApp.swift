@@ -9,12 +9,15 @@ import SwiftUI
 
 @MainActor public protocol ScintillaApp: App {
     @WorldBuilder var world: World { get }
+    var camera: Camera { get set }
 }
 
 public extension ScintillaApp {
     var body: some Scene {
         WindowGroup {
-            ScintillaView(world: world, fileName: String(describing: Self.self) + ".png")
+            ScintillaView(camera: camera,
+                          world: world,
+                          fileName: String(describing: Self.self) + ".png")
                 .onDisappear {
                     exit(0)
                 }

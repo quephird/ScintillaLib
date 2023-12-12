@@ -13,37 +13,29 @@ public struct CSG: Shape {
     var operation: Operation
     var left: Shape
     var right: Shape
+    var rightChildIDs: Set<UUID>
 
     public init(_ operation: Operation, _ left: Shape, _ right: Shape) {
         self.operation = operation
         self.left = left
         self.right = right
-
-        self.left.parentId = self.id
-        self.right.parentId = self.id
+        self.rightChildIDs = Set(right.getAllChildIDs())
     }
 
-    public func findShape(_ shapeId: UUID) -> Shape? {
-        for shape in [self.left, self.right] {
-            if shape.id == shapeId {
-                return shape
-            }
+    public func getAllChildIDs() -> [UUID] {
+        var childIDs = [self.id]
+        childIDs.append(contentsOf: self.left.getAllChildIDs())
+        childIDs.append(contentsOf: self.rightChildIDs)
+        return childIDs
+    }
 
-            switch shape {
-            case let csg as CSG:
-                if let shape = csg.findShape(shapeId) {
-                    return shape
-                }
-            case let group as Group:
-                if let shape = group.findShape(shapeId) {
-                    return shape
-                }
-            default:
-                continue
-            }
+    public func populateParentCache(_ cache: inout [UUID : Shape], parent: Shape?) {
+        if let parent {
+            cache[self.id] = parent
         }
 
-        return nil
+        left.populateParentCache(&cache, parent: self)
+        right.populateParentCache(&cache, parent: self)
     }
 
     static func makeCSG(_ operation: Operation, _ baseShape: Shape, @ShapeBuilder _ otherShapesBuilder: () -> [Shape]) -> Shape {
@@ -67,7 +59,6 @@ public struct CSG: Shape {
 
     @_spi(Testing) public func filterIntersections(_ allIntersections: [Intersection]) -> [Intersection] {
         // Begin outside of both children
-        var leftHit = false
         var insideLeft = false
         var insideRight = false
 
@@ -75,9 +66,9 @@ public struct CSG: Shape {
         var filteredIntersections: [Intersection] = []
 
         for intersection in allIntersections {
-            // If the intersection's object is part of the "left" child,
+            // If the intersection's object is _not_ part of the right child,
             // then leftHit is true
-            leftHit = self.left.includes(intersection.shape)
+            let leftHit = !self.rightChildIDs.contains(intersection.shape.id)
 
             if self.isIntersectionAllowed(leftHit, insideLeft, insideRight) {
                 filteredIntersections.append(intersection)
@@ -95,8 +86,8 @@ public struct CSG: Shape {
     }
 
     @_spi(Testing) public func localIntersect(_ localRay: Ray) -> [Intersection] {
-        let leftIntersections = self.left.intersect(localRay)
-        let rightIntersections = self.right.intersect(localRay)
+        let leftIntersections = self.left._intersect(localRay)
+        let rightIntersections = self.right._intersect(localRay)
 
         var allIntersections = leftIntersections
         allIntersections.append(contentsOf: rightIntersections)

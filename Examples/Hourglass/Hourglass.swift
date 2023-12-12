@@ -8,16 +8,16 @@
 import Darwin
 import ScintillaLib
 
-@available(macOS 12.0, *)
 @main
 struct Hourglass: ScintillaApp {
+    var camera = Camera(width: 400,
+                        height: 400,
+                        viewAngle: PI/3,
+                        from: Point(0, 1, -5),
+                        to: Point(0, 0, 0),
+                        up: Vector(0, 1, 0))
+
     var world = World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(0, 1, -5),
-               to: Point(0, 0, 0),
-               up: Vector(0, 1, 0))
         PointLight(position: Point(-10, 10, -10))
         ParametricSurface(bottomFrontLeft: (-1.0, -1.0, -1.0),
                           topBackRight: (1.0, 1.0, 1.0),

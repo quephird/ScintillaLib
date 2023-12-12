@@ -7,16 +7,8 @@
 
 @resultBuilder
 public enum WorldBuilder {
-    public static func buildFinalResult(_ world: (Camera, [WorldObject])) -> (Camera, [WorldObject]) {
+    public static func buildFinalResult(_ world: [WorldObject]) -> [WorldObject] {
         return world
-    }
-
-    public static func buildBlock(_ camera: Camera, _ objects: [WorldObject]...) -> (Camera, [WorldObject]) {
-        return (camera, Array(objects.joined()))
-    }
-
-    public static func buildExpression(_ camera: Camera) -> Camera {
-        return camera
     }
 
     public static func buildExpression(_ light: Light) -> [WorldObject] {

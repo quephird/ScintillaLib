@@ -11,21 +11,21 @@ This is a library that is intended to be used to generate ray traced scenes. I h
   * Click the Add Package button in the main dialog box
   * Click the Add Package button in the new confirmation dialog box
   * Observe that ScintillaLib is now in the list under Package Dependencies in the Project Navigator
-* Delete main.swift
-* Create a new Swift file, say QuickStart.swift and add the following code:
+* Find main.swift and rename it to `QuickStart.swift` and add the following code:
 
 ```swift
 import ScintillaLib
 
 @main
 struct QuickStart: ScintillaApp {
+    var camera = Camera(width: 400,
+                        height: 400,
+                        viewAngle: PI/3,
+                        from: Point(0, 2, -2),
+                        to: Point(0, 0, 0),
+                        up: Vector(0, 1, 0))
+
     var world = World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(0, 2, -2),
-               to: Point(0, 0, 0),
-               up: Vector(0, 1, 0))
         PointLight(position: Point(-10, 10, -10))
         Sphere()
             .material(.solidColor(1, 0, 0))
@@ -44,6 +44,80 @@ struct QuickStart: ScintillaApp {
 # Features
 
 Scintilla allows you to describe and render scenes using a light source, a camera, and a collection of shapes, each shape having an associated material. Shapes can then be combined with each other using constructive solid geometry. Below is a discussion on each of these features.
+
+## Constructing a scene
+
+To construct a scene, you need to create a `Camera` instance and a `World` instance. A `Camera` takes the following four arguments:
+
+* the width of the resultant image in pixels
+* the height of the resultant image in pixels
+* the solid angle in radians specifying the field of view
+* the point designating its origin
+* the point designating where it is pointing at
+* the vector representing which way is up.
+
+A `World` instance is created with the following objects:
+
+* one or more `Light`s
+* one or more `Shape`s
+
+Lights and shapes are discussed in detail below.
+
+`World` also supports enumerating shapes using result builders, so you can write the following:
+
+```swift
+World {
+    PointLight(position: Point(-10, 10, -10))
+    Sphere()
+        .material(.solidColor(1, 0, 0))
+        .translate(-2, 0, 0)
+    Sphere()
+        .material(.solidColor(0, 1, 0))
+    Sphere()
+        .material(.solidColor(0, 0, 1))
+        .translate(2, 0, 0)
+```
+
+Note the lack of commas separating the parameters to the `World` constructor as well as not needing brackets around the `PointLight` and `Sphere` objects.
+
+## Rendering a scene
+
+Scintilla comes with a component that allows you to easily create an application and render a scene. In order to do this, first create a new Xcode project, using the Command Line Tool template. 
+
+![](./images/CLI_template.png)
+
+Make sure you have added Scintilla as a package dependency. If you have not already, go to File -> Add Packages, and in that dialog box, enter the URL of this Git repository and click Add Package. Xcode should successfully download the library and add it to the project.
+
+Now that you're ready to use Scintilla, all you need to do is create a new Swift file, say `QuickStart.swift`. Add the following code as an example scene:
+
+```swift
+import ScintillaLib
+
+@main
+struct QuickStart: ScintillaApp {
+    var camera = Camera(width: 400,
+                        height: 400,
+                        viewAngle: PI/3,
+                        from: Point(0, 2, -2),
+                        to: Point(0, 0, 0),
+                        up: Vector(0, 1, 0))
+
+    var world = World {
+        PointLight(position: Point(-10, 10, -10))
+        Sphere()
+            .material(.solidColor(1, 0, 0))
+    }
+```
+
+Please note the following about the example above:
+
+* You must `import ScintillaLib`
+* You need to annotate the struct with `@main`
+* Your struct must conform to the `ScintallaApp` protocol
+* The struct must have the `camera` property, which is of type `Camera`
+* The struct must have the `world` property, which is of type `World`
+
+If you've done all that, you now have a bona fide application and should be able to run it through Xcode. And if all goes well, you should see a window open with the rendered image, and the file `QuickStart.png`, which corresponds with the name of your struct, on your desktop.
 
 ## Primitive shapes
 
@@ -98,13 +172,14 @@ import ScintillaLib
 
 @main
 struct SuperellipsoidScene: ScintillaApp {
-    var world: World = World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(0, 0, -12),
-               to: Point(0, 0, 0),
-               up: Vector(0, 1, 0))
+    var camera = Camera(width: 400,
+                        height: 400,
+                        viewAngle: PI/3,
+                        from: Point(0, 0, -12),
+                        to: Point(0, 0, 0),
+                        up: Vector(0, 1, 0))
+
+    var world = World {
         PointLight(position: Point(0, 5, -5))
         for (i, e) in [0.25, 0.5, 1.0, 2.0, 2.5].enumerated() {
             for (j, n) in [0.25, 0.5, 1.0, 2.0, 2.5].enumerated() {
@@ -141,13 +216,14 @@ import ScintillaLib
 
 @main
 struct MyWorld: ScintillaApp {
+    var camera = Camera(width: 400,
+                        height: 400,
+                        viewAngle: PI/3,
+                        from: Point(0, 0, -5),
+                        to: Point(0, 0, 0),
+                        up: Vector(0, 1, 0))
+
     var world = World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(0, 0, -5),
-               to: Point(0, 0, 0),
-               up: Vector(0, 1, 0))
         PointLight(position: Point(-10, 10, -10))
         ImplicitSurface(bottomFrontLeft: (-2, -2, -2),
                         topBackRight: (2, 2, 2), { x, y, z in
@@ -177,13 +253,14 @@ let φ: Double = 1.61833987
 
 @main
 struct MyImplicitSurface: ScintillaApp {
-    var world: World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(0, 0, -5),
-               to: Point(0, 0, 0),
-               up: Vector(0, 1, 0))
+    var camera = Camera(width: 400,
+                        height: 400,
+                        viewAngle: PI/3,
+                        from: Point(0, 0, -5),
+                        to: Point(0, 0, 0),
+                        up: Vector(0, 1, 0))
+
+    var world = World {
         PointLight(position: Point(-5, 5, -5))
         ImplicitSurface(center: (0.0, 0.0, 0.0),
                         radius: 2.0) { x, y, z in
@@ -218,13 +295,14 @@ import ScintillaLib
 
 @main
 struct Hourglass: ScintillaApp {
+    var camera = Camera(width: 400,
+                        height: 400,
+                        viewAngle: PI/3,
+                        from: Point(0, 1, -5),
+                        to: Point(0, 0, 0),
+                        up: Vector(0, 1, 0))
+
     var world = World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(0, 1, -5),
-               to: Point(0, 0, 0),
-               up: Vector(0, 1, 0))
         PointLight(position: Point(-10, 10, -10))
         ParametricSurface(bottomFrontLeft: (-1.0, -1.0, -1.0),
                           topBackRight: (1.0, 1.0, 1.0),
@@ -253,13 +331,14 @@ import ScintillaLib
 
 @main
 struct Hourglass: ScintillaApp {
+    var camera = Camera(width: 400,
+                        height: 400,
+                        viewAngle: PI/3,
+                        from: Point(0, 1, -5),
+                        to: Point(0, 0, 0),
+                        up: Vector(0, 1, 0))
+
     var world = World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(0, 1, -5),
-               to: Point(0, 0, 0),
-               up: Vector(0, 1, 0))
         PointLight(position: Point(-10, 10, -10))
         ParametricSurface(bottomFrontLeft: (-1.0, -1.0, -1.0),
                           topBackRight: (1.0, 1.0, 1.0),
@@ -295,13 +374,14 @@ import ScintillaLib
 
 @main
 struct Hourglass: ScintillaApp {
+    var camera = Camera(width: 400,
+                        height: 400,
+                        viewAngle: PI/3,
+                        from: Point(0, 1, -5),
+                        to: Point(0, 0, 0),
+                        up: Vector(0, 1, 0))
+
     var world = World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(0, 1, -5),
-               to: Point(0, 0, 0),
-               up: Vector(0, 1, 0))
         PointLight(position: Point(-10, 10, -10))
         ParametricSurface(bottomFrontLeft: (-1.0, -1.0, -1.0),
                           topBackRight: (1.0, 1.0, 1.0),
@@ -341,13 +421,14 @@ import ScintillaLib
 
 @main
 struct PrismScene: ScintillaApp {
-    var world: World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(0, 5, -5),
-               to: Point(0, 1, 0),
-               up: Vector(0, 1, 0))
+    var camera = Camera(width: 400,
+                        height: 400,
+                        viewAngle: PI/3,
+                        from: Point(0, 5, -5),
+                        to: Point(0, 1, 0),
+                        up: Vector(0, 1, 0))
+
+    var world = World {
         PointLight(position: Point(-5, 5, -5))
         Prism(bottomY: 0.0,
               topY: 2.0,
@@ -386,13 +467,14 @@ import ScintillaLib
 
 @main
 struct SorScene: ScintillaApp {
+    var camera = Camera(width: 400,
+                        height: 400,
+                        viewAngle: PI/3,
+                        from: Point(0, 7, -10),
+                        to: Point(0, 2, 0),
+                        up: Vector(0, 1, 0))
+
     var world = World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(0, 7, -10),
-               to: Point(0, 2, 0),
-               up: Vector(0, 1, 0))
         PointLight(position: Point(-5, 5, -5))
         SurfaceOfRevolution(yzPoints: [(0.0, 2.0),
                                        (1.0, 2.0),
@@ -596,104 +678,6 @@ Sphere()
 
 ![](./images/CSG.png)
 
-## Groups
-
-There are times when you do not necessarily want to combine shapes to make new shapes like the above; sometimes you just want to be able to group them together so that they can be moved or otherwise transformed together. For example, if you wanted to take two spheres and rotate them both about each other around the z-axis, you could do this:
-
-```swift
-import ScintillaLib
-
-@available(macOS 12.0, *)
-@main
-struct QuickStart: ScintillaApp {
-    var world = World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(0, 0, -5),
-               to: Point(0, 0, 0),
-               up: Vector(0, 1, 0))
-        PointLight(position: Point(-10, 10, -10))
-        Sphere()
-            .material(.solidColor(1, 0, 0))
-            .translate(-1, 0, 0)
-            .rotateZ(PI/2)
-        Sphere()
-            .material(.solidColor(0, 1, 0))
-            .translate(1, 0, 0)
-            .rotateZ(PI/2)
-    }
-}
-```
-
-![](./images/TwoSpheresNotGrouped.png)
-
-Notice that we have to apply the same rotation twice. We can do better than this by putting the two spheres in a group and rotate that:
-
-```swift
-import ScintillaLib
-
-@available(macOS 12.0, *)
-@main
-struct QuickStart: ScintillaApp {
-    var world = World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(0, 0, -5),
-               to: Point(0, 0, 0),
-               up: Vector(0, 1, 0))
-        PointLight(position: Point(-10, 10, -10))
-        Group {
-            Sphere()
-                .material(.solidColor(1, 0, 0))
-                .translate(-1, 0, 0)
-            Sphere()
-                .material(.solidColor(0, 1, 0))
-                .translate(1, 0, 0)
-        }
-            .rotateZ(PI/2)
-    }
-}
-```
-
-It's not a huge gain in this example but if you are constructing scenes with many more objects, you can save a _lot_ of code duplication. Even in the example below, you can see the savings because you don't have to create and transform four spheres individually; you can just group together two of them, and create translate two copies of the group:
-
-```swift
-import ScintillaLib
-
-@available(macOS 12.0, *)
-@main
-struct QuickStart: ScintillaApp {
-    var world = World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(0, 0, -5),
-               to: Point(0, 0, 0),
-               up: Vector(0, 1, 0))
-        PointLight(position: Point(-10, 10, -10))
-        for x in [-1.5, 1.5] {
-            Group {
-                Sphere()
-                    .material(.solidColor(1, 0, 0))
-                    .translate(-1, 0, 0)
-                Sphere()
-                    .material(.solidColor(0, 1, 0))
-                    .translate(1, 0, 0)
-            }
-                .rotateZ(PI/2)
-                .translate(x, 0, 0)
-        }
-    }
-}
-```
-
-Note that groups can also take advantage of result builders, as you can see above, in that you can list multiple objects of a group all at once instead of nesting groups of pairs of objects.
-
-![](./images/TwoGroupsOfTwoSpheres.png)
-
-
 ## Lights
 
 Scintilla currently supports two kinds of `Light`s: `PointLight` and `AreaLight`. `PointLight` minimally requires a position to be constructed and defaults to a white color if no other one is specified. Light rays emanate from a single point, the `PointLight`'s position, and are cast on the world.
@@ -740,14 +724,15 @@ A scene rendered with an area light at the same position as the point light abov
 import ScintillaLib
 
 @main
-struct MyWorld: ScintillaApp {
-    var world: World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(0, 2, -5),
-               to: Point(0, 1, 0),
-               up: Vector(0, 1, 0))
+struct BallWithAreaLight: ScintillaApp {
+    var camera = Camera(width: 400,
+                        height: 400,
+                        viewAngle: PI/3,
+                        from: Point(0, 2, -5),
+                        to: Point(0, 1, 0),
+                        up: Vector(0, 1, 0))
+
+    var world = World {
         AreaLight(corner: Point(-5, 5, -5),
                   uVec: Vector(2, 0, 0),
                   uSteps: 10,
@@ -775,13 +760,14 @@ import ScintillaLib
 @available(macOS 12.0, *)
 @main
 struct Cavatappi: ScintillaApp {
+    var camera = Camera(width: 400,
+                        height: 400,
+                        viewAngle: PI/3,
+                        from: Point(0, 7, -15),
+                        to: Point(0, 7, 0),
+                        up: Vector(0, 1, 0))
+
     var world = World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(0, 7, -15),
-               to: Point(0, 7, 0),
-               up: Vector(0, 1, 0))
         PointLight(position: Point(-10, 10, -10))
         PointLight(position: Point(10, 10, -10))
         ParametricSurface(bottomFrontLeft: (-3.5, 0, -3.5),
@@ -813,13 +799,14 @@ import ScintillaLib
 @available(macOS 12.0, *)
 @main
 struct DimlyLitScene: ScintillaApp {
+    var camera = Camera(width: 400,
+                        height: 400,
+                        viewAngle: PI/3,
+                        from: Point(0, 0, -5),
+                        to: Point(0, 0, 0),
+                        up: Vector(0, 1, 0))
+
     var world = World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(0, 0, -5),
-               to: Point(0, 0, 0),
-               up: Vector(0, 1, 0))
         PointLight(position: Point(-10, 10, 0),
                    fadeDistance: 10)
         Sphere()
@@ -833,100 +820,13 @@ struct DimlyLitScene: ScintillaApp {
 
 As with the accuracy and max gradient parameters for parametric surfaces, you might have to experiment with various values in order to get the effect you want.
 
-## Constructing a scene
+## Antialiasing
 
-To construct a scene, you need to create a `World` instance with the following objects
+You can also optionally render a scene with antialiasing. In the image below, you can see that the various edges of the object are pretty jagged and take away from its verisimilitude.
 
-* one `Camera`
-* one or more `Light`s
-* one or more `Shape`s
+![](./images/Cavatappi.png)
 
-Lights and shapes are discussed above. A `Camera` takes the following four arguments:
-
-* the width of the resultant image in pixels
-* the height of the resultant image in pixels
-* the solid angle in radians specifying the field of view
-* the point designating its origin
-* the point designating where it is pointing at
-* the vector representing which way is up.
-
-`World` also supports enumerating shapes using result builders, so you can do the following:
-
-```swift
-World {
-    Camera(width: 800,
-           height: 600,
-           viewAngle: PI/3,
-           from: Point(0, 3, -5),
-           to: Point(0, 0, 0),
-           up: Vector(0, 1, 0))
-    PointLight(position: Point(-10, 10, -10))
-    Sphere()
-        .material(.solidColor(1, 0, 0))
-        .translate(-2, 0, 0)
-    Sphere()
-        .material(.solidColor(0, 1, 0))
-    Sphere()
-        .material(.solidColor(0, 0, 1))
-        .translate(2, 0, 0)
-```
-
-Note the lack of commas separating the parameters to the `World` constructor as well as not needing brackets around the `Sphere` objects.
-
-## Rendering a scene
-
-Scintilla comes with a component that allows you to easily create an application and render a scene. In order to do this, first create a new Xcode project, using the Command Line Tool template. 
-
-![](./images/CLI_template.png)
-
-Next add Scintilla as a package dependency via File -> Add Packages; in that dialog box, enter the URL of this Git repository and click Add Package. Xcode should successfully download the library and add it to the project.
-
-Now that you're ready to use Scintilla, all you need to do is create a new Swift file, say `MyWorld.swift`. Add the following code as an example scene:
-
-```swift
-import ScintillaLib
-
-@main
-struct MyWorld: ScintillaApp {
-    var world = World {
-        Camera(width: 800,
-               height: 600,
-               viewAngle: PI/3,
-               from: Point(0, 1, -2),
-               to: Point(0, 0, 0),
-               up: Vector(0, 1, 0))
-        PointLight(position: Point(-10, 10, -10))
-        Sphere()
-            .material(.solidColor(0, 0, 1))
-            .intersection {
-                Cube()
-                    .material(.solidColor(1, 0, 0))
-                    .scale(0.8, 0.8, 0.8)
-            }
-            .difference {
-                for (thetaX, thetaZ) in [(0, 0), (0, PI/2), (PI/2, 0)] {
-                    Cylinder()
-                        .material(.solidColor(0, 1, 0))
-                        .scale(0.5, 0.5, 0.5)
-                        .rotateX(thetaX)
-                        .rotateZ(thetaZ)
-                }
-            }
-            .rotateY(PI/6)
-    }
-}
-```
-
-Please note the following about the example above:
-
-* You must `import ScintillaLib`
-* You need to annotate the struct with `@main`
-* Your struct must conform to the `ScintallaApp` protocol
-* The struct must have the `world` property, which is of type `World`
-
-If you've done all that, you now have a bona fide application and should be able to run it through Xcode. And if all goes well, you should see a window open with the rendered image, and the file `MyWorld.png` on your desktop.
-
-You can also optionally render a scene with antialiasing. In the image above, you can see that the various edges of the object are pretty jagged and take away from the verisimilitude of the image. By adding a property modifier to the `World` object, `.antialiasing(true)`, we can improve its quality:
+By adding setting the `antialiasing` parameter of the `Camera` object to true, we can significantly improve the quality of the image:
 
 ```swift
 import Darwin
@@ -935,14 +835,15 @@ import ScintillaLib
 @available(macOS 12.0, *)
 @main
 struct Cavatappi: ScintillaApp {
+    var camera = Camera(width: 400,
+                        height: 400,
+                        viewAngle: PI/3,
+                        from: Point(0, 7, -15),
+                        to: Point(0, 7, 0),
+                        up: Vector(0, 1, 0),
+                        antialiasing: true)
+
     var world = World {
-        Camera(width: 400,
-               height: 400,
-               viewAngle: PI/3,
-               from: Point(0, 7, -15),
-               to: Point(0, 7, 0),
-               up: Vector(0, 1, 0),
-               antialiasing: true)
         PointLight(position: Point(-10, 10, -10))
         PointLight(position: Point(10, 10, -10))
         ParametricSurface(bottomFrontLeft: (-3.5, 0, -3.5),

@@ -19,16 +19,16 @@ func decoCubeColor(_ x: Double, _ y: Double, _ z: Double) -> (Double, Double, Do
     return (pow(x*x + y*y + z*z, 0.5)/3.0, 1.0, 0.5)
 }
 
-@available(macOS 12.0, *)
 @main
 struct DecoCube: ScintillaApp {
+    var camera = Camera(width: 600,
+                        height: 600,
+                        viewAngle: PI/3,
+                        from: Point(2, 1, -6),
+                        to: Point(0, 0, 0),
+                        up: Vector(0, 1, 0))
+
     var world = World {
-        Camera(width: 600,
-               height: 600,
-               viewAngle: PI/3,
-               from: Point(2, 1, -6),
-               to: Point(0, 0, 0),
-               up: Vector(0, 1, 0))
         PointLight(position: Point(-10, 10, -10))
         ImplicitSurface(bottomFrontLeft: (-2.5, -2.5, -2.5),
                         topBackRight: (2.5, 2.5, 2.5), { x, y, z in

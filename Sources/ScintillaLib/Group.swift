@@ -12,41 +12,32 @@ public struct Group: Shape {
     var children: [Shape] = []
 
     public init(@ShapeBuilder builder: () -> [Shape]) {
-        let children = builder()
-        for var child in children {
-            child.parentId = self.id
-            self.children.append(child)
+        self.children = builder()
+    }
+
+    public func populateParentCache(_ cache: inout [UUID : Shape], parent: Shape?) {
+        if let parent {
+            cache[self.id] = parent
+        }
+
+        for child in children {
+            child.populateParentCache(&cache, parent: self)
         }
     }
 
-    public func findShape(_ shapeId: UUID) -> Shape? {
-        for shape in self.children {
-            if shape.id == shapeId {
-                return shape
-            }
-
-            switch shape {
-            case let csg as CSG:
-                if let shape = csg.findShape(shapeId) {
-                    return shape
-                }
-            case let group as Group:
-                if let shape = group.findShape(shapeId) {
-                    return shape
-                }
-            default:
-                continue
-            }
+    public func getAllChildIDs() -> [UUID] {
+        var childIDs = [self.id]
+        for child in children {
+            childIDs += child.getAllChildIDs()
         }
-
-        return nil
+        return childIDs
     }
 
     @_spi(Testing) public func localIntersect(_ localRay: Ray) -> [Intersection] {
         var allIntersections: [Intersection] = []
 
         for child in children {
-            let intersections = child.intersect(localRay)
+            let intersections = child._intersect(localRay)
             allIntersections.append(contentsOf: intersections)
         }
 

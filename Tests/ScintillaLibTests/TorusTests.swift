@@ -29,7 +29,7 @@ class TorusTests: XCTestCase {
     func testIntersectFourHits() throws {
         let r = Ray(Point(-5, 0, 0), Vector(1, 0, 0))
         let torus = Torus(majorRadius: 3, minorRadius: 1)
-        let intersections = torus.intersect(r)
+        let intersections = torus.localIntersect(r)
         let expectedHits = [1.0, 3.0, 7.0, 9.0]
         let actualHits = intersections.map { intersection in
             return intersection.t
@@ -40,7 +40,7 @@ class TorusTests: XCTestCase {
     func testIntersectThreeHitsWithOneHitTangent() throws {
         let r = Ray(Point(-5, 0, -2), Vector(1, 0, 0))
         let torus = Torus(majorRadius: 3, minorRadius: 1)
-        let intersections = torus.intersect(r)
+        let intersections = torus.localIntersect(r)
         let expectedHits = [1.53590, 5.0, 8.46410]
         let actualHits = intersections.map { intersection in
             return intersection.t
@@ -51,7 +51,7 @@ class TorusTests: XCTestCase {
     func testIntersectTwoHits() throws {
         let r = Ray(Point(-5, 0, -3), Vector(1, 0, 0))
         let torus = Torus(majorRadius: 3, minorRadius: 1)
-        let intersections = torus.intersect(r)
+        let intersections = torus.localIntersect(r)
         let expectedHits = [2.35425, 7.64575]
         let actualHits = intersections.map { intersection in
             return intersection.t
@@ -62,7 +62,7 @@ class TorusTests: XCTestCase {
     func testIntersectOneHitTangentRay() throws {
         let r = Ray(Point(-5, 0, -4), Vector(1, 0, 0))
         let torus = Torus(majorRadius: 3, minorRadius: 1)
-        let intersections = torus.intersect(r)
+        let intersections = torus.localIntersect(r)
         let expectedHits = [5.0]
         let actualHits = intersections.map { intersection in
             return intersection.t
@@ -73,7 +73,7 @@ class TorusTests: XCTestCase {
     func testIntersectMiss() throws {
         let r = Ray(Point(-5, 0, -5), Vector(1, 0, 0))
         let torus = Torus(majorRadius: 3, minorRadius: 1)
-        let intersections = torus.intersect(r)
+        let intersections = torus.localIntersect(r)
         XCTAssert(intersections.isEmpty)
     }
 }

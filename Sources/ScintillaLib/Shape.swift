@@ -10,8 +10,18 @@ import Foundation
 public protocol Shape {
     var sharedProperties: SharedShapeProperties { get set }
 
+    // The method below is not intended to be overridden but is here to allow Swift
+    // to give each Shape a copy of the default implementation, instead of having
+    // all Shape types indirectly accessing the shared implementation and incurring
+    // more copying in the process, and thus ultimately improving performance.
+    func _intersect(_ worldRay: Ray) -> [Intersection]
+
     func localIntersect(_ localRay: Ray) -> [Intersection]
     func localNormal(_ localPoint: Point, _ uv: UV) -> Vector
+
+    func populateParentCache(_ cache: inout [UUID: Shape], parent: Shape?)
+
+    func getAllChildIDs() -> [UUID]
 }
 
 extension Shape {
@@ -41,12 +51,6 @@ extension Shape {
     @inlinable
     public var inverseTransposeTransform: Matrix4 {
         get { sharedProperties.inverseTransposeTransform }
-    }
-
-    @inlinable
-    public var parentId: UUID? {
-        get { sharedProperties.parentID }
-        set { sharedProperties.parentID = newValue }
     }
 
     @inlinable
@@ -132,72 +136,49 @@ extension Shape {
 
 // Shared implementations
 extension Shape {
-    @_spi(Testing) public func intersect(_ worldRay: Ray) -> [Intersection] {
+    @_spi(Testing) public func _intersect(_ worldRay: Ray) -> [Intersection] {
         let localRay = worldRay.transform(self.inverseTransform)
         return self.localIntersect(localRay)
     }
 
-    @_spi(Testing) public func normal(_ world: World, _ worldPoint: Point, _ uv: UV = .none) async -> Vector {
-        let localPoint = await self.worldToObject(world, worldPoint)
+    @_spi(Testing) public func normal(_ world: World, _ worldPoint: Point, _ uv: UV = .none) -> Vector {
+        let localPoint = self.worldToObject(world, worldPoint)
         let localNormal = self.localNormal(localPoint, uv)
-        return await self.objectToWorld(world, localNormal)
+        return self.objectToWorld(world, localNormal)
     }
 }
 
 // CSG and group extensions
 extension Shape {
-    @_spi(Testing) public func worldToObject(_ world: World, _ worldPoint: Point) async -> Point {
+    public func populateParentCache(_ cache: inout [UUID : Shape], parent: Shape?) {
+        if let parent {
+            cache[self.id] = parent
+        }
+    }
+
+    @_spi(Testing) public func worldToObject(_ world: World, _ worldPoint: Point) -> Point {
         var objectPoint = worldPoint
 
-        if let parentId = self.parentId {
-            guard let parentShape = await world.findShape(parentId) else {
-                fatalError("Whoops... unable to find parent shape!")
-            }
-
-            switch parentShape {
-            case let group as Group:
-                objectPoint = await group.worldToObject(world, worldPoint)
-            case let csg as CSG:
-                objectPoint = await csg.worldToObject(world, worldPoint)
-            default:
-                fatalError("Whoops... parent object is somehow neither a Group nor CSG")
-            }
+        if let parentShape = world.parent(of: self.id) {
+            objectPoint = parentShape.worldToObject(world, worldPoint)
         }
 
         return self.inverseTransform.multiply(objectPoint)
     }
 
-    @_spi(Testing) public func objectToWorld(_ world: World, _ objectNormal: Vector) async -> Vector {
+    @_spi(Testing) public func objectToWorld(_ world: World, _ objectNormal: Vector) -> Vector {
         var worldNormal = self.inverseTransposeTransform.multiply(objectNormal)
         worldNormal[3] = 0
         worldNormal = worldNormal.normalize()
 
-        if let parentId = self.parentId {
-            guard let parentShape = await world.findShape(parentId) else {
-                fatalError("Whoops... unable ot find parent shape!")
-            }
-
-            switch parentShape {
-            case let group as Group:
-                worldNormal = await group.objectToWorld(world, worldNormal)
-            case let csg as CSG:
-                worldNormal = await csg.objectToWorld(world, worldNormal)
-            default:
-                fatalError("Whoops... parent object is somehow neither a Group nor CSG")
-            }
+        if let parentShape = world.parent(of: self.id) {
+            worldNormal = parentShape.objectToWorld(world, worldNormal)
         }
 
         return worldNormal
     }
 
-    func includes(_ other: Shape) -> Bool {
-        switch self {
-        case let group as Group:
-            return group.children.contains(where: {shape in shape.includes(other)})
-        case let csg as CSG:
-            return csg.left.includes(other) || csg.right.includes(other)
-        default:
-            return self.id == other.id
-        }
+    public func getAllChildIDs() -> [UUID] {
+        return [self.id]
     }
 }
