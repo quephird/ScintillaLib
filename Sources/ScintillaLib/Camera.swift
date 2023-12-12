@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Camera {
+public actor Camera {
     var horizontalSize: Int
     var verticalSize: Int
     var fieldOfView: Double
