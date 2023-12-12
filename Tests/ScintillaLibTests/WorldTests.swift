@@ -8,21 +8,8 @@
 import XCTest
 @_spi(Testing) import ScintillaLib
 
-let testCamera = Camera(width: 800,
-                        height: 600,
-                        viewAngle:PI/3,
-                        from: Point(0, 1, -1),
-                        to: Point(0, 0, 0),
-                        up: Vector(0, 1, 0))
-
 func testWorld() -> World {
     World {
-        Camera(width: 800,
-               height: 600,
-               viewAngle: PI/3,
-               from: Point(0, 1, -1),
-               to: Point(0, 0, 0),
-               up: Vector(0, 1, 0))
         PointLight(position: Point(-10, 10, -10))
         Sphere()
             .material(SolidColor(0.8, 1.0, 0.6)
@@ -36,10 +23,10 @@ func testWorld() -> World {
 }
 
 class WorldTests: XCTestCase {
-    func testIntersect() async throws {
+    func testIntersect() throws {
         let world = testWorld()
         let ray = Ray(Point(0, 0, -5), Vector(0, 0, 1))
-        let intersections = await world.intersect(ray)
+        let intersections = world.intersect(ray)
         XCTAssertEqual(intersections.count, 4)
         XCTAssert(intersections[0].t.isAlmostEqual(4))
         XCTAssert(intersections[1].t.isAlmostEqual(4.5))
@@ -47,25 +34,19 @@ class WorldTests: XCTestCase {
         XCTAssert(intersections[3].t.isAlmostEqual(6))
     }
 
-    func testShadeHit() async throws {
+    func testShadeHit() throws {
         let world = testWorld()
         let ray = Ray(Point(0, 0, -5), Vector(0, 0, 1))
-        let shape = await world.shapes[0]
+        let shape = world.shapes[0]
         let intersection = Intersection(4, shape)
-        let computations = await intersection.prepareComputations(world, ray, [intersection])
-        let actualValue = await world.shadeHit(computations, MAX_RECURSIVE_CALLS)
+        let computations = intersection.prepareComputations(world, ray, [intersection])
+        let actualValue = world.shadeHit(computations, MAX_RECURSIVE_CALLS)
         let expectedValue = Color(0.38066, 0.47583, 0.28549)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
 
-    func testShadeHitInside() async throws {
+    func testShadeHitInside() throws {
         let world = World {
-            Camera(width: 800,
-                   height: 600,
-                   viewAngle: PI/3,
-                   from: Point(0, 1, -1),
-                   to: Point(0, 0, 0),
-                   up: Vector(0, 1, 0))
             PointLight(position: Point(0, 0.25, 0), color: Color(1, 1, 1))
             Sphere()
                 .material(SolidColor(0.8, 1.0, 0.6)
@@ -78,25 +59,19 @@ class WorldTests: XCTestCase {
         }
 
         let ray = Ray(Point(0, 0, 0), Vector(0, 0, 1))
-        let shape = await world.shapes[1]
+        let shape = world.shapes[1]
         let intersection = Intersection(0.5, shape)
-        let computations = await intersection.prepareComputations(world, ray, [intersection])
-        let actualValue = await world.shadeHit(computations, MAX_RECURSIVE_CALLS)
+        let computations = intersection.prepareComputations(world, ray, [intersection])
+        let actualValue = world.shadeHit(computations, MAX_RECURSIVE_CALLS)
         let expectedValue = Color(0.90498, 0.90498, 0.90498)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
 
-    func testShadeHitIntersectionInShadow() async throws {
+    func testShadeHitIntersectionInShadow() throws {
         let s1 = Sphere()
         let s2 = Sphere()
             .translate(0, 0, 10)
         let world = World {
-            Camera(width: 800,
-                   height: 600,
-                   viewAngle: PI/3,
-                   from: Point(0, 1, -1),
-                   to: Point(0, 0, 0),
-                   up: Vector(0, 1, 0))
             PointLight(position: Point(0, 0, -10), color: Color(1, 1, 1))
             s1
             s2
@@ -104,76 +79,76 @@ class WorldTests: XCTestCase {
 
         let ray = Ray(Point(0, 0, 5), Vector(0, 0, 1))
         let intersection = Intersection(4, s2)
-        let computations = await intersection.prepareComputations(world, ray, [intersection])
-        let actualValue = await world.shadeHit(computations, MAX_RECURSIVE_CALLS)
+        let computations = intersection.prepareComputations(world, ray, [intersection])
+        let actualValue = world.shadeHit(computations, MAX_RECURSIVE_CALLS)
         let expectedValue = Color(0.1, 0.1, 0.1)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
 
-    func testColorAtMiss() async throws {
+    func testColorAtMiss() throws {
         let world = testWorld()
         let ray = Ray(Point(0, 0, -5), Vector(0, 1, 0))
-        let actualValue = await world.colorAt(ray, MAX_RECURSIVE_CALLS)
+        let actualValue = world.colorAt(ray, MAX_RECURSIVE_CALLS)
         let expectedValue = Color(0, 0, 0)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
 
-    func testColorAtHit() async throws {
+    func testColorAtHit() throws {
         let world = testWorld()
         let ray = Ray(Point(0, 0, -5), Vector(0, 0, 1))
-        let actualValue = await world.colorAt(ray, MAX_RECURSIVE_CALLS)
+        let actualValue = world.colorAt(ray, MAX_RECURSIVE_CALLS)
         let expectedValue = Color(0.38066, 0.47583, 0.2855)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
 
-    //    Ignore this test for now
-    //
-    //    func testColorAtIntersectionBehindRay() throws {
-    //        let world = testWorld()
-    //        let outerSphere = world.objects[0]
-    //        outerSphere.material.ambient = 1.0
-    //        let innerSphere = world.objects[1]
-    //        innerSphere.material.ambient = 1.0
-    //
-    //        let ray = Ray(point(0, 0, 0.75), vector(0, 0, -1))
-    //        let actualValue = world.colorAt(ray, MAX_RECURSIVE_CALLS)
-    //        let expectedValue = Color(0.8, 1.0, 0.6)
-    //        XCTAssert(actualValue.isAlmostEqual(expectedValue))
-    //    }
+//    Ignore this test for now
+//
+//    func testColorAtIntersectionBehindRay() throws {
+//        let world = testWorld()
+//        let outerSphere = world.objects[0]
+//        outerSphere.material.ambient = 1.0
+//        let innerSphere = world.objects[1]
+//        innerSphere.material.ambient = 1.0
+//
+//        let ray = Ray(point(0, 0, 0.75), vector(0, 0, -1))
+//        let actualValue = world.colorAt(ray, MAX_RECURSIVE_CALLS)
+//        let expectedValue = Color(0.8, 1.0, 0.6)
+//        XCTAssert(actualValue.isAlmostEqual(expectedValue))
+//    }
 
-    func testIsShadowedPointAndLightNotCollinear() async throws {
+    func testIsShadowedPointAndLightNotCollinear() throws {
         let world = testWorld()
         let worldPoint = Point(0, 10, 0)
-        let light = await world.lights[0]
-        let result = await world.isShadowed(light.position, worldPoint)
+        let light = world.lights[0]
+        let result = world.isShadowed(light.position, worldPoint)
         XCTAssertFalse(result)
     }
 
-    func testIsShadowedObjectBetweenPointAndLight() async throws {
+    func testIsShadowedObjectBetweenPointAndLight() throws {
         let world = testWorld()
         let worldPoint = Point(10, -10, 10)
-        let light = await world.lights[0]
-        let result = await world.isShadowed(light.position, worldPoint)
+        let light = world.lights[0]
+        let result = world.isShadowed(light.position, worldPoint)
         XCTAssertTrue(result)
     }
 
-    func testIsShadowedObjectBehindLight() async throws {
+    func testIsShadowedObjectBehindLight() throws {
         let world = testWorld()
         let worldPoint = Point(-20, 20, -20)
-        let light = await world.lights[0]
-        let result = await world.isShadowed(light.position, worldPoint)
+        let light = world.lights[0]
+        let result = world.isShadowed(light.position, worldPoint)
         XCTAssertFalse(result)
     }
 
-    func testIsShadowedObjectBehindPoint() async throws {
+    func testIsShadowedObjectBehindPoint() throws {
         let world = testWorld()
         let worldPoint = Point(-2, 2, -2)
-        let light = await world.lights[0]
-        let result = await world.isShadowed(light.position, worldPoint)
+        let light = world.lights[0]
+        let result = world.isShadowed(light.position, worldPoint)
         XCTAssertFalse(result)
     }
 
-    func testIntensityOfPointLight() async throws {
+    func testIntensityOfPointLight() throws {
         let testCases = [
             (Point(0, 1.0001, 0), 1.0),
             (Point(-1.0001, 0, 0), 1.0),
@@ -185,15 +160,15 @@ class WorldTests: XCTestCase {
         ]
 
         let world = testWorld()
-        let light = await world.lights[0]
+        let light = world.lights[0]
 
         for (worldPoint, expectedIntensity) in testCases {
-            let actualIntesity = await world.intensity(light, worldPoint)
+            let actualIntesity = world.intensity(light, worldPoint)
             XCTAssertEqual(actualIntesity, expectedIntensity)
         }
     }
 
-    func testIntensityOfAreaLightWithNoJitter() async throws {
+    func testIntensityOfAreaLightWithNoJitter() throws {
         let areaLight = AreaLight(corner: Point(-0.5, -0.5, -5),
                                   color: Color(1, 1, 1),
                                   uVec: Vector(1, 0, 0),
@@ -202,12 +177,6 @@ class WorldTests: XCTestCase {
                                   vSteps: 2,
                                   jitter: NoJitter())
         let world = World {
-            Camera(width: 800,
-                   height: 600,
-                   viewAngle: PI/3,
-                   from: Point(0, 1, -1),
-                   to: Point(0, 0, 0),
-                   up: Vector(0, 1, 0))
             areaLight
             Sphere()
                 .material(SolidColor(0.8, 1.0, 0.6)
@@ -227,12 +196,12 @@ class WorldTests: XCTestCase {
             (Point(0, 0, -2), 1.0),
         ]
         for (worldPoint, expectedIntensity) in testCases {
-            let actualIntensity = await world.intensity(areaLight, worldPoint)
+            let actualIntensity = world.intensity(areaLight, worldPoint)
             XCTAssertEqual(actualIntensity, expectedIntensity)
         }
     }
 
-    func testIntensityOfAreaLightWithPseduorandomJitter() async throws {
+    func testIntensityOfAreaLightWithPseduorandomJitter() throws {
         let areaLight = AreaLight(corner: Point(-0.5, -0.5, -5),
                                   color: Color(1, 1, 1),
                                   uVec: Vector(1, 0, 0),
@@ -241,12 +210,6 @@ class WorldTests: XCTestCase {
                                   vSteps: 2,
                                   jitter: PseudorandomJitter([0.7, 0.3, 0.9, 0.1, 0.5]))
         let world = World {
-            Camera(width: 800,
-                   height: 600,
-                   viewAngle: PI/3,
-                   from: Point(0, 1, -1),
-                   to: Point(0, 0, 0),
-                   up: Vector(0, 1, 0))
             areaLight
             Sphere()
                 .material(SolidColor(0.8, 1.0, 0.6)
@@ -266,24 +229,18 @@ class WorldTests: XCTestCase {
             (Point(0, 0, -2), 1.0),
         ]
         for (worldPoint, expectedIntensity) in testCases {
-            let actualIntensity = await world.intensity(areaLight, worldPoint)
+            let actualIntensity = world.intensity(areaLight, worldPoint)
             XCTAssertEqual(actualIntensity, expectedIntensity)
             print(actualIntensity)
         }
     }
 
-    func testReflectedColorForNonreflectiveMaterial() async {
+    func testReflectedColorForNonreflectiveMaterial() throws {
         let secondShape = Sphere()
             .material(SolidColor(1.0, 1.0, 1.0)
                 .ambient(1.0))
             .scale(0.5, 0.5, 0.5)
         let world = World {
-            Camera(width: 800,
-                   height: 600,
-                   viewAngle: PI/3,
-                   from: Point(0, 1, -1),
-                   to: Point(0, 0, 0),
-                   up: Vector(0, 1, 0))
             PointLight(position: Point(-10, 10, -10))
             Sphere()
                 .material(SolidColor(0.8, 1.0, 0.6)
@@ -296,24 +253,18 @@ class WorldTests: XCTestCase {
 
         let ray = Ray(Point(0, 0, 0), Vector(0, 0, 1))
         let intersection = Intersection(1, secondShape)
-        let computations = await intersection.prepareComputations(world, ray, [intersection])
-        let actualValue = await world.reflectedColorAt(computations, MAX_RECURSIVE_CALLS)
+        let computations = intersection.prepareComputations(world, ray, [intersection])
+        let actualValue = world.reflectedColorAt(computations, MAX_RECURSIVE_CALLS)
         let expectedValue = Color(0, 0, 0)
         XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
     }
 
-    func testShadeHitWithReflectiveMaterial() async throws {
+    func testShadeHitWithReflectiveMaterial() throws {
         let anotherShape = Plane()
             .material(.basicMaterial()
                 .reflective(0.5))
             .translate(0, -1, 0)
         let world = World {
-            Camera(width: 800,
-                   height: 600,
-                   viewAngle: PI/3,
-                   from: Point(0, 1, -1),
-                   to: Point(0, 0, 0),
-                   up: Vector(0, 1, 0))
             PointLight(position: Point(-10, 10, -10))
             Sphere()
                 .material(SolidColor(0.8, 1.0, 0.6)
@@ -328,20 +279,14 @@ class WorldTests: XCTestCase {
 
         let ray = Ray(Point(0, 0, -3), Vector(0, -sqrt(2)/2, sqrt(2)/2))
         let intersection = Intersection(sqrt(2), anotherShape)
-        let computations = await intersection.prepareComputations(world, ray, [intersection])
-        let actualValue = await world.shadeHit(computations, MAX_RECURSIVE_CALLS)
+        let computations = intersection.prepareComputations(world, ray, [intersection])
+        let actualValue = world.shadeHit(computations, MAX_RECURSIVE_CALLS)
         let expectedValue = Color(0.87676, 0.92434, 0.82917)
         XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
     }
 
-    func testColorAtTerminatesForWorldWithMutuallyReflectiveSurfaces() async throws {
+    func testColorAtTerminatesForWorldWithMutuallyReflectiveSurfaces() throws {
         let world = World {
-            Camera(width: 800,
-                   height: 600,
-                   viewAngle: PI/3,
-                   from: Point(0, 1, -1),
-                   to: Point(0, 0, 0),
-                   up: Vector(0, 1, 0))
             PointLight(position: Point(0, 0, 0))
             Plane()
                 .material(.basicMaterial().reflective(1.0))
@@ -353,20 +298,14 @@ class WorldTests: XCTestCase {
         let ray = Ray(Point(0, 0, 0), Vector(0, 1, 0))
 
         // The following call should terminate; no need to test return value
-        let _ = await world.colorAt(ray, MAX_RECURSIVE_CALLS)
+        let _ = world.colorAt(ray, MAX_RECURSIVE_CALLS)
     }
 
-    func testColorAtMaxRecursiveDepth() async throws {
+    func testColorAtMaxRecursiveDepth() throws {
         let additionalShape = Plane()
             .material(.basicMaterial().reflective(0.5))
             .translate(0, -1, 0)
         let world = World {
-            Camera(width: 800,
-                   height: 600,
-                   viewAngle: PI/3,
-                   from: Point(0, 1, -1),
-                   to: Point(0, 0, 0),
-                   up: Vector(0, 1, 0))
             PointLight(position: Point(-10, 10, -10))
             Sphere()
                 .material(SolidColor(0.8, 1.0, 0.6)
@@ -381,38 +320,32 @@ class WorldTests: XCTestCase {
 
         let ray = Ray(Point(0, 0, -3), Vector(0, -sqrt(2)/2, sqrt(2)/2))
         let intersection = Intersection(sqrt(2), additionalShape)
-        let computations = await intersection.prepareComputations(world, ray, [intersection])
-        let actualValue = await world.reflectedColorAt(computations, 0)
+        let computations = intersection.prepareComputations(world, ray, [intersection])
+        let actualValue = world.reflectedColorAt(computations, 0)
         let expectedValue = Color.black
         XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
     }
 
-    func testRefractedColorWithOpaqueSurface() async throws {
+    func testRefractedColorWithOpaqueSurface() throws {
         let world = testWorld()
-        let firstShape = await world.shapes[0]
+        let firstShape = world.shapes[0]
         let ray = Ray(Point(0, 0, -5), Vector(0, 0, 1))
         let allIntersections = [
             Intersection(4, firstShape),
             Intersection(6, firstShape),
         ]
-        let computations = await allIntersections[0].prepareComputations(world, ray, allIntersections)
-        let actualValue = await world.refractedColorAt(computations, MAX_RECURSIVE_CALLS)
+        let computations = allIntersections[0].prepareComputations(world, ray, allIntersections)
+        let actualValue = world.refractedColorAt(computations, MAX_RECURSIVE_CALLS)
         let expectedValue = Color(0, 0, 0)
         XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
     }
 
-    func testRefractedColorAtMaximumRecursiveDepth() async throws {
+    func testRefractedColorAtMaximumRecursiveDepth() throws {
         let firstShape = Sphere()
             .material(.basicMaterial()
                 .transparency(1.0)
                 .refractive(1.5))
         let world = World {
-            Camera(width: 800,
-                   height: 600,
-                   viewAngle: PI/3,
-                   from: Point(0, 1, -1),
-                   to: Point(0, 0, 0),
-                   up: Vector(0, 1, 0))
             PointLight(position: Point(-10, 10, -10))
             firstShape
             Sphere()
@@ -424,24 +357,18 @@ class WorldTests: XCTestCase {
             Intersection(4, firstShape),
             Intersection(6, firstShape),
         ]
-        let computations = await allIntersections[0].prepareComputations(world, ray, allIntersections)
-        let actualValue = await world.refractedColorAt(computations, 0)
+        let computations = allIntersections[0].prepareComputations(world, ray, allIntersections)
+        let actualValue = world.refractedColorAt(computations, 0)
         let expectedValue = Color.black
         XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
     }
 
-    func testRefractedColorUnderTotalInternalReflection() async throws {
+    func testRefractedColorUnderTotalInternalReflection() throws {
         let firstShape = Sphere()
             .material(.basicMaterial()
                 .transparency(1.0)
                 .refractive(1.5))
         let world = World {
-            Camera(width: 800,
-                   height: 600,
-                   viewAngle: PI/3,
-                   from: Point(0, 1, -1),
-                   to: Point(0, 0, 0),
-                   up: Vector(0, 1, 0))
             PointLight(position: Point(-10, 10, -10))
             firstShape
             Sphere()
@@ -453,13 +380,13 @@ class WorldTests: XCTestCase {
             Intersection(-sqrt(2)/2, firstShape),
             Intersection(sqrt(2)/2, firstShape),
         ]
-        let computations = await allIntersections[1].prepareComputations(world, ray, allIntersections)
-        let actualValue = await world.refractedColorAt(computations, MAX_RECURSIVE_CALLS)
+        let computations = allIntersections[1].prepareComputations(world, ray, allIntersections)
+        let actualValue = world.refractedColorAt(computations, MAX_RECURSIVE_CALLS)
         let expectedValue = Color.black
         XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
     }
 
-    func testRefractedColorWithRefractedRay() async throws {
+    func testRefractedColorWithRefractedRay() throws {
         class TestPattern: ScintillaLib.Pattern {
             override init(_ transform: Matrix4, _ properties: MaterialProperties = MaterialProperties()) {
                 super.init(transform, properties)
@@ -483,12 +410,6 @@ class WorldTests: XCTestCase {
             .scale(0.5, 0.5, 0.5)
 
         let world = World {
-            Camera(width: 800,
-                   height: 600,
-                   viewAngle: PI/3,
-                   from: Point(0, 1, -1),
-                   to: Point(0, 0, 0),
-                   up: Vector(0, 1, 0))
             PointLight(position: Point(-10, 10, -10))
             shapeA
             shapeB
@@ -501,13 +422,13 @@ class WorldTests: XCTestCase {
             Intersection(0.4899, shapeB),
             Intersection(0.9899, shapeA),
         ]
-        let computations = await allIntersections[2].prepareComputations(world, ray, allIntersections)
-        let actualValue = await world.refractedColorAt(computations, MAX_RECURSIVE_CALLS)
+        let computations = allIntersections[2].prepareComputations(world, ray, allIntersections)
+        let actualValue = world.refractedColorAt(computations, MAX_RECURSIVE_CALLS)
         let expectedValue = Color(0, 0.99888, 0.04722)
         XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
     }
 
-    func testShadeHitWithTransparentMaterial() async throws {
+    func testShadeHitWithTransparentMaterial() throws {
         let floor = Plane()
             .material(.basicMaterial()
                 .transparency(0.5)
@@ -517,13 +438,8 @@ class WorldTests: XCTestCase {
             .material(SolidColor(1, 0, 0)
                 .ambient(0.5))
             .translate(0, -3.5, -0.5)
+
         let world = World {
-            Camera(width: 800,
-                   height: 600,
-                   viewAngle: PI/3,
-                   from: Point(0, 1, -1),
-                   to: Point(0, 0, 0),
-                   up: Vector(0, 1, 0))
             PointLight(position: Point(-10, 10, -10))
             Sphere()
                 .material(SolidColor(0.8, 1.0, 0.6)
@@ -540,24 +456,19 @@ class WorldTests: XCTestCase {
         let ray = Ray(Point(0, 0, -3), Vector(0, -sqrt(2)/2, sqrt(2)/2))
         let intersection = Intersection(sqrt(2), floor)
         let allIntersections = [intersection]
-        let computations = await intersection.prepareComputations(world, ray, allIntersections)
-        let actualValue = await world.shadeHit(computations, MAX_RECURSIVE_CALLS)
+        let computations = intersection.prepareComputations(world, ray, allIntersections)
+        let actualValue = world.shadeHit(computations, MAX_RECURSIVE_CALLS)
         let expectedValue = Color(0.93642, 0.68642, 0.68642)
         XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
     }
 
-    func testSchlickReflectanceForTotalInternalReflection() async throws {
+    func testSchlickReflectanceForTotalInternalReflection() throws {
         let glass = SolidColor(1.0, 1.0, 1.0)
             .transparency(1.0)
             .refractive(1.5)
         let glassySphere = Sphere().material(glass)
+
         let world = World {
-            Camera(width: 800,
-                   height: 600,
-                   viewAngle: PI/3,
-                   from: Point(0, 1, -1),
-                   to: Point(0, 0, 0),
-                   up: Vector(0, 1, 0))
             PointLight(position: Point(-10, 10, -10))
             glassySphere
         }
@@ -567,24 +478,19 @@ class WorldTests: XCTestCase {
             Intersection(-sqrt(2)/2, glassySphere),
             Intersection(sqrt(2)/2, glassySphere),
         ]
-        let computations = await allIntersections[1].prepareComputations(world, ray, allIntersections)
-        let actualValue = await world.schlickReflectance(computations)
+        let computations = allIntersections[1].prepareComputations(world, ray, allIntersections)
+        let actualValue = world.schlickReflectance(computations)
         let expectedValue = 1.0
         XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
     }
 
-    func testSchlickReflectanceForPerpendicularRay() async throws {
+    func testSchlickReflectanceForPerpendicularRay() throws {
         let glass = SolidColor(1.0, 1.0, 1.0)
             .transparency(1.0)
             .refractive(1.5)
         let glassySphere = Sphere().material(glass)
+
         let world = World {
-            Camera(width: 800,
-                   height: 600,
-                   viewAngle: PI/3,
-                   from: Point(0, 1, -1),
-                   to: Point(0, 0, 0),
-                   up: Vector(0, 1, 0))
             PointLight(position: Point(-10, 10, -10))
             glassySphere
         }
@@ -594,24 +500,19 @@ class WorldTests: XCTestCase {
             Intersection(-1, glassySphere),
             Intersection(1, glassySphere),
         ]
-        let computations = await allIntersections[1].prepareComputations(world, ray, allIntersections)
-        let actualValue = await world.schlickReflectance(computations)
+        let computations = allIntersections[1].prepareComputations(world, ray, allIntersections)
+        let actualValue = world.schlickReflectance(computations)
         let expectedValue = 0.04
         XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
     }
 
-    func testSchlickReflectanceForSmallAngleAndN2GreaterThanN1() async throws {
+    func testSchlickReflectanceForSmallAngleAndN2GreaterThanN1() throws {
         let glass = SolidColor(1.0, 1.0, 1.0)
             .transparency(1.0)
             .refractive(1.5)
         let glassySphere = Sphere().material(glass)
+
         let world = World {
-            Camera(width: 800,
-                   height: 600,
-                   viewAngle: PI/3,
-                   from: Point(0, 1, -1),
-                   to: Point(0, 0, 0),
-                   up: Vector(0, 1, 0))
             PointLight(position: Point(-10, 10, -10))
             glassySphere
         }
@@ -619,13 +520,13 @@ class WorldTests: XCTestCase {
         let ray = Ray(Point(0, 0.99, -2), Vector(0, 0, 1))
         let intersection = Intersection(1.8589, glassySphere)
         let allIntersections = [intersection]
-        let computations = await intersection.prepareComputations(world, ray, allIntersections)
-        let actualValue = await world.schlickReflectance(computations)
+        let computations = intersection.prepareComputations(world, ray, allIntersections)
+        let actualValue = world.schlickReflectance(computations)
         let expectedValue = 0.48873
         XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
     }
 
-    func testShadeHitWithReflectiveAndTransparentMaterial() async throws {
+    func testShadeHitWithReflectiveAndTransparentMaterial() throws {
         let floor = Plane()
             .material(.basicMaterial()
                 .transparency(0.5)
@@ -636,13 +537,8 @@ class WorldTests: XCTestCase {
             .material(SolidColor(1, 0, 0)
                 .ambient(0.5))
             .translate(0, -3.5, -0.5)
+
         let world = World {
-            Camera(width: 800,
-                   height: 600,
-                   viewAngle: PI/3,
-                   from: Point(0, 1, -1),
-                   to: Point(0, 0, 0),
-                   up: Vector(0, 1, 0))
             PointLight(position: Point(-10, 10, -10))
             Sphere()
                 .material(SolidColor(0.8, 1.0, 0.6)
@@ -659,21 +555,16 @@ class WorldTests: XCTestCase {
         let ray = Ray(Point(0, 0, -3), Vector(0, -sqrt(2)/2, sqrt(2)/2))
         let intersection = Intersection(sqrt(2), floor)
         let allIntersections = [intersection]
-        let computations = await intersection.prepareComputations(world, ray, allIntersections)
-        let actualValue = await world.shadeHit(computations, MAX_RECURSIVE_CALLS)
+        let computations = intersection.prepareComputations(world, ray, allIntersections)
+        let actualValue = world.shadeHit(computations, MAX_RECURSIVE_CALLS)
         let expectedValue = Color(0.93391, 0.69643, 0.69243)
         XCTAssertTrue(actualValue.isAlmostEqual(expectedValue))
     }
 
-    func testShadeHitWithTwoLightsAndVerifyThereAreTwoShadows() async throws {
+    func testShadeHitWithTwoLightsAndVerifyThereAreTwoShadows() throws {
         let floor = Plane().translate(0, -1, 0)
+
         let world = World {
-            Camera(width: 400,
-                   height: 400,
-                   viewAngle: PI/3,
-                   from: Point(0, 0, -5),
-                   to: Point(0, 0, 0),
-                   up: Vector(0, 1, 0))
             // Light above and to the left of the sphere
             PointLight(position: Point(-10, 10, 0))
             // Light above and to the right of the sphere
@@ -694,44 +585,9 @@ class WorldTests: XCTestCase {
             let ray = Ray(Point(0, 0, -5), direction)
             let intersection = Intersection(t, floor)
             let allIntersections = [intersection]
-            let computations = await intersection.prepareComputations(world, ray, allIntersections)
-            let actualColor = await world.shadeHit(computations, MAX_RECURSIVE_CALLS)
+            let computations = intersection.prepareComputations(world, ray, allIntersections)
+            let actualColor = world.shadeHit(computations, MAX_RECURSIVE_CALLS)
             XCTAssertTrue(actualColor.isAlmostEqual(expectedColor))
         }
-    }
-
-    func testRayForPixelForCenterOfCanvas() async throws {
-        let camera = Camera(width: 201, height: 101, viewAngle: PI/2, viewTransform: .identity)
-        let lights = [PointLight(position: Point(-10, 10, -10))]
-        let shapes: [Shape] = []
-        let world = World(camera, lights, shapes)
-
-        let ray = await world.rayForPixel(100, 50)
-        XCTAssert(ray.origin.isAlmostEqual(Point(0, 0, 0)))
-        XCTAssert(ray.direction.isAlmostEqual(Vector(0, 0, -1)))
-    }
-
-    func testRayForPixelForCornerOfCanvas() async throws {
-        let camera = Camera(width: 201, height: 101, viewAngle: PI/2, viewTransform: .identity)
-        let lights = [PointLight(position: Point(-10, 10, -10))]
-        let objects: [Shape] = []
-        let world = World(camera, lights, objects)
-
-        let ray = await world.rayForPixel(0, 0)
-        XCTAssert(ray.origin.isAlmostEqual(Point(0, 0, 0)))
-        XCTAssert(ray.direction.isAlmostEqual(Vector(0.66519, 0.33259, -0.66851)))
-    }
-
-    func testRayForPixelForTransformedCamera() async throws {
-        let transform = Matrix4.rotationY(PI/4)
-            .multiply(.translation(0, -2, 5))
-        let camera = Camera(width: 201, height: 101, viewAngle: PI/2, viewTransform: transform)
-        let lights = [PointLight(position: Point(-10, 10, -10))]
-        let objects: [Shape] = []
-        let world = World(camera, lights, objects)
-
-        let ray = await world.rayForPixel(100, 50)
-        XCTAssert(ray.origin.isAlmostEqual(Point(0, 2, -5)))
-        XCTAssert(ray.direction.isAlmostEqual(Vector(sqrt(2)/2, 0, -sqrt(2)/2)))
     }
 }

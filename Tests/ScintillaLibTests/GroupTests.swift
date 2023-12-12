@@ -45,7 +45,7 @@ class GroupTests: XCTestCase {
             .scale(2, 2, 2)
 
         let ray = Ray(Point(10, 0, -10), Vector(0, 0, 1))
-        let allIntersections = group.intersect(ray)
+        let allIntersections = group._intersect(ray)
         XCTAssertEqual(allIntersections.count, 2)
     }
 }

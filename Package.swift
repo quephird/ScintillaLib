@@ -23,9 +23,9 @@ let package = Package(
             dependencies: []),
 
         // Tests
-//        .testTarget(
-//            name: "ScintillaLibTests",
-//            dependencies: ["ScintillaLib"]),
+        .testTarget(
+            name: "ScintillaLibTests",
+            dependencies: ["ScintillaLib"]),
 
         // Examples
         .executableTarget(
