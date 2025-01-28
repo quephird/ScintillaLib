@@ -13,7 +13,7 @@ public protocol Light {
     var fadeDistance: Double? { get }
 }
 
-public struct PointLight: Light {
+public struct PointLight: Light, Equatable {
     public var position: Point
     public var color: Color
     public var fadeDistance: Double?
@@ -23,9 +23,15 @@ public struct PointLight: Light {
         self.color = color
         self.fadeDistance = fadeDistance
     }
+
+    public static func == (lhs: PointLight, rhs: PointLight) -> Bool {
+        return (lhs.position == rhs.position) &&
+               (lhs.color == rhs.color) &&
+               (lhs.fadeDistance == rhs.fadeDistance)
+    }
 }
 
-public struct AreaLight: Light {
+public struct AreaLight: Light, Equatable {
     public var position: Point
     public var color: Color
     public var fadeDistance: Double?
@@ -57,6 +63,18 @@ public struct AreaLight: Light {
             .add(self.vVec.multiply(Double(vSteps/2)))
         self.jitter = jitter
         self.fadeDistance = fadeDistance
+    }
+
+    public static func == (lhs: AreaLight, rhs: AreaLight) -> Bool {
+        return (lhs.position == rhs.position) &&
+               (lhs.color == rhs.color) &&
+               (lhs.fadeDistance == rhs.fadeDistance) &&
+               (lhs.corner == rhs.corner) &&
+               (lhs.uVec == rhs.uVec) &&
+               (lhs.uSteps == rhs.uSteps) &&
+               (lhs.vVec == rhs.vVec) &&
+               (lhs.vSteps == rhs.vSteps) &&
+               (lhs.samples == rhs.samples)
     }
 
     public mutating func pointAt(_ u: Int, _ v: Int) -> Point {

@@ -159,7 +159,7 @@ public struct Matrix3 {
     }
 }
 
-public struct Matrix4 {
+public struct Matrix4: Equatable {
     var data: (
         Double, Double, Double, Double,
         Double, Double, Double, Double,
@@ -185,6 +185,25 @@ public struct Matrix4 {
             x2, y2, z2, w2,
             x3, y3, z3, w3
         )
+    }
+
+    public static func == (lhs: Matrix4, rhs: Matrix4) -> Bool {
+        return (lhs.data.0 == rhs.data.0) &&
+               (lhs.data.1 == rhs.data.1) &&
+               (lhs.data.2 == rhs.data.2) &&
+               (lhs.data.3 == rhs.data.3) &&
+               (lhs.data.4 == rhs.data.4) &&
+               (lhs.data.5 == rhs.data.5) &&
+               (lhs.data.6 == rhs.data.6) &&
+               (lhs.data.7 == rhs.data.7) &&
+               (lhs.data.8 == rhs.data.8) &&
+               (lhs.data.9 == rhs.data.9) &&
+               (lhs.data.10 == rhs.data.10) &&
+               (lhs.data.11 == rhs.data.11) &&
+               (lhs.data.12 == rhs.data.12) &&
+               (lhs.data.13 == rhs.data.13) &&
+               (lhs.data.14 == rhs.data.14) &&
+               (lhs.data.15 == rhs.data.15)
     }
 
     public static func translation(_ x: Double, _ y: Double, _ z: Double) -> Self {

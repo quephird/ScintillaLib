@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Camera {
+public struct Camera: Equatable {
     var horizontalSize: Int
     var verticalSize: Int
     var fieldOfView: Double
@@ -61,5 +61,16 @@ public struct Camera {
         self.halfHeight = halfHeight
         self.pixelSize = pixelSize
         self.antialiasing = antialiasing
+    }
+
+    public static func == (lhs: Camera, rhs: Camera) -> Bool {
+        return (lhs.horizontalSize == rhs.horizontalSize) &&
+               (lhs.verticalSize == rhs.verticalSize) &&
+               (lhs.fieldOfView == rhs.fieldOfView) &&
+               (lhs.viewTransform == rhs.viewTransform) &&
+               (lhs.inverseViewTransform == rhs.inverseViewTransform) &&
+               (lhs.halfWidth == rhs.halfWidth) &&
+               (lhs.halfHeight == rhs.halfHeight) &&
+               (lhs.antialiasing == rhs.antialiasing)
     }
 }
