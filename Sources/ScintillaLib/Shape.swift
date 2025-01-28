@@ -207,3 +207,7 @@ extension Shape {
         }
     }
 }
+
+public func == (lhs: any Shape, rhs: any Shape) -> Bool {
+    return lhs.id == rhs.id
+}
