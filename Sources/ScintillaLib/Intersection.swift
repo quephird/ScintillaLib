@@ -9,14 +9,14 @@ import Foundation
 
 public struct Intersection {
     @_spi(Testing) public var t: Double
-    @_spi(Testing) public var shape: Shape
+    @_spi(Testing) public var shape: any Shape
     @_spi(Testing) public var uv: UV
 
-    @_spi(Testing) public init(_ t: Double, _ shape: Shape) {
+    @_spi(Testing) public init(_ t: Double, _ shape: any Shape) {
         self.init(t, .none, shape)
     }
 
-    @_spi(Testing) public init(_ t: Double, _ uv: UV, _ shape: Shape) {
+    @_spi(Testing) public init(_ t: Double, _ uv: UV, _ shape: any Shape) {
         self.t = t
         self.shape = shape
         self.uv = uv
@@ -25,7 +25,7 @@ public struct Intersection {
     func computeRefractiveIndices(_ allIntersections: [Intersection]) -> (Double, Double) {
         var n1 = 1.0
         var n2 = 1.0
-        var containers: [Shape] = []
+        var containers: [any Shape] = []
         for intersection in allIntersections {
             if intersection.t == self.t {
                 if let lastContainer = containers.last {

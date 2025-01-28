@@ -18,7 +18,7 @@ public struct SolidColor: Material {
         self.color = colorSpace.makeColor(component1, component2, component3)
     }
 
-    public func colorAt(_ object: Shape, _ worldPoint: Point) -> Color {
+    public func colorAt(_ object: any Shape, _ worldPoint: Point) -> Color {
         return color
     }
 

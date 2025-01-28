@@ -21,7 +21,7 @@ open class Pattern: Material {
         fatalError("Subclasses must override this method!")
     }
 
-    public func colorAt( _ object: Shape, _ worldPoint: Point) -> Color {
+    public func colorAt( _ object: any Shape, _ worldPoint: Point) -> Color {
         let objectPoint = object.inverseTransform.multiply(worldPoint)
         let patternPoint = self.inverseTransform.multiply(objectPoint)
         return self.colorAt(patternPoint)

@@ -36,7 +36,7 @@ public struct ColorFunction: Material {
         return copy
     }
 
-    public func colorAt( _ object: Shape, _ worldPoint: Point) -> Color {
+    public func colorAt( _ object: any Shape, _ worldPoint: Point) -> Color {
         let objectPoint = object.inverseTransform.multiply(worldPoint)
         let colorFunctionPoint = self.inverseTransform.multiply(objectPoint)
         return self.colorAt(colorFunctionPoint)

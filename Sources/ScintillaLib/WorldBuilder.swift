@@ -23,7 +23,7 @@ public enum WorldBuilder {
         return [.light(light)]
     }
 
-    public static func buildExpression(_ shape: Shape) -> [WorldObject] {
+    public static func buildExpression(_ shape: any Shape) -> [WorldObject] {
         return [.shape(shape)]
     }
 

@@ -9,7 +9,7 @@ import Foundation
 
 public struct Computations {
     @_spi(Testing) public var t: Double
-    @_spi(Testing) public var object: Shape
+    @_spi(Testing) public var object: any Shape
     @_spi(Testing) public var point: Point
     @_spi(Testing) public var overPoint: Point
     @_spi(Testing) public var underPoint: Point
