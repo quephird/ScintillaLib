@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol Shape {
+public protocol Shape: Equatable {
     var sharedProperties: SharedShapeProperties { get set }
 
     func localIntersect(_ localRay: Ray) -> [Intersection]
@@ -56,17 +56,23 @@ extension Shape {
     }
 }
 
+extension Shape {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.id == rhs.id
+    }
+}
+
 // CSG extensions
 extension Shape {
-    public func union(@ShapeBuilder _ otherShapesBuilder: () -> [Shape]) -> Shape {
+    public func union(@ShapeBuilder _ otherShapesBuilder: () -> [any Shape]) -> any Shape {
         return CSG.makeCSG(.union, self, otherShapesBuilder)
     }
 
-    public func difference(@ShapeBuilder _ otherShapesBuilder: () -> [Shape]) -> Shape {
+    public func difference(@ShapeBuilder _ otherShapesBuilder: () -> [any Shape]) -> any Shape {
         return CSG.makeCSG(.difference, self, otherShapesBuilder)
     }
 
-    public func intersection(@ShapeBuilder _ otherShapesBuilder: () -> [Shape]) -> Shape {
+    public func intersection(@ShapeBuilder _ otherShapesBuilder: () -> [any Shape]) -> any Shape {
         return CSG.makeCSG(.intersection, self, otherShapesBuilder)
     }
 }
@@ -190,7 +196,7 @@ extension Shape {
         return worldNormal
     }
 
-    func includes(_ other: Shape) -> Bool {
+    func includes(_ other: any Shape) -> Bool {
         switch self {
         case let group as Group:
             return group.children.contains(where: {shape in shape.includes(other)})

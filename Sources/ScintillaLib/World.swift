@@ -12,7 +12,7 @@ import Foundation
 public actor World {
     @_spi(Testing) public var camera: Camera
     @_spi(Testing) public var lights: [Light]
-    @_spi(Testing) public var shapes: [Shape]
+    @_spi(Testing) public var shapes: [any Shape]
 
     var totalPixels: Int
 
@@ -20,7 +20,7 @@ public actor World {
         let (camera, objects) = builder()
 
         var lights: [Light] = []
-        var shapes: [Shape] = []
+        var shapes: [any Shape] = []
         for object in objects {
             switch object {
             case .light(let light):
@@ -39,7 +39,7 @@ public actor World {
     public init(_ camera: Camera, @WorldObjectBuilder builder: () -> [WorldObject]) {
         let objects = builder()
         var lights: [Light] = []
-        var shapes: [Shape] = []
+        var shapes: [any Shape] = []
         for object in objects {
             switch object {
             case .light(let light):
@@ -55,14 +55,14 @@ public actor World {
         self.totalPixels = camera.horizontalSize * camera.verticalSize
     }
 
-    public init(_ camera: Camera, _ lights: [Light], _ shapes: [Shape]) {
+    public init(_ camera: Camera, _ lights: [Light], _ shapes: [any Shape]) {
         self.camera = camera
         self.lights = lights
         self.shapes = shapes
         self.totalPixels = camera.horizontalSize * camera.verticalSize
     }
 
-    public func findShape(_ shapeId: UUID) -> Shape? {
+    public func findShape(_ shapeId: UUID) -> (any Shape)? {
         for shape in self.shapes {
             if shape.id == shapeId {
                 return shape

@@ -34,7 +34,7 @@ public struct ParametricSurface: Shape {
     var fx: ParametricFunction
     var fy: ParametricFunction
     var fz: ParametricFunction
-    var boundingShape: Shape
+    var boundingShape: any Shape
     var uRange: (Double, Double)
     var vRange: (Double, Double)
     var accuracy: Double
@@ -89,7 +89,7 @@ public struct ParametricSurface: Shape {
 
     // This constructor constructs a parametric surface is the same as
     // the above but with a bounding shape instead
-    public init(shape: Shape,
+    public init(shape: any Shape,
                 uRange: (Double, Double),
                 vRange: (Double, Double),
                 accuracy: Double,

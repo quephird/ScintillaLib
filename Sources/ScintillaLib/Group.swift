@@ -9,9 +9,9 @@ import Foundation
 
 public struct Group: Shape {
     public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
-    var children: [Shape] = []
+    var children: [any Shape] = []
 
-    public init(@ShapeBuilder builder: () -> [Shape]) {
+    public init(@ShapeBuilder builder: () -> [any Shape]) {
         let children = builder()
         for var child in children {
             child.parentId = self.id
@@ -19,7 +19,7 @@ public struct Group: Shape {
         }
     }
 
-    public func findShape(_ shapeId: UUID) -> Shape? {
+    public func findShape(_ shapeId: UUID) -> (any Shape)? {
         for shape in self.children {
             if shape.id == shapeId {
                 return shape

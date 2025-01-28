@@ -38,7 +38,7 @@ public struct MaterialProperties {
 
 public protocol Material {
     func copy() -> Self
-    func colorAt(_ object: Shape, _ worldPoint: Point) -> Color
+    func colorAt(_ object: any Shape, _ worldPoint: Point) -> Color
     var properties: MaterialProperties { get set }
 }
 
@@ -99,7 +99,7 @@ extension Material {
         return modifyingProperties { $0.refractive = refractive }
     }
 
-    @_spi(Testing) public func lighting(_ light: Light, _ object: Shape, _ point: Point, _ eye: Vector, _ normal: Vector, _ intensity: Double) -> Color {
+    @_spi(Testing) public func lighting(_ light: Light, _ object: any Shape, _ point: Point, _ eye: Vector, _ normal: Vector, _ intensity: Double) -> Color {
         // Account for the attenuation of the light source over distance
         // if it has the fadeDistance property set. This is very similar
         // to the approach that POV-Ray uses, documented here:

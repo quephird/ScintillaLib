@@ -7,5 +7,5 @@
 
 public enum WorldObject {
     case light(Light)
-    case shape(Shape)
+    case shape(any Shape)
 }

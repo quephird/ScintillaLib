@@ -18,7 +18,7 @@ public struct ImplicitSurface: Shape {
     public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
 
     var f: SurfaceFunction
-    var boundingShape: Shape
+    var boundingShape: any Shape
 
     // This constructor is for creating an implicit surface with a bounding
     // sphere with the specified center and radius
@@ -45,7 +45,7 @@ public struct ImplicitSurface: Shape {
 
     // This constructor is for creating an implicit surface with the
     // specified bounding shape
-    public init(shape: Shape, _ f: @escaping SurfaceFunction) {
+    public init(shape: any Shape, _ f: @escaping SurfaceFunction) {
         self.boundingShape = shape
         self.f = f
     }
