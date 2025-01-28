@@ -57,11 +57,18 @@ extension Tuple4 {
     }
 }
 
-public struct Point: Tuple4 {
+public struct Point: Tuple4, Equatable {
     public var data: (Double, Double, Double, Double)
 
     public init(_ x: Double, _ y: Double, _ z: Double) {
         self.data = (x, y, z, 1.0)
+    }
+
+    public static func == (lhs: Point, rhs: Point) -> Bool {
+        return (lhs.data.0 == rhs.data.0) &&
+               (lhs.data.1 == rhs.data.1) &&
+               (lhs.data.2 == rhs.data.2) &&
+               (lhs.data.3 == rhs.data.3)
     }
 
     @_spi(Testing) public func add(_ other: Vector) -> Point {
@@ -97,11 +104,18 @@ public struct Point: Tuple4 {
     }
 }
 
-public struct Vector: Tuple4 {
+public struct Vector: Tuple4, Equatable {
     public var data: (Double, Double, Double, Double)
 
     public init(_ x: Double, _ y: Double, _ z: Double) {
         self.data = (x, y, z, 0.0)
+    }
+
+    public static func == (lhs: Vector, rhs: Vector) -> Bool {
+        return (lhs.data.0 == rhs.data.0) &&
+               (lhs.data.1 == rhs.data.1) &&
+               (lhs.data.2 == rhs.data.2) &&
+               (lhs.data.3 == rhs.data.3)
     }
 
     @_spi(Testing) public func add(_ other: Vector) -> Vector {

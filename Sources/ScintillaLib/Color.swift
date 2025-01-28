@@ -46,7 +46,7 @@ public enum ColorSpace {
     }
 }
 
-public struct Color {
+public struct Color: Equatable {
     var r: Double
     var g: Double
     var b: Double
