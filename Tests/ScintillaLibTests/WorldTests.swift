@@ -703,7 +703,7 @@ class WorldTests: XCTestCase {
     func testRayForPixelForCenterOfCanvas() async throws {
         let camera = Camera(width: 201, height: 101, viewAngle: PI/2, viewTransform: .identity)
         let lights = [PointLight(position: Point(-10, 10, -10))]
-        let shapes: [Shape] = []
+        let shapes: [any Shape] = []
         let world = World(camera, lights, shapes)
 
         let ray = await world.rayForPixel(100, 50)
@@ -714,7 +714,7 @@ class WorldTests: XCTestCase {
     func testRayForPixelForCornerOfCanvas() async throws {
         let camera = Camera(width: 201, height: 101, viewAngle: PI/2, viewTransform: .identity)
         let lights = [PointLight(position: Point(-10, 10, -10))]
-        let objects: [Shape] = []
+        let objects: [any Shape] = []
         let world = World(camera, lights, objects)
 
         let ray = await world.rayForPixel(0, 0)
@@ -727,7 +727,7 @@ class WorldTests: XCTestCase {
             .multiply(.translation(0, -2, 5))
         let camera = Camera(width: 201, height: 101, viewAngle: PI/2, viewTransform: transform)
         let lights = [PointLight(position: Point(-10, 10, -10))]
-        let objects: [Shape] = []
+        let objects: [any Shape] = []
         let world = World(camera, lights, objects)
 
         let ray = await world.rayForPixel(100, 50)
