@@ -69,27 +69,25 @@ public actor World {
     }
 
     private func reassignIds() {
-        self.shapes = self.shapes.map { self.reassignId(shape: $0) }
+        self.shapes = self.shapes.map { self.reassignId(shape: $0, parentId: nil) }
     }
 
-    private func reassignId(shape: any Shape) -> any Shape {
+    private func reassignId(shape: any Shape, parentId: UUID?) -> any Shape {
         if var group = shape as? Group {
             group.id = UUID()
-            group.children = group.children.map { self.reassignId(shape: $0) }
-            for var child in group.children {
-                child.parentId = group.id
-            }
+            group.parentId = parentId
+            group.children = group.children.map { self.reassignId(shape: $0, parentId: group.id) }
             return group
         } else if var csg = shape as? CSG {
             csg.id = UUID()
-            csg.left = reassignId(shape: csg.left)
-            csg.left.parentId = csg.id
-            csg.right = reassignId(shape: csg.right)
-            csg.right.parentId = csg.id
+            csg.parentId = parentId
+            csg.left = reassignId(shape: csg.left, parentId: csg.id)
+            csg.right = reassignId(shape: csg.right, parentId: csg.id)
             return csg
         } else {
             var copy = shape
             copy.id = UUID()
+            copy.parentId = parentId
             return copy
         }
     }
