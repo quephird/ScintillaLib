@@ -9,7 +9,7 @@ import Foundation
 
 public struct Group: Shape {
     public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
-    var children: [any Shape] = []
+    public var children: [any Shape] = []
 
     public init(@ShapeBuilder builder: () -> [any Shape]) {
         let children = builder()

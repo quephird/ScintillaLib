@@ -108,5 +108,9 @@ let package = Package(
             name: "Wine",
             dependencies: ["ScintillaLib"],
             path: "Examples/Wine"),
+        .executableTarget(
+            name: "TestDie",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/TestDie"),
     ]
 )

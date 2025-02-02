@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class Sphere: Shape {
+public struct Sphere: Shape {
     public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
 
     public init() {}

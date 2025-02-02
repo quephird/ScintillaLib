@@ -34,6 +34,8 @@ public actor World {
         self.lights = lights
         self.shapes = shapes
         self.totalPixels = camera.horizontalSize * camera.verticalSize
+
+        self.reassignIds()
     }
 
     public init(_ camera: Camera, @WorldObjectBuilder builder: () -> [WorldObject]) {
@@ -53,6 +55,8 @@ public actor World {
         self.shapes = shapes
         self.camera = camera
         self.totalPixels = camera.horizontalSize * camera.verticalSize
+
+        self.reassignIds()
     }
 
     public init(_ camera: Camera, _ lights: [Light], _ shapes: [any Shape]) {
@@ -60,6 +64,32 @@ public actor World {
         self.lights = lights
         self.shapes = shapes
         self.totalPixels = camera.horizontalSize * camera.verticalSize
+
+        self.reassignIds()
+    }
+
+    private func reassignIds() {
+        self.shapes = self.shapes.map { self.reassignId(shape: $0, parentId: nil) }
+    }
+
+    private func reassignId(shape: any Shape, parentId: UUID?) -> any Shape {
+        if var group = shape as? Group {
+            group.id = UUID()
+            group.parentId = parentId
+            group.children = group.children.map { self.reassignId(shape: $0, parentId: group.id) }
+            return group
+        } else if var csg = shape as? CSG {
+            csg.id = UUID()
+            csg.parentId = parentId
+            csg.left = reassignId(shape: csg.left, parentId: csg.id)
+            csg.right = reassignId(shape: csg.right, parentId: csg.id)
+            return csg
+        } else {
+            var copy = shape
+            copy.id = UUID()
+            copy.parentId = parentId
+            return copy
+        }
     }
 
     public func findShape(_ shapeId: UUID) -> (any Shape)? {
