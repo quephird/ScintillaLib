@@ -25,7 +25,6 @@ struct Die: ScintillaApp {
                    up: Vector(0, 1, 0))
             PointLight(position: Point(-5, 10, -10))
             Superellipsoid(e: 0.15, n: 0.15)
-//            Cube()
                 .material(
                     .solidColor(0.8, 0.5, 0.2, .rgb)
                     .transparency(1.0)
