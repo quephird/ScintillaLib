@@ -69,73 +69,79 @@ class SphereTests: XCTestCase {
 
     func testNormalPointOnXAxis() async throws {
         let p = Point(1, 0, 0)
-        let s = Sphere()
+        let sphere = Sphere()
         let world = World {
             testCamera
-            s
+            sphere
         }
-        let actualValue = await s.normal(world, p)
+        let assignedSphere = await world.shapes[0]
+        let actualValue = await assignedSphere.normal(world, p)
         let expectedValue = Vector(1, 0, 0)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
 
     func testNormalPointOnYAxis() async throws {
         let p = Point(0, 1, 0)
-        let s = Sphere()
+        let sphere = Sphere()
         let world = World {
             testCamera
-            s
+            sphere
         }
-        let actualValue = await s.normal(world, p)
+        let assignedSphere = await world.shapes[0]
+        let actualValue = await assignedSphere.normal(world, p)
         let expectedValue = Vector(0, 1, 0)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
 
     func testNormalPointOnZAxis() async throws {
         let p = Point(0, 0, 1)
-        let s = Sphere()
+        let sphere = Sphere()
         let world = World {
             testCamera
-            s
+            sphere
         }
-        let actualValue = await s.normal(world, p)
+        let assignedSphere = await world.shapes[0]
+        let actualValue = await assignedSphere.normal(world, p)
         let expectedValue = Vector(0, 0, 1)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
 
     func testNormalNonaxialPoint() async throws {
         let p = Point(sqrt(3)/3, sqrt(3)/3, sqrt(3)/3)
-        let s = Sphere()
+        let sphere = Sphere()
         let world = World {
             testCamera
-            s
+            sphere
         }
-        let actualValue = await s.normal(world, p)
+        let assignedSphere = await world.shapes[0]
+        let actualValue = await assignedSphere.normal(world, p)
         let expectedValue = Vector(sqrt(3)/3, sqrt(3)/3, sqrt(3)/3)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
 
     func testNormalTranslatedSphere() async throws {
-        let s = Sphere()
+        let sphere = Sphere()
             .translate(0, 1, 0)
         let world = World {
             testCamera
-            s
+            sphere
         }
-        let actualValue = await s.normal(world, Point(0, 1.70711, -0.70711))
+        let assignedSphere = await world.shapes[0]
+        let actualValue = await assignedSphere.normal(world, Point(0, 1.70711, -0.70711))
         let expectedValue = Vector(0, 0.70711, -0.70711)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
 
     func testNormalTransformedSphere() async throws {
-        let s = Sphere()
+        let sphere = Sphere()
             .scale(1, 0.5, 1)
             .rotateY(PI/5)
         let world = World {
             testCamera
-            s
+            sphere
         }
-        let actualValue = await s.normal(world, Point(0, sqrt(2)/2, -sqrt(2)/2))
+        let assignedSphere = await world.shapes[0]
+        let actualValue = await assignedSphere.normal(world, Point(0, sqrt(2)/2, -sqrt(2)/2))
         let expectedValue = Vector(0, 0.97014, -0.24254)
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }

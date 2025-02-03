@@ -9,37 +9,13 @@ import Foundation
 
 public struct Group: Shape {
     public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
-    var children: [any Shape] = []
+    public var children: [any Shape] = []
 
     public init(@ShapeBuilder builder: () -> [any Shape]) {
         let children = builder()
-        for var child in children {
-            child.parentId = self.id
+        for child in children {
             self.children.append(child)
         }
-    }
-
-    public func findShape(_ shapeId: UUID) -> (any Shape)? {
-        for shape in self.children {
-            if shape.id == shapeId {
-                return shape
-            }
-
-            switch shape {
-            case let csg as CSG:
-                if let shape = csg.findShape(shapeId) {
-                    return shape
-                }
-            case let group as Group:
-                if let shape = group.findShape(shapeId) {
-                    return shape
-                }
-            default:
-                continue
-            }
-        }
-
-        return nil
     }
 
     @_spi(Testing) public func localIntersect(_ localRay: Ray) -> [Intersection] {

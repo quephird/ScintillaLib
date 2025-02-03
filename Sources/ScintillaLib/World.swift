@@ -34,6 +34,8 @@ public actor World {
         self.lights = lights
         self.shapes = shapes
         self.totalPixels = camera.horizontalSize * camera.verticalSize
+
+        self.assignIds()
     }
 
     public init(_ camera: Camera, @WorldObjectBuilder builder: () -> [WorldObject]) {
@@ -53,6 +55,8 @@ public actor World {
         self.shapes = shapes
         self.camera = camera
         self.totalPixels = camera.horizontalSize * camera.verticalSize
+
+        self.assignIds()
     }
 
     public init(_ camera: Camera, _ lights: [Light], _ shapes: [any Shape]) {
@@ -60,29 +64,15 @@ public actor World {
         self.lights = lights
         self.shapes = shapes
         self.totalPixels = camera.horizontalSize * camera.verticalSize
+
+        self.assignIds()
     }
 
-    public func findShape(_ shapeId: UUID) -> (any Shape)? {
-        for shape in self.shapes {
-            if shape.id == shapeId {
-                return shape
-            }
-
-            switch shape {
-            case let csg as CSG:
-                if let shape = csg.findShape(shapeId) {
-                    return shape
-                }
-            case let group as Group:
-                if let shape = group.findShape(shapeId) {
-                    return shape
-                }
-            default:
-                continue
-            }
+    private func assignIds() {
+        self.shapes = self.shapes.enumerated().map { (index, shape) in
+            var copy = shape
+            return copy.assignId(id: [UInt8(index)])
         }
-
-        return nil
     }
 
     @_spi(Testing) public func intersect(_ ray: Ray) -> [Intersection] {

@@ -16,7 +16,7 @@ public protocol Shape: Equatable {
 
 extension Shape {
     @inlinable
-    @_spi(Testing) public var id: UUID {
+    @_spi(Testing) public var id: ShapeID {
         get { sharedProperties.id }
         set { sharedProperties.id = newValue }
     }
@@ -44,15 +44,36 @@ extension Shape {
     }
 
     @inlinable
-    public var parentId: UUID? {
+    public var parentId: ShapeID? {
         get { sharedProperties.parentID }
-        set { sharedProperties.parentID = newValue }
     }
 
     @inlinable
     public var castsShadow: Bool  {
         get { sharedProperties.castsShadow }
         set { sharedProperties.castsShadow = newValue }
+    }
+}
+
+extension Shape {
+    public func assignId(id: ShapeID) -> Self {
+        if var group = self as? Group {
+            group.id = id
+            group.children = group.children.enumerated().map { (index, shape) in
+                var copy = shape
+                return copy.assignId(id: id + [UInt8(index)])
+            }
+            return group as! Self
+        } else if var csg = self as? CSG {
+            csg.id = id
+            csg.left = csg.left.assignId(id: id + [UInt8(0)])
+            csg.right = csg.right.assignId(id: id + [UInt8(1)])
+            return csg as! Self
+        } else {
+            var copy = self
+            copy.id = id
+            return copy
+        }
     }
 }
 
@@ -152,11 +173,34 @@ extension Shape {
 
 // CSG and group extensions
 extension Shape {
+    public func findShape(shapeId: ShapeID, shapes: [any Shape]) -> (any Shape)? {
+        for shape in shapes {
+            if shape.id == shapeId {
+                return shape
+            }
+
+            switch shape {
+            case let csg as CSG:
+                if let shape = self.findShape(shapeId: shapeId, shapes: [csg.left, csg.right]) {
+                    return shape
+                }
+            case let group as Group:
+                if let shape = self.findShape(shapeId: shapeId, shapes: group.children) {
+                    return shape
+                }
+            default:
+                continue
+            }
+        }
+
+        return nil
+    }
+
     @_spi(Testing) public func worldToObject(_ world: World, _ worldPoint: Point) async -> Point {
         var objectPoint = worldPoint
 
         if let parentId = self.parentId {
-            guard let parentShape = await world.findShape(parentId) else {
+            guard let parentShape = self.findShape(shapeId: parentId, shapes: await world.shapes) else {
                 fatalError("Whoops... unable to find parent shape!")
             }
 
@@ -179,7 +223,7 @@ extension Shape {
         worldNormal = worldNormal.normalize()
 
         if let parentId = self.parentId {
-            guard let parentShape = await world.findShape(parentId) else {
+            guard let parentShape = self.findShape(shapeId: parentId, shapes: await world.shapes) else {
                 fatalError("Whoops... unable ot find parent shape!")
             }
 
