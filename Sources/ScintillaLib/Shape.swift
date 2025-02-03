@@ -16,7 +16,7 @@ public protocol Shape: Equatable {
 
 extension Shape {
     @inlinable
-    @_spi(Testing) public var id: UUID {
+    @_spi(Testing) public var id: ShapeID {
         get { sharedProperties.id }
         set { sharedProperties.id = newValue }
     }
@@ -44,15 +44,36 @@ extension Shape {
     }
 
     @inlinable
-    public var parentId: UUID? {
+    public var parentId: ShapeID? {
         get { sharedProperties.parentID }
-        set { sharedProperties.parentID = newValue }
     }
 
     @inlinable
     public var castsShadow: Bool  {
         get { sharedProperties.castsShadow }
         set { sharedProperties.castsShadow = newValue }
+    }
+}
+
+extension Shape {
+    public func assignId(id: ShapeID) -> Self {
+        if var group = self as? Group {
+            group.id = id
+            group.children = group.children.enumerated().map { (index, shape) in
+                var copy = shape
+                return copy.assignId(id: id + [UInt8(index)])
+            }
+            return group as! Self
+        } else if var csg = self as? CSG {
+            csg.id = id
+            csg.left = csg.left.assignId(id: id + [UInt8(0)])
+            csg.right = csg.right.assignId(id: id + [UInt8(1)])
+            return csg as! Self
+        } else {
+            var copy = self
+            copy.id = id
+            return copy
+        }
     }
 }
 

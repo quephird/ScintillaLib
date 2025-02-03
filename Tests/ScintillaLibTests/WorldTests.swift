@@ -103,7 +103,8 @@ class WorldTests: XCTestCase {
         }
 
         let ray = Ray(Point(0, 0, 5), Vector(0, 0, 1))
-        let intersection = Intersection(4, s2)
+        let assignedS2 = await world.shapes[1]
+        let intersection = Intersection(4, assignedS2)
         let computations = await intersection.prepareComputations(world, ray, [intersection])
         let actualValue = await world.shadeHit(computations, MAX_RECURSIVE_CALLS)
         let expectedValue = Color(0.1, 0.1, 0.1)
@@ -295,7 +296,8 @@ class WorldTests: XCTestCase {
         }
 
         let ray = Ray(Point(0, 0, 0), Vector(0, 0, 1))
-        let intersection = Intersection(1, secondShape)
+        let assignedSecondShape = await world.shapes[1]
+        let intersection = Intersection(1, assignedSecondShape)
         let computations = await intersection.prepareComputations(world, ray, [intersection])
         let actualValue = await world.reflectedColorAt(computations, MAX_RECURSIVE_CALLS)
         let expectedValue = Color(0, 0, 0)
@@ -327,7 +329,8 @@ class WorldTests: XCTestCase {
         }
 
         let ray = Ray(Point(0, 0, -3), Vector(0, -sqrt(2)/2, sqrt(2)/2))
-        let intersection = Intersection(sqrt(2), anotherShape)
+        let assignedAnotherShape = await world.shapes[2]
+        let intersection = Intersection(sqrt(2), assignedAnotherShape)
         let computations = await intersection.prepareComputations(world, ray, [intersection])
         let actualValue = await world.shadeHit(computations, MAX_RECURSIVE_CALLS)
         let expectedValue = Color(0.87676, 0.92434, 0.82917)
@@ -379,8 +382,9 @@ class WorldTests: XCTestCase {
             additionalShape
         }
 
+        let assignedAdditionalShape = await world.shapes[2]
         let ray = Ray(Point(0, 0, -3), Vector(0, -sqrt(2)/2, sqrt(2)/2))
-        let intersection = Intersection(sqrt(2), additionalShape)
+        let intersection = Intersection(sqrt(2), assignedAdditionalShape)
         let computations = await intersection.prepareComputations(world, ray, [intersection])
         let actualValue = await world.reflectedColorAt(computations, 0)
         let expectedValue = Color.black
@@ -420,9 +424,10 @@ class WorldTests: XCTestCase {
         }
 
         let ray = Ray(Point(0, 0, -5), Vector(0, 0, 1))
+        let assignedFirstShape = await world.shapes[0]
         let allIntersections = [
-            Intersection(4, firstShape),
-            Intersection(6, firstShape),
+            Intersection(4, assignedFirstShape),
+            Intersection(6, assignedFirstShape),
         ]
         let computations = await allIntersections[0].prepareComputations(world, ray, allIntersections)
         let actualValue = await world.refractedColorAt(computations, 0)
@@ -449,9 +454,10 @@ class WorldTests: XCTestCase {
         }
 
         let ray = Ray(Point(0, 0, sqrt(2)/2), Vector(0, 1, 0))
+        let assignedFirstShape = await world.shapes[0]
         let allIntersections = [
-            Intersection(-sqrt(2)/2, firstShape),
-            Intersection(sqrt(2)/2, firstShape),
+            Intersection(-sqrt(2)/2, assignedFirstShape),
+            Intersection(sqrt(2)/2, assignedFirstShape),
         ]
         let computations = await allIntersections[1].prepareComputations(world, ray, allIntersections)
         let actualValue = await world.refractedColorAt(computations, MAX_RECURSIVE_CALLS)
@@ -495,11 +501,13 @@ class WorldTests: XCTestCase {
         }
 
         let ray = Ray(Point(0, 0, 0.1), Vector(0, 1, 0))
+        let assignedShapeA = await world.shapes[0]
+        let assignedShapeB = await world.shapes[1]
         let allIntersections = [
-            Intersection(-0.9899, shapeA),
-            Intersection(-0.4899, shapeB),
-            Intersection(0.4899, shapeB),
-            Intersection(0.9899, shapeA),
+            Intersection(-0.9899, assignedShapeA),
+            Intersection(-0.4899, assignedShapeB),
+            Intersection(0.4899, assignedShapeB),
+            Intersection(0.9899, assignedShapeA),
         ]
         let computations = await allIntersections[2].prepareComputations(world, ray, allIntersections)
         let actualValue = await world.refractedColorAt(computations, MAX_RECURSIVE_CALLS)
@@ -538,7 +546,8 @@ class WorldTests: XCTestCase {
         }
 
         let ray = Ray(Point(0, 0, -3), Vector(0, -sqrt(2)/2, sqrt(2)/2))
-        let intersection = Intersection(sqrt(2), floor)
+        let assignedFloor = await world.shapes[2]
+        let intersection = Intersection(sqrt(2), assignedFloor)
         let allIntersections = [intersection]
         let computations = await intersection.prepareComputations(world, ray, allIntersections)
         let actualValue = await world.shadeHit(computations, MAX_RECURSIVE_CALLS)
@@ -563,9 +572,10 @@ class WorldTests: XCTestCase {
         }
 
         let ray = Ray(Point(0, 0, sqrt(2)/2), Vector(0, 1, 0))
+        let assignedGlassySphere = await world.shapes[0]
         let allIntersections = [
-            Intersection(-sqrt(2)/2, glassySphere),
-            Intersection(sqrt(2)/2, glassySphere),
+            Intersection(-sqrt(2)/2, assignedGlassySphere),
+            Intersection(sqrt(2)/2, assignedGlassySphere),
         ]
         let computations = await allIntersections[1].prepareComputations(world, ray, allIntersections)
         let actualValue = await world.schlickReflectance(computations)
@@ -590,9 +600,10 @@ class WorldTests: XCTestCase {
         }
 
         let ray = Ray(Point(0, 0, 0), Vector(0, 1, 0))
+        let assignedGlassySphere = await world.shapes[0]
         let allIntersections = [
-            Intersection(-1, glassySphere),
-            Intersection(1, glassySphere),
+            Intersection(-1, assignedGlassySphere),
+            Intersection(1, assignedGlassySphere),
         ]
         let computations = await allIntersections[1].prepareComputations(world, ray, allIntersections)
         let actualValue = await world.schlickReflectance(computations)
@@ -617,7 +628,8 @@ class WorldTests: XCTestCase {
         }
 
         let ray = Ray(Point(0, 0.99, -2), Vector(0, 0, 1))
-        let intersection = Intersection(1.8589, glassySphere)
+        let assignedGlassySphere = await world.shapes[0]
+        let intersection = Intersection(1.8589, assignedGlassySphere)
         let allIntersections = [intersection]
         let computations = await intersection.prepareComputations(world, ray, allIntersections)
         let actualValue = await world.schlickReflectance(computations)
@@ -657,7 +669,8 @@ class WorldTests: XCTestCase {
         }
 
         let ray = Ray(Point(0, 0, -3), Vector(0, -sqrt(2)/2, sqrt(2)/2))
-        let intersection = Intersection(sqrt(2), floor)
+        let assignedFloor = await world.shapes[2]
+        let intersection = Intersection(sqrt(2), assignedFloor)
         let allIntersections = [intersection]
         let computations = await intersection.prepareComputations(world, ray, allIntersections)
         let actualValue = await world.shadeHit(computations, MAX_RECURSIVE_CALLS)
@@ -682,6 +695,7 @@ class WorldTests: XCTestCase {
                 .material(.solidColor(1.0, 1.0, 1.0))
             floor
         }
+        let assignedFloor = await world.shapes[1]
 
         for (direction, t, expectedColor) in [
             // Spot on the plane in the left shadow
@@ -692,7 +706,7 @@ class WorldTests: XCTestCase {
             (Vector(0, -1/sqrt(17), 4/sqrt(17)), sqrt(17), Color(0.94451, 0.94451, 0.94451)),
         ] {
             let ray = Ray(Point(0, 0, -5), direction)
-            let intersection = Intersection(t, floor)
+            let intersection = Intersection(t, assignedFloor)
             let allIntersections = [intersection]
             let computations = await intersection.prepareComputations(world, ray, allIntersections)
             let actualColor = await world.shadeHit(computations, MAX_RECURSIVE_CALLS)

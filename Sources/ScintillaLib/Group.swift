@@ -13,13 +13,12 @@ public struct Group: Shape {
 
     public init(@ShapeBuilder builder: () -> [any Shape]) {
         let children = builder()
-        for var child in children {
-            child.parentId = self.id
+        for child in children {
             self.children.append(child)
         }
     }
 
-    public func findShape(_ shapeId: UUID) -> (any Shape)? {
+    public func findShape(_ shapeId: ShapeID) -> (any Shape)? {
         for shape in self.children {
             if shape.id == shapeId {
                 return shape

@@ -35,7 +35,7 @@ public actor World {
         self.shapes = shapes
         self.totalPixels = camera.horizontalSize * camera.verticalSize
 
-        self.reassignIds()
+        self.assignIds()
     }
 
     public init(_ camera: Camera, @WorldObjectBuilder builder: () -> [WorldObject]) {
@@ -56,7 +56,7 @@ public actor World {
         self.camera = camera
         self.totalPixels = camera.horizontalSize * camera.verticalSize
 
-        self.reassignIds()
+        self.assignIds()
     }
 
     public init(_ camera: Camera, _ lights: [Light], _ shapes: [any Shape]) {
@@ -65,34 +65,17 @@ public actor World {
         self.shapes = shapes
         self.totalPixels = camera.horizontalSize * camera.verticalSize
 
-        self.reassignIds()
+        self.assignIds()
     }
 
-    private func reassignIds() {
-        self.shapes = self.shapes.map { self.reassignId(shape: $0, parentId: nil) }
-    }
-
-    private func reassignId(shape: any Shape, parentId: UUID?) -> any Shape {
-        if var group = shape as? Group {
-            group.id = UUID()
-            group.parentId = parentId
-            group.children = group.children.map { self.reassignId(shape: $0, parentId: group.id) }
-            return group
-        } else if var csg = shape as? CSG {
-            csg.id = UUID()
-            csg.parentId = parentId
-            csg.left = reassignId(shape: csg.left, parentId: csg.id)
-            csg.right = reassignId(shape: csg.right, parentId: csg.id)
-            return csg
-        } else {
+    private func assignIds() {
+        self.shapes = self.shapes.enumerated().map { (index, shape) in
             var copy = shape
-            copy.id = UUID()
-            copy.parentId = parentId
-            return copy
+            return copy.assignId(id: [UInt8(index)])
         }
     }
 
-    public func findShape(_ shapeId: UUID) -> (any Shape)? {
+    public func findShape(_ shapeId: ShapeID) -> (any Shape)? {
         for shape in self.shapes {
             if shape.id == shapeId {
                 return shape

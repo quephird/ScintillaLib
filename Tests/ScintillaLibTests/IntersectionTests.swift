@@ -75,10 +75,11 @@ class IntersectionTests: XCTestCase {
             testCamera
             shape
         }
-        let intersection = Intersection(4, shape)
+        let assignedShape = await world.shapes[0]
+        let intersection = Intersection(4, assignedShape)
         let computations = await intersection.prepareComputations(world, ray, [intersection])
         XCTAssertEqual(computations.t, intersection.t)
-        XCTAssertEqual(computations.object.id, shape.id)
+        XCTAssertEqual(computations.object.id, assignedShape.id)
         XCTAssert(computations.point.isAlmostEqual(Point(0, 0, -1)))
         XCTAssert(computations.eye.isAlmostEqual(Vector(0, 0, -1)))
         XCTAssert(computations.normal.isAlmostEqual(Vector(0, 0, -1)))
@@ -92,10 +93,11 @@ class IntersectionTests: XCTestCase {
             testCamera
             shape
         }
-        let intersection = Intersection(1, shape)
+        let assignedShape = await world.shapes[0]
+        let intersection = Intersection(1, assignedShape)
         let computations = await intersection.prepareComputations(world, ray, [intersection])
         XCTAssertEqual(computations.t, intersection.t)
-        XCTAssertEqual(computations.object.id, shape.id)
+        XCTAssertEqual(computations.object.id, assignedShape.id)
         XCTAssert(computations.point.isAlmostEqual(Point(0, 0, 1)))
         XCTAssert(computations.eye.isAlmostEqual(Vector(0, 0, -1)))
         XCTAssert(computations.normal.isAlmostEqual(Vector(0, 0, -1)))
@@ -110,7 +112,8 @@ class IntersectionTests: XCTestCase {
             testCamera
             shape
         }
-        let intersection = Intersection(5, shape)
+        let assignedShape = await world.shapes[0]
+        let intersection = Intersection(5, assignedShape)
         let computations = await intersection.prepareComputations(world, ray, [intersection])
         XCTAssertTrue(computations.overPoint[2] < -EPSILON/2)
         XCTAssertTrue(computations.point[2] > computations.overPoint[2])
@@ -124,7 +127,8 @@ class IntersectionTests: XCTestCase {
             testCamera
             shape
         }
-        let intersection = Intersection(5, shape)
+        let assignedShape = await world.shapes[0]
+        let intersection = Intersection(5, assignedShape)
         let computations = await intersection.prepareComputations(world, ray, [intersection])
         XCTAssertTrue(computations.underPoint[2] > EPSILON/2)
         XCTAssertTrue(computations.point[2] < computations.underPoint[2])
@@ -136,8 +140,9 @@ class IntersectionTests: XCTestCase {
             testCamera
             shape
         }
+        let assignedShape = await world.shapes[0]
         let ray = Ray(Point(0, 1, -1), Vector(0, -sqrt(2)/2, sqrt(2)/2))
-        let intersection = Intersection(sqrt(2), shape)
+        let intersection = Intersection(sqrt(2), assignedShape)
         let computations = await intersection.prepareComputations(world, ray, [intersection])
         XCTAssertTrue(computations.reflected.isAlmostEqual(Vector(0, sqrt(2)/2, sqrt(2)/2)))
     }
@@ -158,15 +163,18 @@ class IntersectionTests: XCTestCase {
             glassSphereB
             glassSphereC
         }
+        let assignedGlassSphereA = await world.shapes[0]
+        let assignedGlassSphereB = await world.shapes[1]
+        let assignedGlassSphereC = await world.shapes[2]
 
         let ray = Ray(Point(0, 0, -4), Vector(0, 0, 1))
         let allIntersections = [
-            Intersection(2, glassSphereA),
-            Intersection(2.75, glassSphereB),
-            Intersection(3.25, glassSphereC),
-            Intersection(4.75, glassSphereB),
-            Intersection(5.25, glassSphereC),
-            Intersection(6, glassSphereA),
+            Intersection(2, assignedGlassSphereA),
+            Intersection(2.75, assignedGlassSphereB),
+            Intersection(3.25, assignedGlassSphereC),
+            Intersection(4.75, assignedGlassSphereB),
+            Intersection(5.25, assignedGlassSphereC),
+            Intersection(6, assignedGlassSphereA),
         ]
         let expectedValues = [
             (1.0, 1.5),

@@ -11,19 +11,16 @@ public struct CSG: Shape {
     public var sharedProperties: SharedShapeProperties = SharedShapeProperties()
 
     var operation: Operation
-    var left: any Shape
-    var right: any Shape
+    @_spi(Testing) public var left: any Shape
+    @_spi(Testing) public var right: any Shape
 
     public init(_ operation: Operation, _ left: any Shape, _ right: any Shape) {
         self.operation = operation
         self.left = left
         self.right = right
-
-        self.left.parentId = self.id
-        self.right.parentId = self.id
     }
 
-    public func findShape(_ shapeId: UUID) -> (any Shape)? {
+    public func findShape(_ shapeId: ShapeID) -> (any Shape)? {
         for shape in [self.left, self.right] {
             if shape.id == shapeId {
                 return shape
