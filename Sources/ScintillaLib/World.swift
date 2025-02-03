@@ -75,29 +75,6 @@ public actor World {
         }
     }
 
-    public func findShape(_ shapeId: ShapeID) -> (any Shape)? {
-        for shape in self.shapes {
-            if shape.id == shapeId {
-                return shape
-            }
-
-            switch shape {
-            case let csg as CSG:
-                if let shape = csg.findShape(shapeId) {
-                    return shape
-                }
-            case let group as Group:
-                if let shape = group.findShape(shapeId) {
-                    return shape
-                }
-            default:
-                continue
-            }
-        }
-
-        return nil
-    }
-
     @_spi(Testing) public func intersect(_ ray: Ray) -> [Intersection] {
         var intersections = self.shapes.flatMap({shape in shape.intersect(ray)})
         intersections

@@ -173,11 +173,34 @@ extension Shape {
 
 // CSG and group extensions
 extension Shape {
+    public func findShape(shapeId: ShapeID, shapes: [any Shape]) -> (any Shape)? {
+        for shape in shapes {
+            if shape.id == shapeId {
+                return shape
+            }
+
+            switch shape {
+            case let csg as CSG:
+                if let shape = self.findShape(shapeId: shapeId, shapes: [csg.left, csg.right]) {
+                    return shape
+                }
+            case let group as Group:
+                if let shape = self.findShape(shapeId: shapeId, shapes: group.children) {
+                    return shape
+                }
+            default:
+                continue
+            }
+        }
+
+        return nil
+    }
+
     @_spi(Testing) public func worldToObject(_ world: World, _ worldPoint: Point) async -> Point {
         var objectPoint = worldPoint
 
         if let parentId = self.parentId {
-            guard let parentShape = await world.findShape(parentId) else {
+            guard let parentShape = self.findShape(shapeId: parentId, shapes: await world.shapes) else {
                 fatalError("Whoops... unable to find parent shape!")
             }
 
@@ -200,7 +223,7 @@ extension Shape {
         worldNormal = worldNormal.normalize()
 
         if let parentId = self.parentId {
-            guard let parentShape = await world.findShape(parentId) else {
+            guard let parentShape = self.findShape(shapeId: parentId, shapes: await world.shapes) else {
                 fatalError("Whoops... unable ot find parent shape!")
             }
 

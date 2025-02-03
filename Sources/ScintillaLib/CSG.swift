@@ -20,29 +20,6 @@ public struct CSG: Shape {
         self.right = right
     }
 
-    public func findShape(_ shapeId: ShapeID) -> (any Shape)? {
-        for shape in [self.left, self.right] {
-            if shape.id == shapeId {
-                return shape
-            }
-
-            switch shape {
-            case let csg as CSG:
-                if let shape = csg.findShape(shapeId) {
-                    return shape
-                }
-            case let group as Group:
-                if let shape = group.findShape(shapeId) {
-                    return shape
-                }
-            default:
-                continue
-            }
-        }
-
-        return nil
-    }
-
     static func makeCSG(_ operation: Operation, _ baseShape: any Shape, @ShapeBuilder _ otherShapesBuilder: () -> [any Shape]) -> any Shape {
         let rightShapes = otherShapesBuilder()
 
