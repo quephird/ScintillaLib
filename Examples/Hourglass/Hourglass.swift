@@ -28,9 +28,9 @@ struct Hourglass: ScintillaApp {
                           fx: { (u, v) in cos(u)*sin(2*v) },
                           fy: { (u, v) in sin(v) },
                           fz: { (u, v) in sin(u)*sin(2*v) })
-            .material(.solidColor(0.9, 0.5, 0.5, .hsl))
+            .material(.uniform(0.9, 0.5, 0.5, .hsl))
         Plane()
-            .material(.solidColor(1, 1, 1))
+            .material(.uniform(1, 1, 1))
             .translate(0, -1.0, 0)
     }
 }

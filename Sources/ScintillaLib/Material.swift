@@ -42,20 +42,20 @@ public protocol Material {
     var properties: MaterialProperties { get set }
 }
 
-extension Material where Self == SolidColor {
+extension Material where Self == Uniform {
     public static func basicMaterial() -> Self {
-        return SolidColor(1, 1, 1)
+        return Uniform(1, 1, 1)
     }
 
-    public static func solidColor(_ component0: Double,
-                                  _ component1: Double,
-                                  _ component2: Double,
-                                  _ colorSpace: ColorSpace = .rgb) -> Self {
-        return SolidColor(component0, component1, component2, colorSpace)
+    public static func uniform(_ component0: Double,
+                               _ component1: Double,
+                               _ component2: Double,
+                               _ colorSpace: ColorSpace = .rgb) -> Self {
+        return Uniform(component0, component1, component2, colorSpace)
     }
 
-    public static func solidColor(_ color: Color) -> Self {
-        return SolidColor(color.r, color.g, color.b)
+    public static func uniform(_ color: Color) -> Self {
+        return Uniform(color.r, color.g, color.b)
     }
 }
 
