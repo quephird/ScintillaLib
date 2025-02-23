@@ -28,7 +28,7 @@ struct QuickStart: ScintillaApp {
                up: Vector(0, 1, 0))
         PointLight(position: Point(-10, 10, -10))
         Sphere()
-            .material(.solidColor(1, 0, 0))
+            .material(.uniform(1, 0, 0))
     }
 }
 ```
@@ -109,7 +109,7 @@ struct SuperellipsoidScene: ScintillaApp {
         for (i, e) in [0.25, 0.5, 1.0, 2.0, 2.5].enumerated() {
             for (j, n) in [0.25, 0.5, 1.0, 2.0, 2.5].enumerated() {
                 Superellipsoid(e: e, n: n)
-                    .material(.solidColor((Double(i)+1.0)/5.0, (Double(j)+1.0)/5.0, 0.2))
+                    .material(.uniform((Double(i)+1.0)/5.0, (Double(j)+1.0)/5.0, 0.2))
                     .translate(2.5*(Double(i)-2.0), 2.5*(Double(j)-2.0), 0.0)
             }
         }
@@ -153,7 +153,7 @@ struct MyWorld: ScintillaApp {
                         topBackRight: (2, 2, 2), { x, y, z in
             x*x + y*y + z*z + sin(4*x) + sin(4*y) + sin(4*z) - 1
         })
-            .material(.solidColor(0.2, 1, 0.5))
+            .material(.uniform(0.2, 1, 0.5))
     }
 }
 ```
@@ -189,7 +189,7 @@ struct MyImplicitSurface: ScintillaApp {
                         radius: 2.0) { x, y, z in
             4.0*(φ*φ*x*x-y*y)*(φ*φ*y*y-z*z)*(φ*φ*z*z-x*x) - (1.0+2.0*φ)*(x*x+y*y+z*z-1.0)*(x*x+y*y+z*z-1.0)
         }
-            .material(.solidColor(0.9, 0.9, 0.0))
+            .material(.uniform(0.9, 0.9, 0.0))
     }
 }
 
@@ -233,9 +233,9 @@ struct Hourglass: ScintillaApp {
                           fx: { (u, v) in cos(u)*sin(2*v) },
                           fy: { (u, v) in sin(v) },
                           fz: { (u, v) in sin(u)*sin(2*v) })
-            .material(.solidColor(0.9, 0.5, 0.5, .hsl))
+            .material(.uniform(0.9, 0.5, 0.5, .hsl))
         Plane()
-            .material(.solidColor(1, 1, 1))
+            .material(.uniform(1, 1, 1))
             .translate(0, -1.0, 0)
     }
 }
@@ -270,9 +270,9 @@ struct Hourglass: ScintillaApp {
                           fx: { (u, v) in cos(u)*sin(2*v) },
                           fy: { (u, v) in sin(v) },
                           fz: { (u, v) in sin(u)*sin(2*v) })
-            .material(.solidColor(0.9, 0.5, 0.5, .hsl))
+            .material(.uniform(0.9, 0.5, 0.5, .hsl))
         Plane()
-            .material(.solidColor(1, 1, 1))
+            .material(.uniform(1, 1, 1))
             .translate(0, -1.0, 0)
     }
 }
@@ -312,9 +312,9 @@ struct Hourglass: ScintillaApp {
                           fx: { (u, v) in cos(u)*sin(2*v) },
                           fy: { (u, v) in sin(v) },
                           fz: { (u, v) in sin(u)*sin(2*v) })
-            .material(.solidColor(0.9, 0.5, 0.5, .hsl))
+            .material(.uniform(0.9, 0.5, 0.5, .hsl))
         Plane()
-            .material(.solidColor(1, 1, 1))
+            .material(.uniform(1, 1, 1))
             .translate(0, -1.0, 0)
     }
 }
@@ -361,9 +361,9 @@ struct PrismScene: ScintillaApp {
                          (-1.0, -1.0),
                          (0.0, -0.5),
                          (1.0, -1.0)])
-            .material(.solidColor(1, 0.5, 0))
+            .material(.uniform(1, 0.5, 0))
         Plane()
-            .material(.solidColor(1, 1, 1))
+            .material(.uniform(1, 1, 1))
     }
 }
 ```
@@ -399,9 +399,9 @@ struct SorScene: ScintillaApp {
                                        (2.0, 1.0),
                                        (3.0, 0.5),
                                        (6.0, 0.5)])
-            .material(.solidColor(0.5, 0.6, 0.8))
+            .material(.uniform(0.5, 0.6, 0.8))
         Plane()
-            .material(.solidColor(1, 1, 1))
+            .material(.uniform(1, 1, 1))
     }
 }
 ```
@@ -414,7 +414,7 @@ As of this writing, only the cubic spline strategy is available for interpolatin
 
 Currently materials employ either of the following color schemes:
 
-* a solid color
+* a uniform color
 * a repeating pattern
 * a color function which takes an x, y, and z values and returns a tuple representing the RGB values of a color
 
@@ -442,7 +442,7 @@ There is a default material, `SolidColor.basicMaterial()`, that can be used as a
 
 To associate a material with a `Shape`, you call the `.material()` property modifier and pass in a `Material` instance. There are three static methods that are provided as a convenience to accomplish this:
 
-* `.solidColor(_ r: Double, _ g: Double, _ b: Double)`
+* `.uniform(_ r: Double, _ g: Double, _ b: Double)`
 * `.pattern(_ pattern: Pattern)`
 * `.colorFunction(_ f: ColorFunctionType)`
 
@@ -491,7 +491,7 @@ Colors can be expressed in both RGB and HSL color spaces. By default, colors are
 ```swift
 Sphere()
     .translate(0, 1, 0)
-    .material(.solidColor(0.5, 1.0, 0.5, .hsl))
+    .material(.uniform(0.5, 1.0, 0.5, .hsl))
 ```
 
 ![](images/SolidColorHsl.png)
@@ -520,17 +520,17 @@ The implementation for CSG takes advantage of so-called result builders, a featu
 
 ```swift
 Sphere()
-    .material(.solidColor(Color(0, 0, 1)))
+    .material(.uniform(Color(0, 0, 1)))
     .difference {
         Cylinder()
-            .material(.solidColor(0, 1, 0))
+            .material(.uniform(0, 1, 0))
             .scale(0.6, 0.6, 0.6)
         Cylinder()
-            .material(.solidColor(0, 1, 0))
+            .material(.uniform(0, 1, 0))
             .scale(0.6, 0.6, 0.6)
             .rotateZ(PI/2)
         Cylinder()
-            .material(.solidColor(0, 1, 0))
+            .material(.uniform(0, 1, 0))
             .scale(0.6, 0.6, 0.6)
             .rotateX(PI/2)
     }
@@ -543,16 +543,16 @@ CSG(.difference,
     CSG(.difference,
         CSG(.difference,
             Sphere()
-                .material(.solidColor(0, 0, 1))),
+                .material(.uniform(0, 0, 1))),
             Cylinder()
-                .material(.solidColor(0, 1, 0))
+                .material(.uniform(0, 1, 0))
                 .scale(0.5, 0.5, 0.5)),
         Cylinder()
-            .material(.solidColor(0, 1, 0))
+            .material(.uniform(0, 1, 0))
             .scale(0.5, 0.5, 0.5)
             .rotateZ(PI/2)),
     Cylinder()
-        .material(.solidColor(0, 1, 0))
+        .material(.uniform(0, 1, 0))
         .scale(0.5, 0.5, 0.5)
         .rotateX(PI/2))
 ```
@@ -561,11 +561,11 @@ You can even use `for` loops in the middle of an expression to accomplish the sa
 
 ```swift
 Sphere()
-    .material(.solidColor(0, 0, 1))
+    .material(.uniform(0, 0, 1))
     .difference {
         for (thetaX, thetaZ) in [(0, 0), (0, PI/2), (PI/2, 0)] {
             Cylinder()
-                .material(.solidColor(0, 1, 0))
+                .material(.uniform(0, 1, 0))
                 .scale(0.6, 0.6, 0.6)
                 .rotateX(thetaX)
                 .rotateZ(thetaZ)
@@ -577,16 +577,16 @@ You can also chain calls to `.union()`, `.intersection()`, and `.difference()` t
 
 ```swift
 Sphere()
-    .material(.solidColor(0, 0, 1))
+    .material(.uniform(0, 0, 1))
     .intersection {
         Cube()
-            .material(.solidColor(1, 0, 0))
+            .material(.uniform(1, 0, 0))
             .scale(0.8, 0.8, 0.8)
     }
     .difference {
         for (thetaX, thetaZ) in [(0, 0), (0, PI/2), (PI/2, 0)] {
             Cylinder()
-                .material(.solidColor(0, 1, 0))
+                .material(.uniform(0, 1, 0))
                 .scale(0.5, 0.5, 0.5)
                 .rotateX(thetaX)
                 .rotateZ(thetaZ)
@@ -615,11 +615,11 @@ struct QuickStart: ScintillaApp {
                up: Vector(0, 1, 0))
         PointLight(position: Point(-10, 10, -10))
         Sphere()
-            .material(.solidColor(1, 0, 0))
+            .material(.uniform(1, 0, 0))
             .translate(-1, 0, 0)
             .rotateZ(PI/2)
         Sphere()
-            .material(.solidColor(0, 1, 0))
+            .material(.uniform(0, 1, 0))
             .translate(1, 0, 0)
             .rotateZ(PI/2)
     }
@@ -646,10 +646,10 @@ struct QuickStart: ScintillaApp {
         PointLight(position: Point(-10, 10, -10))
         Group {
             Sphere()
-                .material(.solidColor(1, 0, 0))
+                .material(.uniform(1, 0, 0))
                 .translate(-1, 0, 0)
             Sphere()
-                .material(.solidColor(0, 1, 0))
+                .material(.uniform(0, 1, 0))
                 .translate(1, 0, 0)
         }
             .rotateZ(PI/2)
@@ -676,10 +676,10 @@ struct QuickStart: ScintillaApp {
         for x in [-1.5, 1.5] {
             Group {
                 Sphere()
-                    .material(.solidColor(1, 0, 0))
+                    .material(.uniform(1, 0, 0))
                     .translate(-1, 0, 0)
                 Sphere()
-                    .material(.solidColor(0, 1, 0))
+                    .material(.uniform(0, 1, 0))
                     .translate(1, 0, 0)
             }
                 .rotateZ(PI/2)
@@ -755,9 +755,9 @@ struct MyWorld: ScintillaApp {
                   vSteps: 10)
         Sphere()
             .translate(0, 1, 0)
-            .material(.solidColor(1, 0, 0))
+            .material(.uniform(1, 0, 0))
         Plane()
-            .material(.solidColor(1, 1, 1))
+            .material(.uniform(1, 1, 1))
     }
 }
 ```
@@ -793,9 +793,9 @@ struct Cavatappi: ScintillaApp {
                           fx: { (u, v) in (2 + cos(u) + 0.1*cos(8*u))*cos(v) },
                           fy: { (u, v) in 2 + sin(u) + 0.1*sin(8*u) + 0.5*v },
                           fz: { (u, v) in (2 + cos(u) + 0.1*cos(8*u))*sin(v) })
-            .material(.solidColor(1.0, 0.8, 0))
+            .material(.uniform(1.0, 0.8, 0))
         Plane()
-            .material(.solidColor(1, 1, 1))
+            .material(.uniform(1, 1, 1))
             .translate(0, -3.0, 0)
     }
 }
@@ -823,7 +823,7 @@ struct DimlyLitScene: ScintillaApp {
         PointLight(position: Point(-10, 10, 0),
                    fadeDistance: 10)
         Sphere()
-            .material(.solidColor(1, 0.5, 0))
+            .material(.uniform(1, 0.5, 0))
         Plane()
             .translate(0, -1, 0)
     }
@@ -862,12 +862,12 @@ World {
            up: Vector(0, 1, 0))
     PointLight(position: Point(-10, 10, -10))
     Sphere()
-        .material(.solidColor(1, 0, 0))
+        .material(.uniform(1, 0, 0))
         .translate(-2, 0, 0)
     Sphere()
-        .material(.solidColor(0, 1, 0))
+        .material(.uniform(0, 1, 0))
     Sphere()
-        .material(.solidColor(0, 0, 1))
+        .material(.uniform(0, 0, 1))
         .translate(2, 0, 0)
 ```
 
@@ -900,13 +900,13 @@ struct MyWorld: ScintillaApp {
             .material(.solidColor(0, 0, 1))
             .intersection {
                 Cube()
-                    .material(.solidColor(1, 0, 0))
+                    .material(.uniform(1, 0, 0))
                     .scale(0.8, 0.8, 0.8)
             }
             .difference {
                 for (thetaX, thetaZ) in [(0, 0), (0, PI/2), (PI/2, 0)] {
                     Cylinder()
-                        .material(.solidColor(0, 1, 0))
+                        .material(.uniform(0, 1, 0))
                         .scale(0.5, 0.5, 0.5)
                         .rotateX(thetaX)
                         .rotateZ(thetaZ)
@@ -954,9 +954,9 @@ struct Cavatappi: ScintillaApp {
                           fx: { (u, v) in (2 + cos(u) + 0.1*cos(8*u))*cos(v) },
                           fy: { (u, v) in 2 + sin(u) + 0.1*sin(8*u) + 0.5*v },
                           fz: { (u, v) in (2 + cos(u) + 0.1*cos(8*u))*sin(v) })
-            .material(.solidColor(1.0, 0.8, 0))
+            .material(.uniform(1.0, 0.8, 0))
         Plane()
-            .material(.solidColor(1, 1, 1))
+            .material(.uniform(1, 1, 1))
             .translate(0, -3.0, 0)
     }
 }
