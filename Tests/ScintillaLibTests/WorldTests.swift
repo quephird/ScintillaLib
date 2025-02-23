@@ -25,7 +25,7 @@ func testWorld() -> World {
                up: Vector(0, 1, 0))
         PointLight(position: Point(-10, 10, -10))
         Sphere()
-            .material(SolidColor(0.8, 1.0, 0.6)
+            .material(Uniform(0.8, 1.0, 0.6)
                 .ambient(0.1)
                 .diffuse(0.7)
                 .specular(0.2)
@@ -68,7 +68,7 @@ class WorldTests: XCTestCase {
                    up: Vector(0, 1, 0))
             PointLight(position: Point(0, 0.25, 0), color: Color(1, 1, 1))
             Sphere()
-                .material(SolidColor(0.8, 1.0, 0.6)
+                .material(Uniform(0.8, 1.0, 0.6)
                     .ambient(0.1)
                     .diffuse(0.7)
                     .specular(0.2)
@@ -211,7 +211,7 @@ class WorldTests: XCTestCase {
                    up: Vector(0, 1, 0))
             areaLight
             Sphere()
-                .material(SolidColor(0.8, 1.0, 0.6)
+                .material(Uniform(0.8, 1.0, 0.6)
                     .ambient(0.1)
                     .diffuse(0.7)
                     .specular(0.2)
@@ -250,7 +250,7 @@ class WorldTests: XCTestCase {
                    up: Vector(0, 1, 0))
             areaLight
             Sphere()
-                .material(SolidColor(0.8, 1.0, 0.6)
+                .material(Uniform(0.8, 1.0, 0.6)
                     .ambient(0.1)
                     .diffuse(0.7)
                     .specular(0.2)
@@ -275,7 +275,7 @@ class WorldTests: XCTestCase {
 
     func testReflectedColorForNonreflectiveMaterial() async {
         let secondShape = Sphere()
-            .material(SolidColor(1.0, 1.0, 1.0)
+            .material(Uniform(1.0, 1.0, 1.0)
                 .ambient(1.0))
             .scale(0.5, 0.5, 0.5)
         let world = World {
@@ -287,7 +287,7 @@ class WorldTests: XCTestCase {
                    up: Vector(0, 1, 0))
             PointLight(position: Point(-10, 10, -10))
             Sphere()
-                .material(SolidColor(0.8, 1.0, 0.6)
+                .material(Uniform(0.8, 1.0, 0.6)
                     .ambient(0.1)
                     .diffuse(0.7)
                     .specular(0.2)
@@ -318,7 +318,7 @@ class WorldTests: XCTestCase {
                    up: Vector(0, 1, 0))
             PointLight(position: Point(-10, 10, -10))
             Sphere()
-                .material(SolidColor(0.8, 1.0, 0.6)
+                .material(Uniform(0.8, 1.0, 0.6)
                     .ambient(0.1)
                     .diffuse(0.7)
                     .specular(0.2)
@@ -372,7 +372,7 @@ class WorldTests: XCTestCase {
                    up: Vector(0, 1, 0))
             PointLight(position: Point(-10, 10, -10))
             Sphere()
-                .material(SolidColor(0.8, 1.0, 0.6)
+                .material(Uniform(0.8, 1.0, 0.6)
                     .ambient(0.1)
                     .diffuse(0.7)
                     .specular(0.2)
@@ -481,7 +481,7 @@ class WorldTests: XCTestCase {
         let shapeA = Sphere()
             .material(materialA)
 
-        let materialB = SolidColor.basicMaterial()
+        let materialB = Uniform.basicMaterial()
             .transparency(1.0)
             .refractive(1.5)
         let shapeB = Sphere()
@@ -522,7 +522,7 @@ class WorldTests: XCTestCase {
                 .refractive(1.5))
             .translate(0, -1, 0)
         let ball = Sphere()
-            .material(SolidColor(1, 0, 0)
+            .material(Uniform(1, 0, 0)
                 .ambient(0.5))
             .translate(0, -3.5, -0.5)
         let world = World {
@@ -534,7 +534,7 @@ class WorldTests: XCTestCase {
                    up: Vector(0, 1, 0))
             PointLight(position: Point(-10, 10, -10))
             Sphere()
-                .material(SolidColor(0.8, 1.0, 0.6)
+                .material(Uniform(0.8, 1.0, 0.6)
                     .ambient(0.1)
                     .diffuse(0.7)
                     .specular(0.2)
@@ -556,7 +556,7 @@ class WorldTests: XCTestCase {
     }
 
     func testSchlickReflectanceForTotalInternalReflection() async throws {
-        let glass = SolidColor(1.0, 1.0, 1.0)
+        let glass = Uniform(1.0, 1.0, 1.0)
             .transparency(1.0)
             .refractive(1.5)
         let glassySphere = Sphere().material(glass)
@@ -584,7 +584,7 @@ class WorldTests: XCTestCase {
     }
 
     func testSchlickReflectanceForPerpendicularRay() async throws {
-        let glass = SolidColor(1.0, 1.0, 1.0)
+        let glass = Uniform(1.0, 1.0, 1.0)
             .transparency(1.0)
             .refractive(1.5)
         let glassySphere = Sphere().material(glass)
@@ -612,7 +612,7 @@ class WorldTests: XCTestCase {
     }
 
     func testSchlickReflectanceForSmallAngleAndN2GreaterThanN1() async throws {
-        let glass = SolidColor(1.0, 1.0, 1.0)
+        let glass = Uniform(1.0, 1.0, 1.0)
             .transparency(1.0)
             .refractive(1.5)
         let glassySphere = Sphere().material(glass)
@@ -645,7 +645,7 @@ class WorldTests: XCTestCase {
                 .refractive(1.5))
             .translate(0, -1, 0)
         let ball = Sphere()
-            .material(SolidColor(1, 0, 0)
+            .material(Uniform(1, 0, 0)
                 .ambient(0.5))
             .translate(0, -3.5, -0.5)
         let world = World {
@@ -657,7 +657,7 @@ class WorldTests: XCTestCase {
                    up: Vector(0, 1, 0))
             PointLight(position: Point(-10, 10, -10))
             Sphere()
-                .material(SolidColor(0.8, 1.0, 0.6)
+                .material(Uniform(0.8, 1.0, 0.6)
                     .ambient(0.1)
                     .diffuse(0.7)
                     .specular(0.2)
@@ -692,7 +692,7 @@ class WorldTests: XCTestCase {
             // Light above and to the right of the sphere
             PointLight(position: Point(10, 10, 0))
             Sphere()
-                .material(.solidColor(1.0, 1.0, 1.0))
+                .material(.uniform(1.0, 1.0, 1.0))
             floor
         }
         let assignedFloor = await world.shapes[1]
