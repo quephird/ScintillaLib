@@ -62,7 +62,7 @@ public struct Color: Equatable {
     }
 
     // All three components are expected to lie in the range [0, 1]
-    @_spi(Testing) public static func fromHsl(_ h: Double, _ s: Double, _ l: Double) -> Self {
+    public static func fromHsl(_ h: Double, _ s: Double, _ l: Double) -> Self {
         return ColorSpace.hsl.makeColor(h, s, l)
     }
 
