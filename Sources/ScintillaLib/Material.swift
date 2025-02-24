@@ -38,6 +38,8 @@ public struct MaterialProperties {
 
 public protocol Material {
     var transform: Matrix4 { get set }
+    var inverseTransform: Matrix4 { get }
+    var inverseTransposeTransform: Matrix4 { get }
     func copy() -> Self
     func colorAt(_ object: any Shape, _ worldPoint: Point) -> Color
     var properties: MaterialProperties { get set }

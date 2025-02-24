@@ -7,6 +7,8 @@
 
 public struct Uniform: Material {
     public var transform: Matrix4 = .identity
+    public var inverseTransform: Matrix4 = .identity
+    public var inverseTransposeTransform: Matrix4 = .identity
     var color: Color
     public var properties: MaterialProperties
 

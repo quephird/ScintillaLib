@@ -8,13 +8,20 @@
 import Foundation
 
 open class Pattern: Material {
-    public var transform: Matrix4
-    var inverseTransform: Matrix4
+    public var transform: Matrix4 = .identity {
+        didSet {
+            self.inverseTransform = transform.inverse()
+            self.inverseTransposeTransform = transform.inverse().transpose()
+        }
+    }
+    public var inverseTransform: Matrix4
+    public var inverseTransposeTransform: Matrix4
     public var properties = MaterialProperties()
 
     public init(_ transform: Matrix4, _ properties: MaterialProperties) {
         self.transform = transform
         self.inverseTransform = transform.inverse()
+        self.inverseTransposeTransform = transform.inverse().transpose()
     }
 
     open func copy() -> Self {
