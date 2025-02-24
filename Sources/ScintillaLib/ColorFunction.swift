@@ -8,7 +8,12 @@
 public typealias ColorFunctionType = (Double, Double, Double) -> (Double, Double, Double)
 
 public struct ColorFunction: Material {
-    public var transform: Matrix4 = .identity
+    public var transform: Matrix4 = .identity {
+        didSet {
+            self.inverseTransform = transform.inverse()
+            self.inverseTransposeTransform = transform.inverse().transpose()
+        }
+    }
     public var inverseTransform: Matrix4 = .identity
     public var inverseTransposeTransform: Matrix4 = .identity
 
