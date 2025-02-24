@@ -8,7 +8,7 @@
 public typealias ColorFunctionType = (Double, Double, Double) -> (Double, Double, Double)
 
 public struct ColorFunction: Material {
-    var transform: Matrix4
+    public var transform: Matrix4
     var inverseTransform: Matrix4
     var colorFunction: ColorFunctionType
     var colorSpace: ColorSpace

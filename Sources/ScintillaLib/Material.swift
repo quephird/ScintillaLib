@@ -37,9 +37,55 @@ public struct MaterialProperties {
 }
 
 public protocol Material {
+    var transform: Matrix4 { get set }
     func copy() -> Self
     func colorAt(_ object: any Shape, _ worldPoint: Point) -> Color
     var properties: MaterialProperties { get set }
+}
+
+// Property modification extensions
+extension Material {
+    public func translate(_ x: Double, _ y: Double, _ z: Double) -> Self {
+        var copy = self
+        copy.transform = .translation(x, y, z).multiply(copy.transform)
+
+        return copy
+    }
+
+    public func scale(_ x: Double, _ y: Double, _ z: Double) -> Self {
+        var copy = self
+        copy.transform = .scaling(x, y, z).multiply(copy.transform)
+
+        return copy
+    }
+
+    public func rotateX(_ t: Double) -> Self {
+        var copy = self
+        copy.transform = .rotationX(t).multiply(copy.transform)
+
+        return copy
+    }
+
+    public func rotateY(_ t: Double) -> Self {
+        var copy = self
+        copy.transform = .rotationY(t).multiply(copy.transform)
+
+        return copy
+    }
+
+    public func rotateZ(_ t: Double) -> Self {
+        var copy = self
+        copy.transform = .rotationZ(t).multiply(copy.transform)
+
+        return copy
+    }
+
+    public func shear(_ xy: Double, _ xz: Double, _ yx: Double, _ yz: Double, _ zx: Double, _ zy: Double) -> Self {
+        var copy = self
+        copy.transform = .shearing(xy, xz, yx, yz, zx, zy).multiply(copy.transform)
+
+        return copy
+    }
 }
 
 extension Material where Self == Uniform {

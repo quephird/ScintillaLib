@@ -8,7 +8,7 @@
 import Foundation
 
 open class Pattern: Material {
-    var transform: Matrix4
+    public var transform: Matrix4
     var inverseTransform: Matrix4
     public var properties = MaterialProperties()
 
