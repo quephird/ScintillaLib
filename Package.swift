@@ -112,5 +112,9 @@ let package = Package(
             name: "TestDie",
             dependencies: ["ScintillaLib"],
             path: "Examples/TestDie"),
+        .executableTarget(
+            name: "CheckeredSphere",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/CheckeredSphere"),
     ]
 )
