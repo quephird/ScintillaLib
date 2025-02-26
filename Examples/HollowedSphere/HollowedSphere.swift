@@ -19,16 +19,16 @@ struct HollowedSphere: ScintillaApp {
                up: Vector(0, 1, 0))
         PointLight(position: Point(-10, 10, -10))
         Sphere()
-            .material(.solidColor(0, 0, 1))
+            .material(.uniform(0, 0, 1))
             .intersection {
                 Cube()
-                    .material(.solidColor(1, 0, 0))
+                    .material(.uniform(1, 0, 0))
                     .scale(0.8, 0.8, 0.8)
             }
             .difference {
                 for (thetaX, thetaZ) in [(0, 0), (0, PI/2), (PI/2, 0)] {
                     Cylinder()
-                        .material(.solidColor(0, 1, 0))
+                        .material(.uniform(0, 1, 0))
                         .scale(0.5, 0.5, 0.5)
                         .rotateX(thetaX)
                         .rotateZ(thetaZ)

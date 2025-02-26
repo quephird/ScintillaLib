@@ -28,9 +28,9 @@ struct Rings: ScintillaApp {
                           fx: { (u, v) in (4*(1 + 0.25*sin(3.0*v)) + cos(u))*cos(2.0*v) },
                           fy: { (u, v) in sin(u) + 2.0*cos(3*v) },
                           fz: { (u, v) in (4*(1 + 0.25*sin(3.0*v)) + cos(u))*sin(2.0*v) })
-            .material(.solidColor(0.1, 1.0, 0.2))
+            .material(.uniform(0.1, 1.0, 0.2))
         Plane()
-            .material(.solidColor(1, 1, 1))
+            .material(.uniform(1, 1, 1))
             .translate(0, -3.0, 0)
     }
 }

@@ -21,7 +21,7 @@ struct Superellipsoids: ScintillaApp {
         for (i, e) in [0.25, 0.5, 1.0, 2.0, 2.5].enumerated() {
             for (j, n) in [0.25, 0.5, 1.0, 2.0, 2.5].enumerated() {
                 Superellipsoid(e: e, n: n)
-                    .material(.solidColor((Double(i)+1.0)/5.0, (Double(j)+1.0)/5.0, 0.2))
+                    .material(.uniform((Double(i)+1.0)/5.0, (Double(j)+1.0)/5.0, 0.2))
                     .translate(2.5*(Double(i)-2.0), 2.5*(Double(j)-2.0), 0.0)
             }
         }

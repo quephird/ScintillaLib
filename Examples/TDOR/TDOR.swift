@@ -27,34 +27,34 @@ struct TDOR: ScintillaApp {
             .rotateZ(PI)
             .shear(0.0, 0.0, 1.0, 1.0, 0.0, 0.0)
             .translate(0.1, 2.5, 0.1)
-            .material(.solidColor(1.0, 0.6, 0.0))
+            .material(.uniform(1.0, 0.6, 0.0))
         Cylinder(bottomY: -2.0, topY: 1.0, isCapped: true) // Candle body
             .scale(0.4, 1.0, 0.4)
-            .material(.solidColor(0.1, 0.3, 0.7, .hsl))
+            .material(.uniform(0.1, 0.3, 0.7, .hsl))
         Cylinder(bottomY: -0.5, topY: 1.0, isCapped: true) // Melted wax streak 1
             .scale(0.1, 1.0, 0.1)
             .translate(-0.24, 0.0, -0.24)
-            .material(.solidColor(0.1, 0.3, 0.7, .hsl))
+            .material(.uniform(0.1, 0.3, 0.7, .hsl))
         Sphere() // Drip at end of wax streak 1
             .scale(0.1, 0.2, 0.1)
             .translate(-0.24, -0.5, -0.24)
-            .material(.solidColor(0.1, 0.3, 0.7, .hsl))
+            .material(.uniform(0.1, 0.3, 0.7, .hsl))
         Cylinder(bottomY: 0.5, topY: 1.0, isCapped: true) // Melted wax streak 2
             .scale(0.1, 1.0, 0.1)
             .translate(-0.04, 0.0, -0.31)
-            .material(.solidColor(0.1, 0.3, 0.7, .hsl))
+            .material(.uniform(0.1, 0.3, 0.7, .hsl))
         Sphere() // Drip at end of wax streak 2
             .scale(0.1, 0.2, 0.1)
             .translate(-0.04, 0.5, -0.31)
-            .material(.solidColor(0.1, 0.3, 0.7, .hsl))
+            .material(.uniform(0.1, 0.3, 0.7, .hsl))
         Cylinder(bottomY: -2.0, topY: 1.0, isCapped: true) // Melted wax streak 3
             .scale(0.1, 1.0, 0.1)
             .translate(0.28, 0.0, -0.18)
-            .material(.solidColor(0.1, 0.3, 0.7, .hsl))
+            .material(.uniform(0.1, 0.3, 0.7, .hsl))
         Sphere() // Small pool of wax at end of streak 3
             .scale(0.3, 0.05, 0.3)
             .translate(0.28, -2.0, -0.18)
-            .material(.solidColor(0.1, 0.3, 0.7, .hsl))
+            .material(.uniform(0.1, 0.3, 0.7, .hsl))
         Plane()
             .translate(0.0, -2.0, 0.0)
     }

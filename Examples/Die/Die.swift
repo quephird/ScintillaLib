@@ -11,7 +11,7 @@ import ScintillaLib
 @main
 struct Die: ScintillaApp {
     var world: World {
-        let orange: Material = .solidColor(1, 0.5, 0)
+        let orange: Material = .uniform(1, 0.5, 0)
             .reflective(0.2)
 
         return World {
@@ -70,7 +70,7 @@ struct Die: ScintillaApp {
                         (0.0, -1.0, 0.0),
                     ] {
                         Sphere()
-                            .material(.solidColor(1, 1, 1))
+                            .material(.uniform(1, 1, 1))
                             .scale(0.2, 0.2, 0.2)
                             .translate(x, y, z)
                     }

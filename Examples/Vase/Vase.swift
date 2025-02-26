@@ -19,8 +19,8 @@ struct Vase: ScintillaApp {
                up: Vector(0, 1, 0))
         PointLight(position: Point(-5, 5, -5))
         SurfaceOfRevolution(yzPoints: [(0.0, 2.0), (1.0, 2.0), (2.0, 1.0), (3.0, 0.5), (6.0, 0.5)])
-            .material(.solidColor(0.5, 0.6, 0.8))
+            .material(.uniform(0.5, 0.6, 0.8))
         Plane()
-            .material(.solidColor(1, 1, 1))
+            .material(.uniform(1, 1, 1))
     }
 }

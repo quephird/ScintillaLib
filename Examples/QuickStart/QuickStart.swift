@@ -19,6 +19,6 @@ struct QuickStart: ScintillaApp {
                up: Vector(0, 1, 0))
         PointLight(position: Point(-10, 10, -10))
         Sphere()
-            .material(.solidColor(1, 0, 0))
+            .material(.uniform(1, 0, 0))
     }
 }

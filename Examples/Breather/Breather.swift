@@ -42,10 +42,10 @@ struct Breather: ScintillaApp {
                           fx: { (u, v) in x(u: u, v: v) },
                           fy: { (u, v) in y(u: u, v: v) },
                           fz: { (u, v) in z(u: u, v: v) })
-            .material(.solidColor(0.1, 0.2, 1.0))
+            .material(.uniform(0.1, 0.2, 1.0))
             .rotateY(PI/8.0)
         Plane()
-            .material(.solidColor(1, 1, 1))
+            .material(.uniform(1, 1, 1))
             .translate(0, -5.5, 0)
     }
 }

@@ -29,9 +29,9 @@ struct Cavatappi: ScintillaApp {
                           fx: { (u, v) in (2 + cos(u) + 0.1*cos(8*u))*cos(v) },
                           fy: { (u, v) in 2 + sin(u) + 0.1*sin(8*u) + 0.5*v },
                           fz: { (u, v) in (2 + cos(u) + 0.1*cos(8*u))*sin(v) })
-            .material(.solidColor(1.0, 0.8, 0))
+            .material(.uniform(1.0, 0.8, 0))
         Plane()
-            .material(.solidColor(1, 1, 1))
+            .material(.uniform(1, 1, 1))
             .translate(0, -3.0, 0)
     }
 }
