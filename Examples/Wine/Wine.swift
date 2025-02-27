@@ -11,16 +11,16 @@ import ScintillaLib
 @main
 struct Wine: ScintillaApp {
     var world = World {
-        let bottleGreen: any Material = .uniform(0.0, 0.2, 0.0)
+        let bottleGreen: Material = .uniform(0.0, 0.2, 0.0)
             .transparency(1.0)
             .shininess(1.0)
             .refractive(1.5)
-        let wineRed: any Material = .uniform(0.2, 0.0, 0.0)
+        let wineRed: Material = .uniform(0.2, 0.0, 0.0)
             .ambient(1.0)
             .specular(0.0)
             .transparency(0.5)
             .shininess(1.0)
-        let wineGlass: any Material = .uniform(0.0, 0.0, 0.0)
+        let wineGlass: Material = .uniform(0.0, 0.0, 0.0)
             .shininess(1.0)
             .transparency(1.0)
             .reflective(1.0)

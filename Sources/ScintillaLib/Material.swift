@@ -7,9 +7,7 @@
 
 import Foundation
 
-public struct MaterialProperties {
-    public var id: UUID = UUID()
-
+public struct MaterialProperties: Equatable {
     @_spi(Testing) public var ambient: Double
     @_spi(Testing) public var diffuse: Double
     @_spi(Testing) public var specular: Double
@@ -38,19 +36,13 @@ public struct MaterialProperties {
 
 }
 
-public protocol Material: Equatable {
+public protocol Material {
     var transform: Matrix4 { get set }
     var inverseTransform: Matrix4 { get }
     var inverseTransposeTransform: Matrix4 { get }
     func copy() -> Self
     func colorAt(_ object: any Shape, _ worldPoint: Point) -> Color
     var properties: MaterialProperties { get set }
-}
-
-extension Material {
-    public static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.properties.id == rhs.properties.id
-    }
 }
 
 extension Material {

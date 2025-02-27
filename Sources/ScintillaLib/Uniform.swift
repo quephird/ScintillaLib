@@ -5,7 +5,7 @@
 //  Created by Danielle Kefford on 12/20/22.
 //
 
-public struct Uniform: Material {
+public struct Uniform: Material, Equatable {
     public var transform: Matrix4 = .identity
     public var inverseTransform: Matrix4 = .identity
     public var inverseTransposeTransform: Matrix4 = .identity
@@ -26,6 +26,10 @@ public struct Uniform: Material {
                 _ properties: MaterialProperties = MaterialProperties()) {
         self.color = color
         self.properties = properties
+    }
+
+    public static func == (lhs: Uniform, rhs: Uniform) -> Bool {
+        return lhs.color == rhs.color && lhs.properties == rhs.properties
     }
 
     public func colorAt(_ object: any Shape, _ worldPoint: Point) -> Color {

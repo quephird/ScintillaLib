@@ -5,9 +5,12 @@
 //  Created by Danielle Kefford on 12/17/22.
 //
 
+import Foundation
+
 public typealias ColorFunctionType = (Double, Double, Double) -> (Double, Double, Double)
 
-public struct ColorFunction: Material {
+public struct ColorFunction: Material, Equatable {
+    public var id: UUID = UUID()
     public var transform: Matrix4 = .identity {
         didSet {
             self.inverseTransform = transform.inverse()
@@ -26,6 +29,10 @@ public struct ColorFunction: Material {
         self.transform = .identity
         self.inverseTransform = transform.inverse()
         self.colorSpace = colorSpace
+    }
+
+    public static func == (lhs: ColorFunction, rhs: ColorFunction) -> Bool {
+        return lhs.id == rhs.id
     }
 
     public func copy() -> ColorFunction {

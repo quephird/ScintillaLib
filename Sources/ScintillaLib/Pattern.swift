@@ -7,7 +7,7 @@
 
 import Foundation
 
-open class Pattern: Material {
+open class Pattern: Material, Equatable {
     public var transform: Matrix4 = .identity {
         didSet {
             self.inverseTransform = transform.inverse()
@@ -22,6 +22,10 @@ open class Pattern: Material {
         self.transform = transform
         self.inverseTransform = transform.inverse()
         self.inverseTransposeTransform = transform.inverse().transpose()
+    }
+
+    public static func == (lhs: Pattern, rhs: Pattern) -> Bool {
+        return lhs === rhs
     }
 
     open func copy() -> Self {

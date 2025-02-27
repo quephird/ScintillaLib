@@ -11,7 +11,7 @@ import ScintillaLib
 @main
 struct Die: ScintillaApp {
     var world: World {
-        let orange: any Material = .uniform(1, 0.5, 0)
+        let orange: Material = .uniform(1, 0.5, 0)
             .reflective(0.2)
 
         return World {

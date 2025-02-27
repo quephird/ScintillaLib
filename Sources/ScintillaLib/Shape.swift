@@ -22,7 +22,7 @@ extension Shape {
     }
 
     @inlinable
-    public var material: any Material {
+    public var material: Material {
         get { sharedProperties.material }
         set { sharedProperties.material = newValue }
     }
@@ -100,7 +100,7 @@ extension Shape {
 
 // Property modification extensions
 extension Shape {
-    public func material(_ material: any Material) -> Self {
+    public func material(_ material: Material) -> Self {
         var copy = self
         copy.material = material
 
