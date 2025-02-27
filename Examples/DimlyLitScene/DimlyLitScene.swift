@@ -20,7 +20,7 @@ struct DimlyLitScene: ScintillaApp {
         PointLight(position: Point(-10, 10, 0),
                    fadeDistance: 10)
         Sphere()
-            .material(.solidColor(1, 0.5, 0))
+            .material(.uniform(1, 0.5, 0))
         Plane()
             .translate(0, -1, 0)
     }

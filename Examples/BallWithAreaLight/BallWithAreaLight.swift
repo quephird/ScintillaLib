@@ -24,8 +24,8 @@ struct BallWithAreaLight: ScintillaApp {
                   vSteps: 10)
         Sphere()
             .translate(0, 1, 0)
-            .material(.solidColor(1, 0, 0))
+            .material(.uniform(1, 0, 0))
         Plane()
-            .material(.solidColor(1, 1, 1))
+            .material(.uniform(1, 1, 1))
     }
 }

@@ -31,8 +31,8 @@ struct StarPrism: ScintillaApp {
                 (-1.0, -1.0),
                 (0.0, -0.5),
                 (1.0, -1.0)])
-            .material(.solidColor(1, 0.5, 0))
+            .material(.uniform(1, 0.5, 0))
         Plane()
-            .material(.solidColor(1, 1, 1))
+            .material(.uniform(1, 1, 1))
     }
 }

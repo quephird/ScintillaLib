@@ -13,7 +13,7 @@ struct Die: ScintillaApp {
     var world: World {
         let dimple =
             Sphere()
-                .material(.solidColor(1, 1, 1))
+                .material(.uniform(1, 1, 1))
                 .scale(0.2, 0.2, 0.2)
 
         return World {
@@ -26,7 +26,7 @@ struct Die: ScintillaApp {
             PointLight(position: Point(-5, 10, -10))
             Superellipsoid(e: 0.15, n: 0.15)
                 .material(
-                    .solidColor(0.8, 0.5, 0.2, .rgb)
+                    .uniform(0.8, 0.5, 0.2, .rgb)
                     .transparency(1.0)
                     .shininess(1.0)
                     .refractive(1.5))
@@ -47,7 +47,7 @@ struct Die: ScintillaApp {
                 }
                 .rotateY(PI/4)
             Plane()
-                .material(.solidColor(0.9, 0.9, 0.9))
+                .material(.uniform(0.9, 0.9, 0.9))
         }
     }
 }

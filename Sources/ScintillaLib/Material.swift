@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct MaterialProperties {
+public struct MaterialProperties: Equatable {
     @_spi(Testing) public var ambient: Double
     @_spi(Testing) public var diffuse: Double
     @_spi(Testing) public var specular: Double
@@ -45,7 +45,6 @@ public protocol Material {
     var properties: MaterialProperties { get set }
 }
 
-// Property modification extensions
 extension Material {
     public func translate(_ x: Double, _ y: Double, _ z: Double) -> Self {
         var copy = self

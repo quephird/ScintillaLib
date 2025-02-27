@@ -11,16 +11,16 @@ import ScintillaLib
 @main
 struct Wine: ScintillaApp {
     var world = World {
-        let bottleGreen: Material = .solidColor(0.0, 0.2, 0.0)
+        let bottleGreen: Material = .uniform(0.0, 0.2, 0.0)
             .transparency(1.0)
             .shininess(1.0)
             .refractive(1.5)
-        let wineRed: Material = .solidColor(0.2, 0.0, 0.0)
+        let wineRed: Material = .uniform(0.2, 0.0, 0.0)
             .ambient(1.0)
             .specular(0.0)
             .transparency(0.5)
             .shininess(1.0)
-        let wineGlass: Material = .solidColor(0.0, 0.0, 0.0)
+        let wineGlass: Material = .uniform(0.0, 0.0, 0.0)
             .shininess(1.0)
             .transparency(1.0)
             .reflective(1.0)
@@ -34,7 +34,7 @@ struct Wine: ScintillaApp {
                up: Vector(0, 1, 0))
         PointLight(position: Point(-10, 10, -10))
         Plane()
-            .material(.solidColor(1.0, 1.0, 1.0)
+            .material(.uniform(1.0, 1.0, 1.0)
                 .shininess(1.0))
         Group {
             Group {
@@ -92,7 +92,7 @@ struct Wine: ScintillaApp {
         }
             .translate(1.0, 0.0, 0.0)
         Cylinder(bottomY: 0.0, topY: 0.8, isCapped: true) // Cork
-            .material(.solidColor(0.8, 0.7, 0.6))
+            .material(.uniform(0.8, 0.7, 0.6))
             .scale(0.25, 1.0, 0.25)
             .rotateX(PI/2)
             .rotateY(PI/3)
