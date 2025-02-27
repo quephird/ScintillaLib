@@ -8,6 +8,8 @@
 import Foundation
 
 public struct MaterialProperties {
+    public var id: UUID = UUID()
+
     @_spi(Testing) public var ambient: Double
     @_spi(Testing) public var diffuse: Double
     @_spi(Testing) public var specular: Double
@@ -36,7 +38,7 @@ public struct MaterialProperties {
 
 }
 
-public protocol Material {
+public protocol Material: Equatable {
     var transform: Matrix4 { get set }
     var inverseTransform: Matrix4 { get }
     var inverseTransposeTransform: Matrix4 { get }
@@ -45,7 +47,12 @@ public protocol Material {
     var properties: MaterialProperties { get set }
 }
 
-// Property modification extensions
+extension Material {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.properties.id == rhs.properties.id
+    }
+}
+
 extension Material {
     public func translate(_ x: Double, _ y: Double, _ z: Double) -> Self {
         var copy = self

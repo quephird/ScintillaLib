@@ -33,6 +33,6 @@ public struct SharedShapeProperties {
         }
     }
 
-    public var material: Material = .basicMaterial()
+    public var material: any Material = .basicMaterial()
     public var castsShadow: Bool = true
 }

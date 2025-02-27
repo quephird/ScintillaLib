@@ -128,7 +128,7 @@ class MaterialTests: XCTestCase {
                                   vVec: Vector(0, 1, 0),
                                   vSteps: 2,
                                   jitter: NoJitter())
-        let material: Material = .uniform(1, 1, 1)
+        let material: any Material = .uniform(1, 1, 1)
             .ambient(0.1)
             .diffuse(0.9)
             .specular(0.0)
@@ -149,7 +149,7 @@ class MaterialTests: XCTestCase {
 
     func testColorIsAttenuatedForALightWithAFadeDistance() throws {
         let light = PointLight(position: Point(0, 0, -10), fadeDistance: 5)
-        let material: Material = .uniform(1, 1, 1)
+        let material: any Material = .uniform(1, 1, 1)
             .ambient(0.1)
             .diffuse(0.9)
             .specular(0.0)
