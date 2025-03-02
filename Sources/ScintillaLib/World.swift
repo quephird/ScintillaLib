@@ -268,7 +268,9 @@ public actor World {
         Task { await updateClosure(newPercentRendered, newElapsedTime) }
     }
 
-    public func render(updateClosure: @MainActor @escaping (Double, Range<Date>) -> Void) async -> Canvas {
+    public func render(
+        updateClosure: @MainActor @escaping (Double, Range<Date>) -> Void
+    ) async throws -> Canvas {
         var renderedPixels = 0
         var percentRendered = 0.0
         let startingTime = Date()
@@ -308,6 +310,8 @@ public actor World {
                 canvas.setPixel(x, y, color)
                 renderedPixels += 1
             }
+
+            try Task.checkCancellation()
             percentRendered = Double(renderedPixels)/Double(self.totalPixels)
             sendProgress(newPercentRendered: percentRendered,
                          newElapsedTime: startingTime ..< Date(),

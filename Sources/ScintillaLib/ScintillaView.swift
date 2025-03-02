@@ -60,8 +60,14 @@ import SwiftUI
     }
 
     func renderImage() async {
-        let canvas = await world.render(updateClosure: updateProgress)
-        self.nsImage = canvas.toNSImage()
-        canvas.save(to: self.fileName)
+        do {
+            let canvas = try await world.render(updateClosure: updateProgress)
+            self.nsImage = canvas.toNSImage()
+            canvas.save(to: self.fileName)
+        } catch is CancellationError {
+            // Do nothing!
+        } catch {
+            fatalError("Whoops! Something _really_ bad happened: \(error)")
+        }
     }
 }
