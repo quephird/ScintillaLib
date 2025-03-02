@@ -270,7 +270,7 @@ public actor World {
 
     public func render(
         updateClosure: @MainActor @escaping (Double, Range<Date>) -> Void
-    ) throws(CancellationError) async -> Canvas {
+    ) async throws -> Canvas {
         var renderedPixels = 0
         var percentRendered = 0.0
         let startingTime = Date()
