@@ -194,6 +194,16 @@ extension Material {
             let specularAverage = specularSamples.divideScalar(Double(areaLight.samples))
 
             return ambient.add(diffuseAverage).add(specularAverage)
+        case var spotLight as SpotLight:
+            let lightToPoint = point.subtract(spotLight.position)
+            let angle = spotLight.direction.angle(lightToPoint)
+
+            if angle < spotLight.beamAngle {
+                let (diffuse, specular) = self.calculateDiffuseAndSpecular(spotLight.position, lightColor, point, effectiveColor, eye, normal, intensity)
+                return ambient.add(diffuse).add(specular)
+            }
+
+            return ambient
         default:
             fatalError("Whoops... encountered unsupported light implementation")
         }
