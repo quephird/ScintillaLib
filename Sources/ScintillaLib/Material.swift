@@ -203,12 +203,12 @@ extension Material {
 
                 let (diffuse, specular) = self.calculateDiffuseAndSpecular(spotLight.position, lightColor, point, effectiveColor, eye, normal, intensity)
                 return ambient.add(diffuse).add(specular)
-            } else if angle < spotLight.beamAngle + spotLight.falloffAngle {
+            } else if angle < spotLight.falloffAngle {
                 // Formula below taken from:
                 //
                 //    http://doc.51windows.net/Directx9_SDK/?url=/Directx9_SDK/graphics/programmingguide/fixedfunction/lightsandmaterials/spotlightmodel.htm
-                let numerator = cos(angle) - cos(spotLight.beamAngle + spotLight.falloffAngle)
-                let denominator = cos(spotLight.beamAngle) - cos(spotLight.beamAngle + spotLight.falloffAngle)
+                let numerator = cos(angle) - cos(spotLight.falloffAngle)
+                let denominator = cos(spotLight.beamAngle) - cos(spotLight.falloffAngle)
                 let adjustedIntensity = pow(numerator/denominator, spotLight.tightness) * intensity
                 lightColor = lightColor.multiplyScalar(adjustedIntensity)
 
