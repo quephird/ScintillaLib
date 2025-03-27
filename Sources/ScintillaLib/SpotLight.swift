@@ -9,17 +9,23 @@ public struct SpotLight: Light, Equatable {
     public var position: Point
     public var pointAt: Point
     public var beamAngle: Double
+    public var falloffAngle: Double
+    public var tightness: Double
     public var color: Color
     public var fadeDistance: Double?
 
     public init(position: Point,
                 pointAt: Point,
                 beamAngle: Double,
+                falloffAngle: Double,
+                tightness: Double,
                 color: Color = .white,
                 fadeDistance: Double? = nil) {
         self.position = position
         self.pointAt = pointAt
         self.beamAngle = beamAngle
+        self.falloffAngle = falloffAngle
+        self.tightness = tightness
         self.color = color
         self.fadeDistance = fadeDistance
     }
@@ -30,6 +36,8 @@ public struct SpotLight: Light, Equatable {
         return (lhs.position == rhs.position) &&
                (lhs.pointAt == rhs.pointAt) &&
                (lhs.beamAngle == rhs.beamAngle) &&
+               (lhs.falloffAngle == rhs.falloffAngle) &&
+               (lhs.tightness == rhs.tightness) &&
                (lhs.color == rhs.color) &&
                (lhs.fadeDistance == rhs.fadeDistance)
     }

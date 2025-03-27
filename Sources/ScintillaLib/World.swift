@@ -237,7 +237,7 @@ public actor World {
             }
 
             return intensity/Double(areaLight.samples)
-        case var spotLight as SpotLight:
+        case let spotLight as SpotLight:
             return isShadowed(spotLight.position, worldPoint) ? 0.0 : 1.0
         default:
             fatalError("Whoops! Encountered unsupported light implementation!")

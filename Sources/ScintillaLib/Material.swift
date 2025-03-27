@@ -166,18 +166,18 @@ extension Material {
             lightColor = lightColor.multiplyScalar(attenuation)
         }
 
-        // Combine the surface color with the light's color/intensity
-        var effectiveColor: Color = colorAt(object, point)
-        effectiveColor = effectiveColor.hadamard(lightColor)
-
-        // Compute the ambient contribution
-        let ambient = effectiveColor.multiplyScalar(self.properties.ambient)
+        let surfaceColor: Color = colorAt(object, point)
+        let ambient = surfaceColor.multiplyScalar(self.properties.ambient)
 
         switch light {
         case let pointLight as PointLight:
+            let effectiveColor = surfaceColor.hadamard(lightColor)
+
             let (diffuse, specular) = self.calculateDiffuseAndSpecular(pointLight.position, lightColor, point, effectiveColor, eye, normal, intensity)
             return ambient.add(diffuse).add(specular)
         case var areaLight as AreaLight:
+            let effectiveColor = surfaceColor.hadamard(lightColor)
+
             var diffuseSamples: Color = .black
             var specularSamples: Color = .black
 
@@ -199,7 +199,21 @@ extension Material {
             let angle = spotLight.direction.angle(lightToPoint)
 
             if angle < spotLight.beamAngle {
+                let effectiveColor = surfaceColor.hadamard(lightColor)
+
                 let (diffuse, specular) = self.calculateDiffuseAndSpecular(spotLight.position, lightColor, point, effectiveColor, eye, normal, intensity)
+                return ambient.add(diffuse).add(specular)
+            } else if angle < spotLight.beamAngle + spotLight.falloffAngle {
+                // Formula below taken from:
+                //
+                //    http://doc.51windows.net/Directx9_SDK/?url=/Directx9_SDK/graphics/programmingguide/fixedfunction/lightsandmaterials/spotlightmodel.htm
+                let numerator = cos(angle) - cos(spotLight.beamAngle + spotLight.falloffAngle)
+                let denominator = cos(spotLight.beamAngle) - cos(spotLight.beamAngle + spotLight.falloffAngle)
+                let adjustedIntensity = pow(numerator/denominator, spotLight.tightness) * intensity
+                lightColor = lightColor.multiplyScalar(adjustedIntensity)
+
+                let effectiveColor = surfaceColor.hadamard(lightColor)
+                let (diffuse, specular) = self.calculateDiffuseAndSpecular(spotLight.position, lightColor, point, effectiveColor, eye, normal, adjustedIntensity)
                 return ambient.add(diffuse).add(specular)
             }
 
