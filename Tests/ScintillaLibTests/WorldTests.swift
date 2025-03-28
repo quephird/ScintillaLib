@@ -127,6 +127,44 @@ class WorldTests: XCTestCase {
         XCTAssert(actualValue.isAlmostEqual(expectedValue))
     }
 
+    func testColorAtForSpotLightPointedAtPlane() async throws {
+        let world = World {
+            Camera(width: 400,
+                   height: 400,
+                   viewAngle: PI/3,
+                   from: Point(0, 2, -7),
+                   to: Point(0, 0, 0),
+                   up: Vector(0, 1, 0))
+            SpotLight(position:  Point(0, 5, 0),
+                      pointAt:  Point(0, 0, 0),
+                      beamAngle: PI/12,
+                      falloffAngle: PI/6,
+                      tightness: 1)
+            Plane()
+                .material(.uniform(1, 1, 1))
+        }
+
+        let eye = Point(0, 2, -5)
+        let testCases = [
+            // Looking at the center of the spot on the plane
+            (Vector(0, -2, 5), Color(1.0, 1.0, 1.0)),
+            // Looking at edge of inner cone on plane
+            (Vector(5*tan(PI/12), -2, 5), Color(0.96933, 0.96933, 0.96933)),
+            // Looking at point between cones on plane
+            (Vector(5*tan(3.0*PI/24.0), -2, 5), Color(0.37886, 0.37886, 0.37886)),
+            // Looking at edge of outer cone on plane
+            (Vector(5*tan(PI/6), -2, 5), Color(0.1, 0.1, 0.1)),
+            // Looking far outside outer cone on plane
+            (Vector(5*tan(PI/3), -2, 5), Color(0.1, 0.1, 0.1)),
+        ]
+
+        for (direction, expectedColor) in testCases {
+            let ray = Ray(eye, direction.normalize())
+            let actualColor = await world.colorAt(ray, MAX_RECURSIVE_CALLS)
+            XCTAssert(actualColor.isAlmostEqual(expectedColor))
+        }
+    }
+
     //    Ignore this test for now
     //
     //    func testColorAtIntersectionBehindRay() throws {
@@ -229,6 +267,39 @@ class WorldTests: XCTestCase {
         ]
         for (worldPoint, expectedIntensity) in testCases {
             let actualIntensity = await world.intensity(areaLight, worldPoint)
+            XCTAssertEqual(actualIntensity, expectedIntensity)
+        }
+    }
+
+    func testIntensityOfSpotLightWithSphereAndPlane() async throws {
+        let spotLight = SpotLight(position:  Point(0, 5, 0),
+                                  pointAt:  Point(0, 0, 0),
+                                  beamAngle: PI/12,
+                                  falloffAngle: PI/6,
+                                  tightness: 1)
+        let world = World {
+            Camera(width: 400,
+                   height: 400,
+                   viewAngle: PI/3,
+                   from: Point(0, 2, -7),
+                   to: Point(0, 0, 0),
+                   up: Vector(0, 1, 0))
+            spotLight
+            Sphere()
+                .translate(0, 1, 0)
+                .material(.uniform(1, 0, 0))
+            Plane()
+                .material(.uniform(1, 1, 1))
+        }
+
+        let testCases = [
+            (Point(1, 0, 0), 0.0), // Point well inside shadow of sphere on x-axis
+            (Point(0, 0, -1), 0.0), // Point well inside shadow of sphere on z-axis
+            (Point(5.0*tan(asin(1/4)) - 0.001, 0, 0), 0.0), // Point _just_ inside shadow of sphere
+            (Point(5.0*tan(asin(1/4)) + 0.001, 0, 0), 1.0), // Point _just_ outside shadow of sphere
+        ]
+        for (worldPoint, expectedIntensity) in testCases {
+            let actualIntensity = await world.intensity(spotLight, worldPoint)
             XCTAssertEqual(actualIntensity, expectedIntensity)
         }
     }
