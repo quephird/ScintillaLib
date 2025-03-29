@@ -166,11 +166,8 @@ extension Material {
             lightColor = lightColor.multiplyScalar(attenuation)
         }
 
-        // Combine the surface color with the light's color/intensity
-        var effectiveColor: Color = colorAt(object, point)
-        effectiveColor = effectiveColor.hadamard(lightColor)
-
-        // Compute the ambient contribution
+        let surfaceColor: Color = colorAt(object, point)
+        let effectiveColor = surfaceColor.hadamard(lightColor)
         let ambient = effectiveColor.multiplyScalar(self.properties.ambient)
 
         switch light {
@@ -194,6 +191,31 @@ extension Material {
             let specularAverage = specularSamples.divideScalar(Double(areaLight.samples))
 
             return ambient.add(diffuseAverage).add(specularAverage)
+        case var spotLight as SpotLight:
+            let lightToPoint = point.subtract(spotLight.position)
+            let angle = spotLight.direction.angle(lightToPoint)
+
+            if angle < spotLight.beamAngle {
+                let (diffuse, specular) = self.calculateDiffuseAndSpecular(spotLight.position, lightColor, point, effectiveColor, eye, normal, intensity)
+                return ambient.add(diffuse).add(specular)
+            } else if angle < spotLight.falloffAngle {
+                // Formula below taken from:
+                //
+                //    http://doc.51windows.net/Directx9_SDK/?url=/Directx9_SDK/graphics/programmingguide/fixedfunction/lightsandmaterials/spotlightmodel.htm
+                let numerator = cos(angle) - cos(spotLight.falloffAngle)
+                let denominator = cos(spotLight.beamAngle) - cos(spotLight.falloffAngle)
+                let adjustedIntensity = pow(numerator/denominator, spotLight.tightness) * intensity
+                lightColor = lightColor.multiplyScalar(adjustedIntensity)
+
+                // NOTA BENE: In this case we need to compute effective color
+                // based on the adjusted value of lightColor
+                let effectiveColor = surfaceColor.hadamard(lightColor)
+
+                let (diffuse, specular) = self.calculateDiffuseAndSpecular(spotLight.position, lightColor, point, effectiveColor, eye, normal, adjustedIntensity)
+                return ambient.add(diffuse).add(specular)
+            }
+
+            return ambient
         default:
             fatalError("Whoops... encountered unsupported light implementation")
         }
