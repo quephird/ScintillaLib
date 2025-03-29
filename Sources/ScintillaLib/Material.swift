@@ -167,17 +167,14 @@ extension Material {
         }
 
         let surfaceColor: Color = colorAt(object, point)
-        let ambient = surfaceColor.multiplyScalar(self.properties.ambient)
+        let effectiveColor = surfaceColor.hadamard(lightColor)
+        let ambient = effectiveColor.multiplyScalar(self.properties.ambient)
 
         switch light {
         case let pointLight as PointLight:
-            let effectiveColor = surfaceColor.hadamard(lightColor)
-
             let (diffuse, specular) = self.calculateDiffuseAndSpecular(pointLight.position, lightColor, point, effectiveColor, eye, normal, intensity)
             return ambient.add(diffuse).add(specular)
         case var areaLight as AreaLight:
-            let effectiveColor = surfaceColor.hadamard(lightColor)
-
             var diffuseSamples: Color = .black
             var specularSamples: Color = .black
 
@@ -199,8 +196,6 @@ extension Material {
             let angle = spotLight.direction.angle(lightToPoint)
 
             if angle < spotLight.beamAngle {
-                let effectiveColor = surfaceColor.hadamard(lightColor)
-
                 let (diffuse, specular) = self.calculateDiffuseAndSpecular(spotLight.position, lightColor, point, effectiveColor, eye, normal, intensity)
                 return ambient.add(diffuse).add(specular)
             } else if angle < spotLight.falloffAngle {
@@ -212,7 +207,10 @@ extension Material {
                 let adjustedIntensity = pow(numerator/denominator, spotLight.tightness) * intensity
                 lightColor = lightColor.multiplyScalar(adjustedIntensity)
 
+                // NOTA BENE: In this case we need to compute effective color
+                // based on the adjusted value of lightColor
                 let effectiveColor = surfaceColor.hadamard(lightColor)
+
                 let (diffuse, specular) = self.calculateDiffuseAndSpecular(spotLight.position, lightColor, point, effectiveColor, eye, normal, adjustedIntensity)
                 return ambient.add(diffuse).add(specular)
             }
