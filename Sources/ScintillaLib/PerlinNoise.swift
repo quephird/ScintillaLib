@@ -29,14 +29,28 @@ struct PerlinNoise {
 
     private var values: [Int] = Self.seedValues + Self.seedValues
 
+    // Smoothing function that 1) has a second derivative such that
+    // f''(0) == f''(1), which avoids discontinuities when using
+    // this function to generate 3D terrains, and 2) itself has
+    // range [0, 1] over the domain [0, 1].
     private func fade(t: Double) -> Double {
         return t * t * t * (t * (t * 6 - 15) + 10)
     }
 
+    // Returns the value between a and b that is t times the distance
+    // between them added to a, where t is a value in the range [0, 1].
     private func lerp(t: Double, a: Double, b: Double) -> Double {
         return a + t * (b - a)
     }
 
+    // This function effectively takes the dot product of the vector defined
+    // by (x, y, z) and one of twelve possible gradient vectors pseudorandomly
+    // selected by the last four bits of the hash parameter. Those gradient vectors
+    // are:
+    //
+    //     (1, 1, 0), (-1, 1, 0), (1, -1, 0), (-1, -1, 0),
+    //     (1, 0, 1), (-1, 0, 1), (1, 0, -1), (-1, 0, -1),
+    //     (0, 1, 1), (0, -1, 1), (0, 1, -1), (0, -1, -1)
     private func grad(hash: Int, x: Double, y: Double, z: Double) -> Double {
         let h = hash & 15
 
@@ -47,44 +61,49 @@ struct PerlinNoise {
     }
 
     public func noise(x: Double, y: Double, z: Double) -> Double {
-        // Find unit cube that contains point
-        let X = Int(floor(x)) & 255
-        let Y = Int(floor(y)) & 255
-        let Z = Int(floor(z)) & 255
+        // Map last eight bits of input x, y, and z values to
+        // a corner of a unit cube within one that is 256x256x256
+        let cubeX = Int(floor(x)) & 255
+        let cubeY = Int(floor(y)) & 255
+        let cubeZ = Int(floor(z)) & 255
 
-        // Find relative x, y, z of point in cube
-        let x = x - floor(x)
-        let y = y - floor(y)
-        let z = z - floor(z)
+        // ... then assign "random" values to each of the eight corners of that cube
+        let AAA = values[values[values[cubeX] + cubeY] + cubeZ]
+        let AAB = values[values[values[cubeX] + cubeY] + cubeZ+1]
+        let ABA = values[values[values[cubeX] + cubeY+1] + cubeZ]
+        let ABB = values[values[values[cubeX] + cubeY+1] + cubeZ+1]
+        let BAA = values[values[values[cubeX+1] + cubeY] + cubeZ]
+        let BAB = values[values[values[cubeX+1] + cubeY] + cubeZ+1]
+        let BBA = values[values[values[cubeX+1] + cubeY+1] + cubeZ]
+        let BBB = values[values[values[cubeX+1] + cubeY+1] + cubeZ+1]
 
-        // Compute fade curves for each of x, y, z
-        let u = fade(t: x)
-        let v = fade(t: y)
-        let w = fade(t: z)
+        // Get fractional part of x, y, z of point in cube
+        let fractX = x - floor(x)
+        let fractY = y - floor(y)
+        let fractZ = z - floor(z)
 
-        // Hash coordinates of the eight cube corners...
-        let A = values[X] + Y
-        let AA = values[A] + Z
-        let AB = values[A+1] + Z
-        let B = values[X+1] + Y
-        let BA = values[B] + Z
-        let BB = values[B+1] + Z
+        // ... then compute the interpolation values for those fractional values
+        let u = fade(t: fractX)
+        let v = fade(t: fractY)
+        let w = fade(t: fractZ)
 
-        // ... and add blended results from 8 corners of cube
+        // ... and then finally compute an average value for the set of eight points
+        // by first averaging values for each of the four pairs of edges, then for the
+        // two pairs of those values, then for the final pair.
         return lerp(t: w,
                     a: lerp(t: v,
                             a: lerp(t: u,
-                                    a: grad(hash: values[AA], x: x, y: y, z: z),
-                                    b: grad(hash: values[BA], x: x-1, y: y, z: z)),
+                                    a: grad(hash: AAA, x: fractX, y: fractY, z: fractZ),
+                                    b: grad(hash: BAA, x: fractX-1, y: fractY, z: fractZ)),
                             b: lerp(t: u,
-                                    a: grad(hash: values[AB], x: x, y: y-1, z: z),
-                                    b: grad(hash: values[BB], x: x-1, y: y-1, z: z))),
+                                    a: grad(hash: ABA, x: fractX, y: fractY-1, z: fractZ),
+                                    b: grad(hash: BBA, x: fractX-1, y: fractY-1, z: fractZ))),
                     b: lerp(t: v,
                             a: lerp(t: u,
-                                    a: grad(hash: values[AA+1], x: x, y: y, z: z-1),
-                                    b: grad(hash: values[BA+1], x: x-1, y: y, z: z-1)),
+                                    a: grad(hash: AAB, x: fractX, y: fractY, z: fractZ-1),
+                                    b: grad(hash: BAB, x: fractX-1, y: fractY, z: fractZ-1)),
                             b: lerp(t: u,
-                                    a: grad(hash: values[AB+1], x: x, y: y-1, z: z-1),
-                                    b: grad(hash: values[BB+1], x: x-1, y: y-1, z: z-1))))
+                                    a: grad(hash: ABB, x: fractX, y: fractY-1, z: fractZ-1),
+                                    b: grad(hash: BBB, x: fractX-1, y: fractY-1, z: fractZ-1))))
     }
 }
