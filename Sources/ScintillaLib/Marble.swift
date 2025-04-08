@@ -24,20 +24,32 @@ final public class Marble: Pattern {
         return .init(firstColor, secondColor, transform, properties: properties)
     }
 
-    public override func colorAt(_ patternPoint: Tuple4) -> Color {
-        var noiseCoef: Double = 0.0
+    // Code adapted from the following Web site:
+    //
+    //    https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/procedural-patterns-noise-part-1/simple-pattern-examples.html
+    private func turbulence(_ patternPoint: Tuple4, numLayers: Int) -> Double {
+        let frequencyMultiplier = 2.0
+        let amplitudeMultiplier = 0.5
 
-        for level in 1..<10 {
-            let noise = perlin.noise(x: 0.05 * Double(level) * patternPoint.x,
-                                     y: 0.15 * Double(level) * patternPoint.y,
-                                     z: 0.05 * Double(level) * patternPoint.z)
+        var noisePoint = Point(patternPoint.x, patternPoint.y, patternPoint.z)
+        var amplitude = 2.0
+        var value = 0.0
 
-            noiseCoef += (1.0 / Double(level)) * abs(noise)
+        for _ in 0..<numLayers {
+            value += perlin.noise(x: noisePoint.x, y: noisePoint.y, z: noisePoint.z) * amplitude
+            noisePoint = Point(noisePoint.x * frequencyMultiplier,
+                           noisePoint.y * frequencyMultiplier,
+                           noisePoint.z * frequencyMultiplier)
+            amplitude *= amplitudeMultiplier
         }
 
-        noiseCoef = 0.5 * sin(0.01*(patternPoint.x + patternPoint.y) + noiseCoef) + 0.5
+        return value
+    }
 
-        let color = self.firstColor.multiplyScalar(noiseCoef).add(self.secondColor.multiplyScalar(1.0 - noiseCoef))
+    public override func colorAt(_ patternPoint: Tuple4) -> Color {
+        let turbulenceValue = self.turbulence(patternPoint, numLayers: 5)
+        let noiseValue = (sin((patternPoint.x + turbulenceValue * 100.0) * 2.0 * PI / 200.0) + 1) / 2.0
+        let color = self.firstColor.multiplyScalar(noiseValue).add(self.secondColor.multiplyScalar(1.0 - noiseValue))
         return color
     }
 }
