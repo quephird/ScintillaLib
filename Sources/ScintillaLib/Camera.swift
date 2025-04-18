@@ -33,13 +33,7 @@ public struct Camera: Equatable {
         self.from = from
         self.to = to
         self.up = up
-
         let viewTransform = Matrix4.view(from, to, up)
-//        self.init(width: horizontalSize,
-//                  height: verticalSize,
-//                  viewAngle: fieldOfView,
-//                  viewTransform: viewTransform,
-//                  antialiasing: antialiasing)
 
         self.horizontalSize = horizontalSize
         self.verticalSize = verticalSize
@@ -97,35 +91,36 @@ public struct Camera: Equatable {
         return copy
     }
 
-//    public init(width horizontalSize: Int,
-//                height verticalSize: Int,
-//                viewAngle fieldOfView: Double,
-//                viewTransform: Matrix4,
-//                antialiasing: Bool = false) {
-//        self.horizontalSize = horizontalSize
-//        self.verticalSize = verticalSize
-//        self.fieldOfView = fieldOfView
-//        self.viewTransform = viewTransform
-//        self.inverseViewTransform = viewTransform.inverse()
-//
-//        let halfView = tan(fieldOfView/2)
-//        let aspectRatio = Double(horizontalSize) / Double(verticalSize)
-//        var halfWidth: Double
-//        var halfHeight: Double
-//        if aspectRatio >= 1 {
-//            halfWidth = halfView
-//            halfHeight = halfView / aspectRatio
-//        } else {
-//            halfWidth = halfView * aspectRatio
-//            halfHeight = halfView
-//        }
-//        let pixelSize = halfWidth * 2.0 / Double(horizontalSize)
-//
-//        self.halfWidth = halfWidth
-//        self.halfHeight = halfHeight
-//        self.pixelSize = pixelSize
-//        self.antialiasing = antialiasing
-//    }
+    @_spi(Testing) public func rayForPixel(_ pixelX: Int,
+                                           _ pixelY: Int,
+                                           _ dx: Double = 0.5,
+                                           _ dy: Double = 0.5,
+                                           _ originDx: Double = 0.0,
+                                           _ originDy: Double = 0.0) -> Ray {
+        // The offset from the edge of the canvas to the pixel's center
+        let offsetX = (Double(pixelX) + dx) * self.pixelSize
+        let offsetY = (Double(pixelY) + dy) * self.pixelSize
+
+        // The untransformed coordinates of the pixel in world space.
+        // (Remember that the camera looks toward -z, so +x is to the *left*.)
+        let worldX = self.halfWidth - offsetX
+        let worldY = self.halfHeight - offsetY
+
+        // Using the camera matrix, transform the canvas point and the origin,
+        // and then compute the ray's direction vector.
+        // (Remember that the canvas is at z=-1)
+        let worldZ: Double
+        if let focalBlur = self.focalBlur {
+            worldZ = -focalBlur.focalDistance
+        } else {
+            worldZ = -1
+        }
+        let pixel = self.inverseViewTransform.multiply(Point(worldX, worldY, worldZ))
+        let origin = self.inverseViewTransform.multiply(Point(originDx, originDy, 0))
+        let direction = pixel.subtract(origin).normalize()
+
+        return Ray(origin, direction)
+    }
 
     public static func == (lhs: Camera, rhs: Camera) -> Bool {
         return (lhs.horizontalSize == rhs.horizontalSize) &&

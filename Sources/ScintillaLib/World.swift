@@ -244,37 +244,6 @@ public actor World {
         }
     }
 
-    @_spi(Testing) public func rayForPixel(_ pixelX: Int,
-                                           _ pixelY: Int,
-                                           _ dx: Double = 0.5,
-                                           _ dy: Double = 0.5,
-                                           _ originDx: Double = 0.0,
-                                           _ originDy: Double = 0.0) -> Ray {
-        // The offset from the edge of the canvas to the pixel's center
-        let offsetX = (Double(pixelX) + dx) * self.camera.pixelSize
-        let offsetY = (Double(pixelY) + dy) * self.camera.pixelSize
-
-        // The untransformed coordinates of the pixel in world space.
-        // (Remember that the camera looks toward -z, so +x is to the *left*.)
-        let worldX = self.camera.halfWidth - offsetX
-        let worldY = self.camera.halfHeight - offsetY
-
-        // Using the camera matrix, transform the canvas point and the origin,
-        // and then compute the ray's direction vector.
-        // (Remember that the canvas is at z=-1)
-        let worldZ: Double
-        if let focalBlur = self.camera.focalBlur {
-            worldZ = -focalBlur.focalDistance
-        } else {
-            worldZ = -1
-        }
-        let pixel = self.camera.inverseViewTransform.multiply(Point(worldX, worldY, worldZ))
-        let origin = self.camera.inverseViewTransform.multiply(Point(originDx, originDy, 0))
-        let direction = pixel.subtract(origin).normalize()
-
-        return Ray(origin, direction)
-    }
-
     private func sendProgress(newPercentRendered: Double,
                               newElapsedTime: Range<Date>,
                               to updateClosure: @MainActor @escaping (Double, Range<Date>) -> Void) {
@@ -304,7 +273,7 @@ public actor World {
                         let originDx = cos(randomAngle) * randomRadius
                         let originDy = sin(randomAngle) * randomRadius
 
-                        let ray = self.rayForPixel(x, y, 0, 0, originDx, originDy)
+                        let ray = self.camera.rayForPixel(x, y, 0, 0, originDx, originDy)
                         let colorSample = await self.colorAt(ray, MAX_RECURSIVE_CALLS)
                         colorSamples = colorSamples.add(colorSample)
                     }
@@ -323,7 +292,7 @@ public actor World {
                             let jitterY = Double.random(in: 0.0...subpixelHeight)
                             let dx = Double(i)*subpixelWidth + jitterX
                             let dy = Double(j)*subpixelHeight + jitterY
-                            let ray = self.rayForPixel(x, y, dx, dy)
+                            let ray = self.camera.rayForPixel(x, y, dx, dy)
                             let colorSample = await self.colorAt(ray, MAX_RECURSIVE_CALLS)
                             colorSamples = colorSamples.add(colorSample)
                         }
@@ -332,7 +301,7 @@ public actor World {
                     let totalSamples = subpixelSamplesX*subpixelSamplesX
                     color = colorSamples.divideScalar(Double(totalSamples))
                 } else {
-                    let ray = self.rayForPixel(x, y)
+                    let ray = self.camera.rayForPixel(x, y)
                     color = await self.colorAt(ray, MAX_RECURSIVE_CALLS)
                 }
 
