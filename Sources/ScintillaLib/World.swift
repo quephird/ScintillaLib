@@ -244,7 +244,12 @@ public actor World {
         }
     }
 
-    @_spi(Testing) public func rayForPixel(_ pixelX: Int, _ pixelY: Int, _ dx: Double = 0.5, _ dy: Double = 0.5) -> Ray {
+    @_spi(Testing) public func rayForPixel(_ pixelX: Int,
+                                           _ pixelY: Int,
+                                           _ dx: Double = 0.5,
+                                           _ dy: Double = 0.5,
+                                           _ originDx: Double = 0.0,
+                                           _ originDy: Double = 0.0) -> Ray {
         // The offset from the edge of the canvas to the pixel's center
         let offsetX = (Double(pixelX) + dx) * self.camera.pixelSize
         let offsetY = (Double(pixelY) + dy) * self.camera.pixelSize
@@ -257,8 +262,14 @@ public actor World {
         // Using the camera matrix, transform the canvas point and the origin,
         // and then compute the ray's direction vector.
         // (Remember that the canvas is at z=-1)
-        let pixel = self.camera.inverseViewTransform.multiply(Point(worldX, worldY, -1))
-        let origin = self.camera.inverseViewTransform.multiply(Point(0, 0, 0))
+        let worldZ: Double
+        if let focalBlur = self.camera.focalBlur {
+            worldZ = -focalBlur.focalDistance
+        } else {
+            worldZ = -1
+        }
+        let pixel = self.camera.inverseViewTransform.multiply(Point(worldX, worldY, worldZ))
+        let origin = self.camera.inverseViewTransform.multiply(Point(originDx, originDy, 0))
         let direction = pixel.subtract(origin).normalize()
 
         return Ray(origin, direction)
@@ -284,7 +295,22 @@ public actor World {
             for x in 0..<self.camera.horizontalSize {
                 let color: Color
 
-                if self.camera.antialiasing {
+                if let focalBlur = camera.focalBlur {
+                    var colorSamples: Color = .black
+
+                    for _ in 0..<focalBlur.samples {
+                        let randomRadius = Double.random(in: 0..<focalBlur.aperture)
+                        let randomAngle = Double.random(in: 0..<2*PI)
+                        let originDx = cos(randomAngle) * randomRadius
+                        let originDy = sin(randomAngle) * randomRadius
+
+                        let ray = self.rayForPixel(x, y, 0, 0, originDx, originDy)
+                        let colorSample = await self.colorAt(ray, MAX_RECURSIVE_CALLS)
+                        colorSamples = colorSamples.add(colorSample)
+                    }
+
+                    color = colorSamples.divideScalar(Double(focalBlur.samples))
+                } else if self.camera.antialiasing {
                     let subpixelSamplesX = 4
                     let subpixelSamplesY = 4
 
@@ -309,6 +335,7 @@ public actor World {
                     let ray = self.rayForPixel(x, y)
                     color = await self.colorAt(ray, MAX_RECURSIVE_CALLS)
                 }
+
                 canvas.setPixel(x, y, color)
                 renderedPixels += 1
             }
