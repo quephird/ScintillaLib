@@ -8,6 +8,10 @@
 import Foundation
 
 public struct Camera: Equatable {
+    var from: Point
+    var to: Point
+    var up: Vector
+
     var horizontalSize: Int
     var verticalSize: Int
     var fieldOfView: Double
@@ -17,6 +21,7 @@ public struct Camera: Equatable {
     var halfHeight: Double
     @_spi(Testing) public var pixelSize: Double
     var antialiasing: Bool
+    public var focalBlur: FocalBlur?
 
     public init(width horizontalSize: Int,
                 height verticalSize: Int,
@@ -25,19 +30,11 @@ public struct Camera: Equatable {
                 to: Point,
                 up: Vector,
                 antialiasing: Bool = false) {
+        self.from = from
+        self.to = to
+        self.up = up
         let viewTransform = Matrix4.view(from, to, up)
-        self.init(width: horizontalSize,
-                  height: verticalSize,
-                  viewAngle: fieldOfView,
-                  viewTransform: viewTransform,
-                  antialiasing: antialiasing)
-    }
 
-    public init(width horizontalSize: Int,
-                height verticalSize: Int,
-                viewAngle fieldOfView: Double,
-                viewTransform: Matrix4,
-                antialiasing: Bool = false) {
         self.horizontalSize = horizontalSize
         self.verticalSize = verticalSize
         self.fieldOfView = fieldOfView
@@ -63,6 +60,107 @@ public struct Camera: Equatable {
         self.antialiasing = antialiasing
     }
 
+    public func focalBlur(_ focalBlur: FocalBlur) -> Self {
+        var copy = self
+        copy.focalBlur = focalBlur
+
+        let focalVector = to.subtract(from)
+        let focalPoint = from.add(focalVector.multiply(focalBlur.focalDistance/focalVector.magnitude()))
+        let viewTransform = Matrix4.view(from, focalPoint, up)
+
+        copy.viewTransform = viewTransform
+        copy.inverseViewTransform = viewTransform.inverse()
+
+        let halfView = focalBlur.focalDistance * tan(self.fieldOfView/2)
+        let aspectRatio = Double(self.horizontalSize) / Double(self.verticalSize)
+        var halfWidth: Double
+        var halfHeight: Double
+        if aspectRatio >= 1 {
+            halfWidth = halfView
+            halfHeight = halfView / aspectRatio
+        } else {
+            halfWidth = halfView * aspectRatio
+            halfHeight = halfView
+        }
+        let pixelSize = halfWidth * 2.0 / Double(horizontalSize)
+
+        copy.halfWidth = halfWidth
+        copy.halfHeight = halfHeight
+        copy.pixelSize = pixelSize
+
+        return copy
+    }
+
+    @_spi(Testing) public func rayForPixel(_ x: Int,
+                                           _ y: Int,
+                                           _ pixelDx: Double = 0.5,
+                                           _ pixelDy: Double = 0.5,
+                                           _ originDx: Double = 0.0,
+                                           _ originDy: Double = 0.0) -> Ray {
+        // The offset from the edge of the canvas to the pixel's center
+        let offsetX = (Double(x) + pixelDx) * self.pixelSize
+        let offsetY = (Double(y) + pixelDy) * self.pixelSize
+
+        // The untransformed coordinates of the pixel in world space.
+        // (Remember that the camera looks toward -z, so +x is to the *left*.)
+        let worldX = self.halfWidth - offsetX
+        let worldY = self.halfHeight - offsetY
+
+        // Using the camera matrix, transform the canvas point and the origin,
+        // and then compute the ray's direction vector.
+        // (Remember that the canvas is at z=-1)
+        let worldZ: Double
+        if let focalBlur = self.focalBlur {
+            worldZ = -focalBlur.focalDistance
+        } else {
+            worldZ = -1
+        }
+        let pixel = self.inverseViewTransform.multiply(Point(worldX, worldY, worldZ))
+        let origin = self.inverseViewTransform.multiply(Point(originDx, originDy, 0))
+        let direction = pixel.subtract(origin).normalize()
+
+        return Ray(origin, direction)
+    }
+
+    public func raysForPixel(x: Int, y: Int) -> [Ray] {
+        let pixelDeltas: [(Double, Double)] = if self.antialiasing {
+            // NOTA BENE: The number of samples for each dimension is hardcoded below
+            [0, 1, 2, 3].map { i in
+                [0, 1, 2, 3].map { j in
+                    let jitterX = Double.random(in: 0.0...0.25)
+                    let jitterY = Double.random(in: 0.0...0.25)
+                    let dx = Double(i)*0.25 + jitterX
+                    let dy = Double(j)*0.25 + jitterY
+                    return (dx, dy)
+                }
+            }.flatMap{ $0 }
+        } else {
+            [(0.0, 0.0)]
+        }
+
+        let originDeltas: [(Double, Double)] = if let focalBlur = self.focalBlur {
+            (0..<focalBlur.samples).map { _ in
+                let randomRadius = Double.random(in: 0..<focalBlur.aperture)
+                let randomAngle = Double.random(in: 0..<2*PI)
+                let originDx = cos(randomAngle) * randomRadius
+                let originDy = sin(randomAngle) * randomRadius
+                return (originDx, originDy)
+            }
+        } else {
+            [(0.0, 0.0)]
+        }
+
+        var rays: [Ray] = []
+        for (originDx, originDy) in originDeltas {
+            for (pixelDx, pixelDy) in pixelDeltas {
+                let ray = self.rayForPixel(x, y, pixelDx, pixelDy, originDx, originDy)
+                rays.append(ray)
+            }
+        }
+
+        return rays
+    }
+
     public static func == (lhs: Camera, rhs: Camera) -> Bool {
         return (lhs.horizontalSize == rhs.horizontalSize) &&
                (lhs.verticalSize == rhs.verticalSize) &&
@@ -71,6 +169,7 @@ public struct Camera: Equatable {
                (lhs.inverseViewTransform == rhs.inverseViewTransform) &&
                (lhs.halfWidth == rhs.halfWidth) &&
                (lhs.halfHeight == rhs.halfHeight) &&
-               (lhs.antialiasing == rhs.antialiasing)
+               (lhs.antialiasing == rhs.antialiasing) &&
+               (lhs.focalBlur == rhs.focalBlur)
     }
 }

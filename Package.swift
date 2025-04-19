@@ -116,5 +116,9 @@ let package = Package(
             name: "CheckeredSphere",
             dependencies: ["ScintillaLib"],
             path: "Examples/CheckeredSphere"),
+        .executableTarget(
+            name: "FocalBlur",
+            dependencies: ["ScintillaLib"],
+            path: "Examples/FocalBlur"),
     ]
 )
