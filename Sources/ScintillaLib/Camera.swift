@@ -91,15 +91,15 @@ public struct Camera: Equatable {
         return copy
     }
 
-    @_spi(Testing) public func rayForPixel(_ pixelX: Int,
-                                           _ pixelY: Int,
-                                           _ dx: Double = 0.5,
-                                           _ dy: Double = 0.5,
+    @_spi(Testing) public func rayForPixel(_ x: Int,
+                                           _ y: Int,
+                                           _ pixelDx: Double = 0.5,
+                                           _ pixelDy: Double = 0.5,
                                            _ originDx: Double = 0.0,
                                            _ originDy: Double = 0.0) -> Ray {
         // The offset from the edge of the canvas to the pixel's center
-        let offsetX = (Double(pixelX) + dx) * self.pixelSize
-        let offsetY = (Double(pixelY) + dy) * self.pixelSize
+        let offsetX = (Double(x) + pixelDx) * self.pixelSize
+        let offsetY = (Double(y) + pixelDy) * self.pixelSize
 
         // The untransformed coordinates of the pixel in world space.
         // (Remember that the camera looks toward -z, so +x is to the *left*.)
@@ -120,6 +120,45 @@ public struct Camera: Equatable {
         let direction = pixel.subtract(origin).normalize()
 
         return Ray(origin, direction)
+    }
+
+    public func raysForPixel(x: Int, y: Int) -> [Ray] {
+        let pixelDeltas: [(Double, Double)] = if self.antialiasing {
+            // NOTA BENE: The number of samples for each dimension is hardcoded below
+            [0, 1, 2, 3].map { i in
+                [0, 1, 2, 3].map { j in
+                    let jitterX = Double.random(in: 0.0...0.25)
+                    let jitterY = Double.random(in: 0.0...0.25)
+                    let dx = Double(i)*0.25 + jitterX
+                    let dy = Double(j)*0.25 + jitterY
+                    return (dx, dy)
+                }
+            }.flatMap{ $0 }
+        } else {
+            [(0.0, 0.0)]
+        }
+
+        let originDeltas: [(Double, Double)] = if let focalBlur = self.focalBlur {
+            (0..<focalBlur.samples).map { _ in
+                let randomRadius = Double.random(in: 0..<focalBlur.aperture)
+                let randomAngle = Double.random(in: 0..<2*PI)
+                let originDx = cos(randomAngle) * randomRadius
+                let originDy = sin(randomAngle) * randomRadius
+                return (originDx, originDy)
+            }
+        } else {
+            [(0.0, 0.0)]
+        }
+
+        var rays: [Ray] = []
+        for (originDx, originDy) in originDeltas {
+            for (pixelDx, pixelDy) in pixelDeltas {
+                let ray = self.rayForPixel(x, y, pixelDx, pixelDy, originDx, originDy)
+                rays.append(ray)
+            }
+        }
+
+        return rays
     }
 
     public static func == (lhs: Camera, rhs: Camera) -> Bool {

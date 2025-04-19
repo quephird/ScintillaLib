@@ -262,49 +262,15 @@ public actor World {
         var canvas = Canvas(self.camera.horizontalSize, self.camera.verticalSize)
         for y in 0..<self.camera.verticalSize {
             for x in 0..<self.camera.horizontalSize {
-                let color: Color
+                var colorSamples: Color = .black
 
-                if let focalBlur = camera.focalBlur {
-                    var colorSamples: Color = .black
-
-                    for _ in 0..<focalBlur.samples {
-                        let randomRadius = Double.random(in: 0..<focalBlur.aperture)
-                        let randomAngle = Double.random(in: 0..<2*PI)
-                        let originDx = cos(randomAngle) * randomRadius
-                        let originDy = sin(randomAngle) * randomRadius
-
-                        let ray = self.camera.rayForPixel(x, y, 0, 0, originDx, originDy)
-                        let colorSample = await self.colorAt(ray, MAX_RECURSIVE_CALLS)
-                        colorSamples = colorSamples.add(colorSample)
-                    }
-
-                    color = colorSamples.divideScalar(Double(focalBlur.samples))
-                } else if self.camera.antialiasing {
-                    let subpixelSamplesX = 4
-                    let subpixelSamplesY = 4
-
-                    var colorSamples: Color = .black
-                    for i in 0..<subpixelSamplesX {
-                        for j in 0..<subpixelSamplesY {
-                            let subpixelWidth = 1.0/Double(subpixelSamplesX)
-                            let subpixelHeight = 1.0/Double(subpixelSamplesY)
-                            let jitterX = Double.random(in: 0.0...subpixelWidth)
-                            let jitterY = Double.random(in: 0.0...subpixelHeight)
-                            let dx = Double(i)*subpixelWidth + jitterX
-                            let dy = Double(j)*subpixelHeight + jitterY
-                            let ray = self.camera.rayForPixel(x, y, dx, dy)
-                            let colorSample = await self.colorAt(ray, MAX_RECURSIVE_CALLS)
-                            colorSamples = colorSamples.add(colorSample)
-                        }
-                    }
-
-                    let totalSamples = subpixelSamplesX*subpixelSamplesX
-                    color = colorSamples.divideScalar(Double(totalSamples))
-                } else {
-                    let ray = self.camera.rayForPixel(x, y)
-                    color = await self.colorAt(ray, MAX_RECURSIVE_CALLS)
+                let rays = self.camera.raysForPixel(x: x, y: y)
+                for ray in rays {
+                    let colorSample = await self.colorAt(ray, MAX_RECURSIVE_CALLS)
+                    colorSamples = colorSamples.add(colorSample)
                 }
 
+                let color = colorSamples.divideScalar(Double(rays.count))
                 canvas.setPixel(x, y, color)
                 renderedPixels += 1
             }
