@@ -123,9 +123,26 @@ public struct Camera: Equatable {
     }
 
     public func raysForPixel(x: Int, y: Int) -> [Ray] {
-        let pixelDeltas: [(Double, Double)] = if self.antialiasing {
+        if let focalBlur = self.focalBlur {
+            let originDeltas: [(Double, Double)] = (0..<focalBlur.samples).map { _ in
+                let randomRadius = Double.random(in: 0..<focalBlur.aperture)
+                let randomAngle = Double.random(in: 0..<2*PI)
+                let originDx = cos(randomAngle) * randomRadius
+                let originDy = sin(randomAngle) * randomRadius
+                return (originDx, originDy)
+            }
+
+            let rays = originDeltas.map { (originDx, originDy) in
+                let pixelDx = Double.random(in: 0.0...1.0)
+                let pixelDy = Double.random(in: 0.0...1.0)
+                let ray = self.rayForPixel(x, y, pixelDx, pixelDy, originDx, originDy)
+                return ray
+            }
+
+            return rays
+        } else if self.antialiasing {
             // NOTA BENE: The number of samples for each dimension is hardcoded below
-            [0, 1, 2, 3].map { i in
+            let pixelDeltas = [0, 1, 2, 3].map { i in
                 [0, 1, 2, 3].map { j in
                     let jitterX = Double.random(in: 0.0...0.25)
                     let jitterY = Double.random(in: 0.0...0.25)
@@ -134,31 +151,17 @@ public struct Camera: Equatable {
                     return (dx, dy)
                 }
             }.flatMap{ $0 }
-        } else {
-            [(0.0, 0.0)]
-        }
 
-        let originDeltas: [(Double, Double)] = if let focalBlur = self.focalBlur {
-            (0..<focalBlur.samples).map { _ in
-                let randomRadius = Double.random(in: 0..<focalBlur.aperture)
-                let randomAngle = Double.random(in: 0..<2*PI)
-                let originDx = cos(randomAngle) * randomRadius
-                let originDy = sin(randomAngle) * randomRadius
-                return (originDx, originDy)
+            let rays = pixelDeltas.map { (pixelDx, pixelDy) in
+                let ray = self.rayForPixel(x, y, pixelDx, pixelDy)
+                return ray
             }
+
+            return rays
         } else {
-            [(0.0, 0.0)]
+            let ray = self.rayForPixel(x, y)
+            return [ray]
         }
-
-        var rays: [Ray] = []
-        for (originDx, originDy) in originDeltas {
-            for (pixelDx, pixelDy) in pixelDeltas {
-                let ray = self.rayForPixel(x, y, pixelDx, pixelDy, originDx, originDy)
-                rays.append(ray)
-            }
-        }
-
-        return rays
     }
 
     public static func == (lhs: Camera, rhs: Camera) -> Bool {
