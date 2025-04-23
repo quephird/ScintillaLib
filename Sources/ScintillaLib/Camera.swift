@@ -20,70 +20,81 @@ public struct Camera: Equatable {
     var halfWidth: Double
     var halfHeight: Double
     @_spi(Testing) public var pixelSize: Double
-    var antialiasing: Bool
-    public var focalBlur: FocalBlur?
+    public var blurEffect: BlurEffect = .none
+
+    static func computeProperties(horizontalSize: Int,
+                                  verticalSize: Int,
+                                  halfView: Double) -> (Double, Double, Double) {
+        let aspectRatio = Double(horizontalSize) / Double(verticalSize)
+        let (halfWidth, halfHeight) = if aspectRatio >= 1 {
+            (halfView, halfView/aspectRatio)
+        } else {
+            (halfView * aspectRatio, halfView)
+        }
+        let pixelSize = halfWidth * 2.0 / Double(horizontalSize)
+
+        return (halfWidth, halfHeight, pixelSize)
+    }
 
     public init(width horizontalSize: Int,
                 height verticalSize: Int,
                 viewAngle fieldOfView: Double,
                 from: Point,
                 to: Point,
-                up: Vector,
-                antialiasing: Bool = false) {
+                up: Vector) {
         self.from = from
         self.to = to
         self.up = up
-        let viewTransform = Matrix4.view(from, to, up)
 
         self.horizontalSize = horizontalSize
         self.verticalSize = verticalSize
         self.fieldOfView = fieldOfView
+
+        let viewTransform = Matrix4.view(from, to, up)
         self.viewTransform = viewTransform
         self.inverseViewTransform = viewTransform.inverse()
 
-        let halfView = tan(fieldOfView/2)
-        let aspectRatio = Double(horizontalSize) / Double(verticalSize)
-        var halfWidth: Double
-        var halfHeight: Double
-        if aspectRatio >= 1 {
-            halfWidth = halfView
-            halfHeight = halfView / aspectRatio
-        } else {
-            halfWidth = halfView * aspectRatio
-            halfHeight = halfView
-        }
-        let pixelSize = halfWidth * 2.0 / Double(horizontalSize)
-
+        let (halfWidth, halfHeight, pixelSize) = Self.computeProperties(horizontalSize: horizontalSize,
+                                                                        verticalSize: verticalSize,
+                                                                        halfView: tan(fieldOfView/2))
         self.halfWidth = halfWidth
         self.halfHeight = halfHeight
         self.pixelSize = pixelSize
-        self.antialiasing = antialiasing
     }
 
-    public func focalBlur(_ focalBlur: FocalBlur) -> Self {
+    public func focalBlur(focalDistance: Double,
+                          aperture: Double,
+                          samples: Int) -> Self {
         var copy = self
-        copy.focalBlur = focalBlur
+        copy.blurEffect = .focalBlur(focalDistance, aperture, samples)
 
         let focalVector = to.subtract(from)
-        let focalPoint = from.add(focalVector.multiply(focalBlur.focalDistance/focalVector.magnitude()))
+        let focalPoint = from.add(focalVector.multiply(focalDistance/focalVector.magnitude()))
         let viewTransform = Matrix4.view(from, focalPoint, up)
-
         copy.viewTransform = viewTransform
         copy.inverseViewTransform = viewTransform.inverse()
 
-        let halfView = focalBlur.focalDistance * tan(self.fieldOfView/2)
-        let aspectRatio = Double(self.horizontalSize) / Double(self.verticalSize)
-        var halfWidth: Double
-        var halfHeight: Double
-        if aspectRatio >= 1 {
-            halfWidth = halfView
-            halfHeight = halfView / aspectRatio
-        } else {
-            halfWidth = halfView * aspectRatio
-            halfHeight = halfView
-        }
-        let pixelSize = halfWidth * 2.0 / Double(horizontalSize)
+        let (halfWidth, halfHeight, pixelSize) = Self.computeProperties(horizontalSize: horizontalSize,
+                                                                        verticalSize: verticalSize,
+                                                                        halfView: focalDistance * tan(fieldOfView/2))
+        copy.halfWidth = halfWidth
+        copy.halfHeight = halfHeight
+        copy.pixelSize = pixelSize
 
+        return copy
+    }
+
+    public func antialiasing() -> Self {
+        var copy = self
+        copy.blurEffect = .antialiasing
+
+        let viewTransform = Matrix4.view(copy.from, copy.to, copy.up)
+        copy.viewTransform = viewTransform
+        copy.inverseViewTransform = viewTransform.inverse()
+
+        let (halfWidth, halfHeight, pixelSize) = Self.computeProperties(horizontalSize: horizontalSize,
+                                                                        verticalSize: verticalSize,
+                                                                        halfView: tan(fieldOfView/2))
         copy.halfWidth = halfWidth
         copy.halfHeight = halfHeight
         copy.pixelSize = pixelSize
@@ -109,12 +120,13 @@ public struct Camera: Equatable {
         // Using the camera matrix, transform the canvas point and the origin,
         // and then compute the ray's direction vector.
         // (Remember that the canvas is at z=-1)
-        let worldZ: Double
-        if let focalBlur = self.focalBlur {
-            worldZ = -focalBlur.focalDistance
-        } else {
-            worldZ = -1
+        let worldZ: Double = switch self.blurEffect {
+        case .focalBlur(let focalDistance, _, _):
+            -focalDistance
+        default:
+            -1
         }
+
         let pixel = self.inverseViewTransform.multiply(Point(worldX, worldY, worldZ))
         let origin = self.inverseViewTransform.multiply(Point(originDx, originDy, 0))
         let direction = pixel.subtract(origin).normalize()
@@ -123,9 +135,10 @@ public struct Camera: Equatable {
     }
 
     public func raysForPixel(x: Int, y: Int) -> [Ray] {
-        if let focalBlur = self.focalBlur {
-            let originDeltas: [(Double, Double)] = (0..<focalBlur.samples).map { _ in
-                let randomRadius = Double.random(in: 0..<focalBlur.aperture)
+        switch self.blurEffect {
+        case .focalBlur(_, let aperture, let samples):
+            let originDeltas: [(Double, Double)] = (0..<samples).map { _ in
+                let randomRadius = Double.random(in: 0..<aperture)
                 let randomAngle = Double.random(in: 0..<2*PI)
                 let originDx = cos(randomAngle) * randomRadius
                 let originDy = sin(randomAngle) * randomRadius
@@ -140,8 +153,7 @@ public struct Camera: Equatable {
             }
 
             return rays
-        } else if self.antialiasing {
-            // NOTA BENE: The number of samples for each dimension is hardcoded below
+        case .antialiasing:
             let pixelDeltas = [0, 1, 2, 3].map { i in
                 [0, 1, 2, 3].map { j in
                     let jitterX = Double.random(in: 0.0...0.25)
@@ -158,7 +170,7 @@ public struct Camera: Equatable {
             }
 
             return rays
-        } else {
+        default:
             let ray = self.rayForPixel(x, y)
             return [ray]
         }
@@ -172,7 +184,6 @@ public struct Camera: Equatable {
                (lhs.inverseViewTransform == rhs.inverseViewTransform) &&
                (lhs.halfWidth == rhs.halfWidth) &&
                (lhs.halfHeight == rhs.halfHeight) &&
-               (lhs.antialiasing == rhs.antialiasing) &&
-               (lhs.focalBlur == rhs.focalBlur)
+               (lhs.blurEffect == rhs.blurEffect)
     }
 }

@@ -18,10 +18,9 @@ struct FocalBlurExample: ScintillaApp {
             from: Point(0, 6, -8),
             to: Point(0, 0, 0),
             up: Vector(0, 1, 0))
-        .focalBlur(FocalBlur(
-            focalDistance: 10.0,
-            aperture: 0.2,
-            samples: 50))
+        .focalBlur(focalDistance: 10.0,
+                   aperture: 0.2,
+                   samples: 50)
         PointLight(position: Point(-10, 10, -10))
         Sphere()
             .material(.uniform(1, 0, 0))
