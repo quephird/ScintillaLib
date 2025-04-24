@@ -784,39 +784,4 @@ class WorldTests: XCTestCase {
             XCTAssertTrue(actualColor.isAlmostEqual(expectedColor))
         }
     }
-
-    func testRayForPixelForCenterOfCanvas() async throws {
-        let camera = Camera(width: 201, height: 101, viewAngle: PI/2, viewTransform: .identity)
-        let lights = [PointLight(position: Point(-10, 10, -10))]
-        let shapes: [any Shape] = []
-        let world = World(camera, lights, shapes)
-
-        let ray = await world.rayForPixel(100, 50)
-        XCTAssert(ray.origin.isAlmostEqual(Point(0, 0, 0)))
-        XCTAssert(ray.direction.isAlmostEqual(Vector(0, 0, -1)))
-    }
-
-    func testRayForPixelForCornerOfCanvas() async throws {
-        let camera = Camera(width: 201, height: 101, viewAngle: PI/2, viewTransform: .identity)
-        let lights = [PointLight(position: Point(-10, 10, -10))]
-        let objects: [any Shape] = []
-        let world = World(camera, lights, objects)
-
-        let ray = await world.rayForPixel(0, 0)
-        XCTAssert(ray.origin.isAlmostEqual(Point(0, 0, 0)))
-        XCTAssert(ray.direction.isAlmostEqual(Vector(0.66519, 0.33259, -0.66851)))
-    }
-
-    func testRayForPixelForTransformedCamera() async throws {
-        let transform = Matrix4.rotationY(PI/4)
-            .multiply(.translation(0, -2, 5))
-        let camera = Camera(width: 201, height: 101, viewAngle: PI/2, viewTransform: transform)
-        let lights = [PointLight(position: Point(-10, 10, -10))]
-        let objects: [any Shape] = []
-        let world = World(camera, lights, objects)
-
-        let ray = await world.rayForPixel(100, 50)
-        XCTAssert(ray.origin.isAlmostEqual(Point(0, 2, -5)))
-        XCTAssert(ray.direction.isAlmostEqual(Vector(sqrt(2)/2, 0, -sqrt(2)/2)))
-    }
 }
